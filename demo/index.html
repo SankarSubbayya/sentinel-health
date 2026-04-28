@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Health - Clinical Decision Support Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 2em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-section {
+            padding: 30px;
+            border-right: 1px solid #eee;
+        }
+
+        .output-section {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1em;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-diagnose {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-diagnose:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-triage {
+            background: #ffa500;
+            color: white;
+        }
+
+        .btn-triage:hover {
+            background: #ff8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 165, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .triage-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .triage-red {
+            background: #ff4444;
+            color: white;
+        }
+
+        .triage-yellow {
+            background: #ffb300;
+            color: white;
+        }
+
+        .triage-green {
+            background: #4caf50;
+            color: white;
+        }
+
+        .diagnosis-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .diagnosis-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .diagnosis-item p {
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .confidence {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #0066cc;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .safety-alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .safety-alert.danger {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .safety-alert h3 {
+            color: inherit;
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .disclaimer {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            line-height: 1.6;
+        }
+
+        .error-box {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .input-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+
+            .output-section {
+                max-height: none;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Sentinel Health</h1>
+            <p>Clinical Decision Support for Community Health Workers</p>
+        </div>
+
+        <div class="main">
+            <div class="input-section">
+                <form id="symptomForm">
+                    <div class="form-group">
+                        <label for="symptoms">Patient Symptoms *</label>
+                        <textarea
+                            id="symptoms"
+                            placeholder="Describe patient symptoms (e.g., 'Chest pain, shortness of breath for 2 hours, sweating, 55-year-old male with hypertension')"
+                            required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="context">Patient Context (Optional)</label>
+                        <input
+                            type="text"
+                            id="context"
+                            placeholder="e.g., Age, sex, known conditions, medications">
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn-diagnose" onclick="diagnose()">
+                            Differential Diagnosis
+                        </button>
+                        <button type="button" class="btn-triage" onclick="triage()">
+                            Quick Triage
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="output-section" id="output">
+                <h2>Results</h2>
+                <p style="color: #999;">Enter symptoms and click a button to get results...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function diagnose() {
+            const symptoms = document.getElementById('symptoms').value.trim();
+            const context = document.getElementById('context').value.trim();
+
+            if (!symptoms) {
+                alert('Please enter symptoms');
+                return;
+            }
+
+            await callAPI('/api/v1/diagnose', { symptoms, patient_context: context });
+        }
+
+        async function triage() {
+            const symptoms = document.getElementById('symptoms').value.trim();
+
+            if (!symptoms) {
+                alert('Please enter symptoms');
+                return;
+            }
+
+            await callAPI('/api/v1/triage', { symptoms });
+        }
+
+        async function callAPI(endpoint, payload) {
+            const output = document.getElementById('output');
+            const buttons = document.querySelectorAll('button');
+
+            buttons.forEach(btn => btn.disabled = true);
+            output.innerHTML = '<div class="loading"><div class="spinner"></div> Processing...</div>';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data, endpoint);
+            } catch (error) {
+                output.innerHTML = `<div class="error-box">Error: ${error.message}</div>`;
+            } finally {
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        function displayResults(data, endpoint) {
+            const output = document.getElementById('output');
+            let html = '<h2>Results</h2>';
+
+            if (data.error) {
+                html += `<div class="error-box">Error: ${data.error}</div>`;
+            }
+
+            const triage = data.triage_level || 'YELLOW';
+            const triageClass = {
+                'RED': 'triage-red',
+                'YELLOW': 'triage-yellow',
+                'GREEN': 'triage-green'
+            }[triage] || 'triage-yellow';
+
+            html += `<div class="triage-badge ${triageClass}">Triage: ${triage}</div>`;
+
+            if (data.safety && data.safety.escalation_required) {
+                html += `<div class="safety-alert danger">
+                    <h3>⚠️ Escalation Required</h3>
+                    <p>${data.safety.escalation_reason || 'Immediate medical evaluation needed'}</p>
+                </div>`;
+            }
+
+            if (data.differential_diagnosis && data.differential_diagnosis.length > 0) {
+                html += '<h3 style="margin-top: 20px; color: #333;">Differential Diagnosis</h3>';
+                data.differential_diagnosis.forEach((diag, idx) => {
+                    const confidence = (diag.confidence * 100).toFixed(0);
+                    html += `<div class="diagnosis-item">
+                        <h3>${idx + 1}. ${diag.condition}</h3>
+                        <p><span class="confidence">${confidence}% confidence</span></p>
+                        <p><strong>Reasoning:</strong> ${diag.reasoning || 'N/A'}</p>
+                        <p><strong>Guideline:</strong> ${diag.guideline_reference || 'N/A'}</p>
+                        <p><strong>Recommendation:</strong> ${diag.recommendation || 'Refer to healthcare provider'}</p>
+                    </div>`;
+                });
+            }
+
+            if (data.recommendation) {
+                html += `<div class="diagnosis-item" style="border-left-color: #ffa500;">
+                    <strong>Action:</strong> ${data.recommendation}
+                </div>`;
+            }
+
+            html += `<div class="disclaimer">
+                <strong>DISCLAIMER:</strong> This is a clinical decision support tool, not a diagnostic system.
+                Results are for triage guidance only and should not replace clinical judgment by licensed healthcare providers.
+                Always consult with a qualified physician for diagnosis and treatment recommendations.
+            </div>`;
+
+            output.innerHTML = html;
+        }
+
+        // Auto-focus on symptoms field
+        window.addEventListener('load', () => {
+            document.getElementById('symptoms').focus();
+        });
+    </script>
+</body>
+</html>

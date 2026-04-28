@@ -1,0 +1,169 @@
+{
+  "conditions": [
+    {
+      "id": "acs",
+      "name": "Acute Coronary Syndrome",
+      "category": "cardiology",
+      "symptoms": ["chest pain", "chest discomfort", "chest pressure", "shortness of breath", "dyspnea", "diaphoresis", "nausea", "jaw pain", "shoulder pain", "arm pain"],
+      "high_risk_factors": ["age > 40", "hypertension", "diabetes", "smoking", "high cholesterol", "male"],
+      "guideline": "2023 ACC/AHA Chest Pain Protocol",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate hospital referral, EKG within 10 minutes, troponin testing",
+      "differential_conditions": ["pulmonary embolism", "aortic dissection", "pneumonia"]
+    },
+    {
+      "id": "hypertensive_crisis",
+      "name": "Hypertensive Crisis",
+      "category": "cardiology",
+      "symptoms": ["severe headache", "severe dizziness", "chest pain", "shortness of breath", "blurred vision", "confusion", "nosebleed"],
+      "high_risk_factors": ["known hypertension", "discontinuation of antihypertensives", "preeclampsia"],
+      "guideline": "ACC/AHA Hypertension Guidelines 2023",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate referral, BP measurement, monitor for complications",
+      "differential_conditions": ["stroke", "intracranial hemorrhage"]
+    },
+    {
+      "id": "dka",
+      "name": "Diabetic Ketoacidosis",
+      "category": "diabetes",
+      "symptoms": ["severe thirst", "frequent urination", "fruity breath", "nausea", "vomiting", "abdominal pain", "fatigue", "confusion", "shortness of breath"],
+      "high_risk_factors": ["type 1 diabetes", "infection", "stress", "missed insulin"],
+      "guideline": "ADA Diabetes Management Standards 2026",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate hospital admission, IV fluids, insulin therapy, lab work",
+      "differential_conditions": ["hypoglycemia", "severe infection"]
+    },
+    {
+      "id": "hypoglycemia",
+      "name": "Hypoglycemia",
+      "category": "diabetes",
+      "symptoms": ["trembling", "sweating", "palpitations", "anxiety", "confusion", "blurred vision", "loss of consciousness"],
+      "high_risk_factors": ["diabetes on insulin", "skipped meals", "excessive exercise"],
+      "guideline": "ADA Hypoglycemia Management",
+      "urgency": "URGENT",
+      "recommendation": "Immediate glucose intake (15g fast carbs), recheck glucose, monitor",
+      "differential_conditions": ["anxiety", "intoxication"]
+    },
+    {
+      "id": "pe",
+      "name": "Pulmonary Embolism",
+      "category": "cardiology",
+      "symptoms": ["sudden shortness of breath", "chest pain", "chest discomfort", "cough", "hemoptysis", "tachycardia", "diaphoresis"],
+      "high_risk_factors": ["recent surgery", "prolonged immobility", "cancer", "hypercoagulability", "recent flight"],
+      "guideline": "ACCP PE Guidelines 2023",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate hospital referral, CT angiography, anticoagulation consideration",
+      "differential_conditions": ["acute coronary syndrome", "pneumonia"]
+    },
+    {
+      "id": "stroke",
+      "name": "Acute Ischemic Stroke",
+      "category": "neurology",
+      "symptoms": ["facial drooping", "arm weakness", "speech difficulty", "confusion", "severe headache", "vision loss", "dizziness"],
+      "high_risk_factors": ["hypertension", "atrial fibrillation", "diabetes", "smoking"],
+      "guideline": "AHA/ASA Stroke Guidelines 2023",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate hospital referral (thrombolytic window critical), CT/MRI",
+      "differential_conditions": ["seizure", "migraine", "intracranial hemorrhage"]
+    },
+    {
+      "id": "sepsis",
+      "name": "Sepsis",
+      "category": "general",
+      "symptoms": ["fever", "chills", "rapid breathing", "rapid heartbeat", "confusion", "low blood pressure", "weakness"],
+      "high_risk_factors": ["infection source", "immunocompromised", "recent surgery", "urinary catheter"],
+      "guideline": "Surviving Sepsis Campaign 2023",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate hospital admission, blood cultures, IV antibiotics, fluid resuscitation",
+      "differential_conditions": ["severe infection", "shock"]
+    },
+    {
+      "id": "pneumonia",
+      "name": "Pneumonia",
+      "category": "respiratory",
+      "symptoms": ["cough", "fever", "shortness of breath", "chest pain", "sputum production", "fatigue"],
+      "high_risk_factors": ["smoking", "age > 65", "immunocompromised", "chronic lung disease"],
+      "guideline": "IDSA Pneumonia Guidelines 2023",
+      "urgency": "URGENT",
+      "recommendation": "Chest X-ray, sputum culture, consider antibiotics based on severity",
+      "differential_conditions": ["acute bronchitis", "pulmonary embolism"]
+    },
+    {
+      "id": "dehydration",
+      "name": "Severe Dehydration",
+      "category": "general",
+      "symptoms": ["extreme thirst", "dry mouth", "dizziness", "weakness", "dark urine", "reduced urination", "low blood pressure"],
+      "high_risk_factors": ["vomiting", "diarrhea", "fever", "excessive sweating", "limited water access"],
+      "guideline": "General Medical Practice",
+      "urgency": "URGENT",
+      "recommendation": "IV fluid replacement, electrolyte assessment, identify cause",
+      "differential_conditions": ["hyperglycemia", "renal disease"]
+    },
+    {
+      "id": "acute_mi",
+      "name": "Acute Myocardial Infarction",
+      "category": "cardiology",
+      "symptoms": ["severe chest pain", "crushing sensation", "pressure", "sweating", "nausea", "shortness of breath"],
+      "high_risk_factors": ["age", "smoking", "family history", "hypertension"],
+      "guideline": "2023 ACC/AHA STEMI Protocol",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Emergency PCI or thrombolytics, aspirin, nitrates, oxygen",
+      "differential_conditions": ["unstable angina", "aortic dissection"]
+    },
+    {
+      "id": "htn_encephalopathy",
+      "name": "Hypertensive Encephalopathy",
+      "category": "cardiology",
+      "symptoms": ["severe headache", "confusion", "seizures", "visual disturbances", "altered mental status"],
+      "high_risk_factors": ["severe hypertension", "eclampsia"],
+      "guideline": "ACC/AHA Hypertensive Emergency Protocol",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Immediate hospitalization, controlled BP reduction, ICU monitoring",
+      "differential_conditions": ["stroke", "intracranial hemorrhage"]
+    },
+    {
+      "id": "common_cold",
+      "name": "Common Cold / Upper Respiratory Infection",
+      "category": "respiratory",
+      "symptoms": ["runny nose", "nasal congestion", "cough", "sore throat", "sneezing", "mild fever", "fatigue"],
+      "high_risk_factors": [],
+      "guideline": "Supportive Care Guidelines",
+      "urgency": "NON-URGENT",
+      "recommendation": "Supportive care, rest, fluids, OTC medications as needed",
+      "differential_conditions": ["flu", "allergies"]
+    },
+    {
+      "id": "flu",
+      "name": "Influenza (Flu)",
+      "category": "respiratory",
+      "symptoms": ["sudden onset fever", "muscle aches", "fatigue", "headache", "cough", "sore throat"],
+      "high_risk_factors": ["elderly", "pregnant", "immunocompromised", "chronic illness"],
+      "guideline": "CDC Influenza Guidelines",
+      "urgency": "URGENT",
+      "recommendation": "Antiviral therapy if early, supportive care, monitor for complications",
+      "differential_conditions": ["COVID-19", "common cold"]
+    },
+    {
+      "id": "anaphylaxis",
+      "name": "Anaphylaxis",
+      "category": "general",
+      "symptoms": ["throat swelling", "difficulty breathing", "hives", "rapid pulse", "wheezing", "hypotension", "facial swelling", "tongue swelling"],
+      "high_risk_factors": ["known allergy", "recent allergen exposure", "bee sting", "food allergy", "drug reaction"],
+      "guideline": "WAO Anaphylaxis Guidelines 2023",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Epinephrine IM (0.3-0.5mg adult), oxygen, IV fluids, hospital admission, antihistamines",
+      "differential_conditions": ["asthma exacerbation", "vasovagal syncope", "panic attack"]
+    },
+    {
+      "id": "hyperglycemia",
+      "name": "Hyperglycemia / Hyperglycemic Crisis",
+      "category": "diabetes",
+      "symptoms": ["excessive thirst", "frequent urination", "blurred vision", "fatigue", "fruity breath (in DKA)", "confusion"],
+      "high_risk_factors": ["diabetes", "stress", "infection", "medication non-compliance"],
+      "guideline": "ADA Hyperglycemia Management",
+      "urgency": "URGENT",
+      "recommendation": "Blood glucose check, insulin adjustment, identify trigger",
+      "differential_conditions": ["diabetes insipidus", "infection"]
+    }
+  ]
+}

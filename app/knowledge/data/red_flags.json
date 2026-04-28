@@ -1,0 +1,114 @@
+{
+  "red_flags": [
+    {
+      "id": "rf_chest_pain_acute",
+      "name": "Acute Chest Pain with Vital Signs Changes",
+      "keywords": ["chest pain", "chest discomfort"],
+      "combined_symptoms": ["shortness of breath", "sweating", "jaw pain", "arm pain"],
+      "triage_level": "RED",
+      "escalation_reason": "Possible acute coronary syndrome",
+      "urgency": "IMMEDIATE",
+      "action": "Call emergency services, hospital referral"
+    },
+    {
+      "id": "rf_altered_consciousness",
+      "name": "Altered Consciousness or Confusion",
+      "keywords": ["confusion", "altered mental status", "loss of consciousness", "unconscious", "unresponsive"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Life-threatening condition - possible stroke, intracranial hemorrhage, severe hypoglycemia",
+      "urgency": "IMMEDIATE",
+      "action": "Emergency services, hospital admission"
+    },
+    {
+      "id": "rf_severe_bleeding",
+      "name": "Severe Bleeding or Hemorrhage",
+      "keywords": ["severe bleeding", "hemorrhage", "uncontrolled bleeding", "spurting blood"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Risk of hypovolemic shock",
+      "urgency": "IMMEDIATE",
+      "action": "Emergency services, direct pressure to wound"
+    },
+    {
+      "id": "rf_severe_headache",
+      "name": "Sudden Severe Headache",
+      "keywords": ["sudden severe headache", "worst headache of life"],
+      "combined_symptoms": ["stiff neck", "confusion", "photophobia"],
+      "triage_level": "RED",
+      "escalation_reason": "Possible meningitis, subarachnoid hemorrhage, hypertensive emergency",
+      "urgency": "IMMEDIATE",
+      "action": "Emergency services, CT/MRI evaluation"
+    },
+    {
+      "id": "rf_dyspnea_severe",
+      "name": "Severe Shortness of Breath",
+      "keywords": ["severe shortness of breath", "cannot speak", "severe dyspnea", "gasping"],
+      "combined_symptoms": ["chest pain", "cyanosis"],
+      "triage_level": "RED",
+      "escalation_reason": "Respiratory failure risk - PE, pneumonia, asthma exacerbation",
+      "urgency": "IMMEDIATE",
+      "action": "Oxygen therapy, emergency services"
+    },
+    {
+      "id": "rf_abdominal_pain_severe",
+      "name": "Severe Abdominal Pain",
+      "keywords": ["severe abdominal pain", "acute abdomen"],
+      "combined_symptoms": ["vomiting", "fever", "hypotension"],
+      "triage_level": "RED",
+      "escalation_reason": "Possible surgical emergency - appendicitis, perforation",
+      "urgency": "IMMEDIATE",
+      "action": "Hospital referral, urgent imaging"
+    },
+    {
+      "id": "rf_hypertensive_crisis",
+      "name": "Hypertensive Crisis",
+      "keywords": ["blood pressure > 180/120", "severe headache with high BP"],
+      "combined_symptoms": ["chest pain", "vision changes", "neurologic symptoms"],
+      "triage_level": "RED",
+      "escalation_reason": "Hypertensive emergency with end-organ damage risk",
+      "urgency": "IMMEDIATE",
+      "action": "Controlled BP reduction, hospital admission"
+    },
+    {
+      "id": "rf_facial_drooping",
+      "name": "Acute Neurologic Deficit (Facial Droop/Weakness)",
+      "keywords": ["facial drooping", "facial asymmetry", "arm weakness", "speech difficulty"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Possible stroke - thrombolytic window critical",
+      "urgency": "IMMEDIATE",
+      "action": "Emergency services, CT/MRI, thrombolytic consideration"
+    },
+    {
+      "id": "rf_seizure",
+      "name": "Active Seizure or Post-Ictal State",
+      "keywords": ["seizure", "convulsion", "postictal"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Risk of status epilepticus, aspiration",
+      "urgency": "IMMEDIATE",
+      "action": "Airway management, hospital admission"
+    },
+    {
+      "id": "rf_hypoglycemia_severe",
+      "name": "Severe Hypoglycemia with Altered Mental Status",
+      "keywords": ["blood glucose < 70", "confusion", "loss of consciousness"],
+      "combined_symptoms": ["seizure", "coma"],
+      "triage_level": "RED",
+      "escalation_reason": "Risk of brain damage, seizure, death",
+      "urgency": "IMMEDIATE",
+      "action": "Immediate glucose therapy, hospital admission if unresponsive"
+    },
+    {
+      "id": "rf_anaphylaxis",
+      "name": "Anaphylaxis",
+      "keywords": ["difficulty breathing", "throat swelling", "rapid pulse", "severe rash"],
+      "combined_symptoms": ["recent allergen exposure"],
+      "triage_level": "RED",
+      "escalation_reason": "Airway compromise risk",
+      "urgency": "IMMEDIATE",
+      "action": "Epinephrine IM, antihistamines, hospital admission"
+    }
+  ]
+}

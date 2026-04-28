@@ -1,0 +1,91 @@
+{
+  "triage_criteria": {
+    "red": {
+      "name": "IMMEDIATE - Life-threatening",
+      "color": "red",
+      "description": "Patient requires immediate emergency care",
+      "response_time": "< 5 minutes",
+      "indicators": [
+        "Unresponsiveness",
+        "Severe difficulty breathing",
+        "Chest pain with vital sign changes",
+        "Severe bleeding",
+        "Acute neurologic deficit",
+        "Severe abdominal pain",
+        "Acute confusion"
+      ]
+    },
+    "yellow": {
+      "name": "URGENT - Serious condition",
+      "color": "yellow",
+      "description": "Patient requires urgent evaluation, likely hospital referral",
+      "response_time": "15-60 minutes",
+      "indicators": [
+        "Moderate fever with other symptoms",
+        "Persistent vomiting",
+        "Mild-moderate shortness of breath",
+        "Severe headache (non-acute)",
+        "Possible fracture with severe pain",
+        "Moderate dehydration",
+        "High blood glucose with symptoms"
+      ]
+    },
+    "green": {
+      "name": "NON-URGENT - Minor illness",
+      "color": "green",
+      "description": "Patient can be managed in outpatient setting with follow-up",
+      "response_time": "Can wait for routine appointment",
+      "indicators": [
+        "Mild fever",
+        "Common cold symptoms",
+        "Mild cough",
+        "Minor cuts/scrapes",
+        "Mild headache",
+        "Mild diarrhea"
+      ]
+    }
+  },
+  "triage_keywords": {
+    "red_keywords": [
+      "unconscious", "unresponsive", "cannot breathe", "severe bleeding",
+      "chest pain", "stroke", "seizure", "severe headache", "confusion",
+      "difficulty speaking", "facial drooping", "severe pain", "anaphylaxis",
+      "altered consciousness", "emergency", "critical"
+    ],
+    "yellow_keywords": [
+      "fever", "vomiting", "moderate pain", "shortness of breath",
+      "dizziness", "severe headache", "moderate bleeding", "anxiety",
+      "abdominal pain", "dehydration", "injury", "burn"
+    ],
+    "green_keywords": [
+      "runny nose", "sneeze", "mild cough", "sore throat", "mild pain",
+      "minor cut", "bruise", "rash", "cold", "mild fever", "fatigue"
+    ]
+  },
+  "vital_signs_thresholds": {
+    "systolic_bp": {
+      "red": "> 180 or < 90",
+      "yellow": "140-180 or 90-100"
+    },
+    "diastolic_bp": {
+      "red": "> 120",
+      "yellow": "90-120"
+    },
+    "heart_rate": {
+      "red": "> 120 or < 50",
+      "yellow": "100-120 or 50-60"
+    },
+    "respiratory_rate": {
+      "red": "> 30 or < 12",
+      "yellow": "24-30 or 12-16"
+    },
+    "temperature": {
+      "red": "> 39.5°C (103°F) or < 36°C (96.8°F)",
+      "yellow": "38.5-39.5°C or 36-36.5°C"
+    },
+    "blood_glucose": {
+      "red": "< 70 with symptoms or > 400",
+      "yellow": "70-100 (fasting) or 100-200 (random)"
+    }
+  }
+}

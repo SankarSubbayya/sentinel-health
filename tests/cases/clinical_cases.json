@@ -1,0 +1,191 @@
+{
+  "description": "Synthetic clinical vignettes for Sentinel Health validation. Symptom strings are written as a CHW would dictate them. Expected outcomes encode the minimum acceptable behavior — the system MAY be more conservative (e.g., predict RED when expected YELLOW), but never less.",
+  "version": "1.0",
+  "scoring": {
+    "triage": "Predicted triage must be at least as urgent as expected (RED > YELLOW > GREEN).",
+    "primary_diagnosis": "Top differential must match one of expected_condition_ids.",
+    "red_flag": "If expected_red_flag is true, escalation_required must be true."
+  },
+  "cases": [
+    {
+      "id": "card_01_classic_acs",
+      "category": "cardiology",
+      "symptoms": "55-year-old man, chest pain for 2 hours, shortness of breath, sweating, pain in left arm",
+      "patient_context": "Hypertension, smoker, no prior cardiac history",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["acs", "acute_mi"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "card_02_atypical_acs_female",
+      "category": "cardiology",
+      "symptoms": "60-year-old woman with jaw pain, nausea, fatigue for one hour",
+      "patient_context": "Type 2 diabetes, hypertension",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["acs", "acute_mi"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "card_03_hypertensive_crisis",
+      "category": "cardiology",
+      "symptoms": "Severe headache, blurred vision, blood pressure 200/130, confusion",
+      "patient_context": "Known hypertension, ran out of medication 3 days ago",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["hypertensive_crisis", "htn_encephalopathy"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "card_04_pulmonary_embolism",
+      "category": "cardiology",
+      "symptoms": "Sudden shortness of breath, sharp chest pain, fast heart rate, swelling in right calf",
+      "patient_context": "Returned from 14-hour flight 2 days ago",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["pe"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "card_05_stable_angina",
+      "category": "cardiology",
+      "symptoms": "Chest tightness when climbing stairs, goes away with rest, no symptoms at rest",
+      "patient_context": "65-year-old, no acute distress",
+      "expected_triage": "YELLOW",
+      "expected_condition_ids": ["acs"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "card_06_heart_failure_exacerbation",
+      "category": "cardiology",
+      "symptoms": "Shortness of breath worse when lying flat, leg swelling, weight gain 4 kg in a week",
+      "patient_context": "History of heart failure",
+      "expected_triage": "YELLOW",
+      "expected_condition_ids": ["acs", "pe", "pneumonia"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "card_07_severe_chest_pain_dissection_mimic",
+      "category": "cardiology",
+      "symptoms": "Severe tearing chest pain radiating to back, sweating, pale",
+      "patient_context": "70-year-old with hypertension",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["acs", "acute_mi", "pe"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "card_08_palpitations_only",
+      "category": "cardiology",
+      "symptoms": "Occasional palpitations, no chest pain or shortness of breath, otherwise well",
+      "patient_context": "30-year-old, anxious, drinks coffee",
+      "expected_triage": "GREEN",
+      "expected_condition_ids": ["acs", "hypoglycemia"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "diab_01_dka",
+      "category": "diabetes",
+      "symptoms": "Severe thirst, frequent urination, fruity breath, vomiting, abdominal pain, confused",
+      "patient_context": "Type 1 diabetes, missed insulin doses",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["dka"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "diab_02_hypoglycemia_severe",
+      "category": "diabetes",
+      "symptoms": "Sweating, trembling, confusion, palpitations, almost lost consciousness",
+      "patient_context": "Type 2 diabetes on insulin, skipped lunch",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["hypoglycemia"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "diab_03_hyperglycemia_mild",
+      "category": "diabetes",
+      "symptoms": "Fatigue, frequent urination, blurred vision over the past week",
+      "patient_context": "Type 2 diabetes, glucose readings high but no DKA symptoms",
+      "expected_triage": "YELLOW",
+      "expected_condition_ids": ["hyperglycemia", "dka"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "diab_04_hhs_elderly",
+      "category": "diabetes",
+      "symptoms": "Elderly patient with severe dehydration, confusion, very high blood sugar over 600",
+      "patient_context": "Type 2 diabetes, recent infection",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["dka", "hyperglycemia", "dehydration"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "diab_05_hypoglycemia_mild_recovered",
+      "category": "diabetes",
+      "symptoms": "Felt shaky and sweaty 30 minutes ago, ate sugar, feels fine now",
+      "patient_context": "Diabetic on metformin, no insulin",
+      "expected_triage": "GREEN",
+      "expected_condition_ids": ["hypoglycemia"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "diab_06_new_onset_no_dka",
+      "category": "diabetes",
+      "symptoms": "Excessive thirst, frequent urination, weight loss over 2 months, fatigue",
+      "patient_context": "No diabetes diagnosis yet, otherwise stable",
+      "expected_triage": "YELLOW",
+      "expected_condition_ids": ["hyperglycemia", "dka"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "gen_01_sepsis",
+      "category": "general",
+      "symptoms": "High fever, chills, fast breathing, rapid heart rate, confusion, low blood pressure",
+      "patient_context": "Recent urinary tract infection",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["sepsis"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "gen_02_severe_dehydration",
+      "category": "general",
+      "symptoms": "Vomiting and diarrhea for 3 days, very dizzy, dark urine, weakness",
+      "patient_context": "Elderly patient, no IV access yet",
+      "expected_triage": "YELLOW",
+      "expected_condition_ids": ["dehydration", "sepsis"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "gen_03_pneumonia",
+      "category": "general",
+      "symptoms": "Cough with sputum, fever, shortness of breath, chest pain when breathing deeply",
+      "patient_context": "65-year-old smoker",
+      "expected_triage": "YELLOW",
+      "expected_condition_ids": ["pneumonia", "pe"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "gen_04_stroke",
+      "category": "general",
+      "symptoms": "Sudden facial drooping on right side, slurred speech, weakness in right arm",
+      "patient_context": "70-year-old with atrial fibrillation",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["stroke"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "gen_05_anaphylaxis",
+      "category": "general",
+      "symptoms": "Bee sting 10 minutes ago, throat swelling, difficulty breathing, rapid pulse, hives",
+      "patient_context": "Known bee allergy",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["anaphylaxis"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "gen_06_common_cold",
+      "category": "general",
+      "symptoms": "Runny nose, mild cough, sore throat, low-grade fever for 2 days",
+      "patient_context": "Otherwise well, no shortness of breath",
+      "expected_triage": "GREEN",
+      "expected_condition_ids": ["common_cold", "flu"],
+      "expected_red_flag": false
+    }
+  ]
+}
