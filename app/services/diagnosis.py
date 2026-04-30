@@ -6,6 +6,16 @@ from app.knowledge.loader import kb
 from app.services.safety import safety_engine
 
 
+_FOLK_ERROR_PHRASES = (
+    "tied a rope",
+    "tourniquet",
+    "applied tourniquet",
+    "cut and suck",
+    "induced vomiting",
+)
+_FOLK_ERROR_RED_FLAG_IDS = {"rf_snake_bite", "rf_poisoning", "rf_organophosphate"}
+
+
 class DiagnosisService:
     """Orchestrate clinical reasoning flow."""
 
@@ -57,6 +67,19 @@ class DiagnosisService:
                     if transport:
                         response["during_transport"] = transport
                         break
+
+            symptoms_lower = symptoms.lower()
+            if any(p in symptoms_lower for p in _FOLK_ERROR_PHRASES):
+                flag_ids = {
+                    f.get("id")
+                    for f in safety_post["pre_check_flags"].get("flags_detected", [])
+                }
+                if flag_ids & _FOLK_ERROR_RED_FLAG_IDS:
+                    for cond in relevant_conditions:
+                        correction = cond.get("folk_error_correction")
+                        if correction:
+                            response["folk_error_correction"] = correction
+                            break
 
             return response
 

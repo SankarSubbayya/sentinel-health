@@ -104,6 +104,26 @@ class TestDiagnoseFlow:
         assert isinstance(result.get("during_transport"), str)
         assert result["during_transport"].strip()
 
+    async def test_diagnose_attaches_folk_error_correction_on_snake_bite_with_tourniquet(
+        self, patch_ollama_generate, mock_llm_response_factory
+    ):
+        """snake_02 vignette: snake bite + 'tied a rope' must surface the
+        condition's folk_error_correction string in the response."""
+        patch_ollama_generate(
+            mock_llm_response_factory(
+                triage="RED",
+                primary_condition="Snake Bite Envenomation",
+                primary_confidence=0.85,
+            )
+        )
+        result = await diagnosis_service.diagnose(
+            symptoms="Snake bit child two hours ago, family tied a rope tightly above the bite, swelling and pain at bite site",
+            patient_context="Tourniquet still in place; rural India",
+        )
+        assert isinstance(result.get("folk_error_correction"), str)
+        assert result["folk_error_correction"].strip()
+        assert "tourniquet" in result["folk_error_correction"].lower()
+
     async def test_diagnose_returns_disclaimer(
         self, patch_ollama_generate, mock_llm_response_factory
     ):

@@ -29,7 +29,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: integration tests asserting the snake_bite condition has `folk_error_correction` field exposed via the detail endpoint.
   - Files: `app/api/routes.py`, `tests/integration/test_api.py`.
 
-- [ ] **W2-B4: Add a "snake-bite folk-error" detector that runs on every diagnose call.**
+- [x] **W2-B4: Add a "snake-bite folk-error" detector that runs on every diagnose call.**
   - If the symptoms text contains any of: "tied a rope", "tourniquet", "applied tourniquet", "cut and suck", "induced vomiting", AND a snake-bite or poisoning red flag fired, attach `response.folk_error_correction` (string) with the counter-instruction from the matched condition.
   - Acceptance: unit test that the snake_02 vignette ("family tied a rope") triggers the correction text being present in the response.
   - Files: `app/services/diagnosis.py`, `tests/unit/test_diagnosis.py`.
