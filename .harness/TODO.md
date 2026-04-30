@@ -17,7 +17,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: new test passes; existing tests stay green.
   - Files: `tests/unit/test_diagnosis.py`.
 
-- [ ] **W2-B2: Add `POST /api/v1/clarify` endpoint.**
+- [x] **W2-B2: Add `POST /api/v1/clarify` endpoint.**
   - Returns 1–2 high-yield clarifying questions targeted at the most likely differential, given the symptoms so far.
   - Use a separate prompt (don't reuse the diagnosis prompt). Output schema: `{"questions": [{"id": "q1", "text": "...", "rationale": "..."}], "session_id": "..."}`.
   - Cap at 2 questions per the PRD's "few smart questions" principle.

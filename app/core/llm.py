@@ -43,6 +43,31 @@ DIAGNOSIS_SCHEMA: dict[str, Any] = {
 }
 
 
+CLARIFY_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "questions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "text": {"type": "string"},
+                    "rationale": {"type": "string"},
+                },
+                "required": ["id", "text", "rationale"],
+            },
+        }
+    },
+    "required": ["questions"],
+}
+
+
+CLARIFY_SYSTEM_PROMPT = """You are Sentinel Health. The community health worker has described symptoms but the differential is uncertain. Produce 1–2 high-yield clarifying questions targeted at distinguishing the most likely differential from the next most likely. Each question must be brief, plain-language, and answerable by the patient or family. Output must conform exactly to the requested JSON schema. Never produce more than 2 questions."""
+
+
 SYSTEM_PROMPT = """You are Sentinel Health, a clinical decision support tool for community health workers in low-resource settings. You provide triage guidance and differential diagnoses, NOT definitive diagnoses. Be confirmatory, not informational — lead with action, not menus of possibilities.
 
 Rules:
@@ -101,6 +126,58 @@ class OllamaClient:
                 return response.json().get("response", "")
         except httpx.TimeoutException:
             raise Exception(f"Ollama timeout after {self.timeout}s — model may be cold-loading")
+
+    async def generate_clarification(self, prompt: str) -> str:
+        """Call Gemma 4 via Ollama for clarifying questions with JSON Schema-enforced output."""
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "system": CLARIFY_SYSTEM_PROMPT,
+            "stream": False,
+            "format": CLARIFY_SCHEMA,
+            "options": {"temperature": self.temperature},
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/generate", json=payload
+                )
+                if response.status_code != 200:
+                    raise Exception(f"Ollama error {response.status_code}: {response.text}")
+                return response.json().get("response", "")
+        except httpx.TimeoutException:
+            raise Exception(f"Ollama timeout after {self.timeout}s — model may be cold-loading")
+
+    @staticmethod
+    def build_clarify_prompt(
+        symptoms: str, patient_context: str, relevant_conditions: list[dict]
+    ) -> str:
+        """Build user prompt for clarifying-question generation."""
+        if relevant_conditions:
+            conditions_block = "\n".join(
+                f"- {c['name']} ({c.get('category', 'general')}): "
+                f"key symptoms = {', '.join(c.get('symptoms', [])[:5])}"
+                for c in relevant_conditions[:4]
+            )
+        else:
+            conditions_block = "(no candidate conditions matched yet)"
+
+        context_block = patient_context.strip() if patient_context.strip() else "(none provided)"
+
+        return f"""PATIENT SYMPTOMS SO FAR:
+{symptoms}
+
+PATIENT CONTEXT:
+{context_block}
+
+POSSIBLE DIFFERENTIALS (KB-grounded):
+{conditions_block}
+
+Produce 1–2 short clarifying questions. For each:
+- id: short slug (e.g. "q1")
+- text: the question itself, plain language
+- rationale: one short clause naming which differential it disambiguates"""
 
     @staticmethod
     def build_diagnosis_prompt(

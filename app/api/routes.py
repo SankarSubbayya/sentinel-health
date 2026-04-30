@@ -17,6 +17,12 @@ class TriageRequest(BaseModel):
     symptoms: str
 
 
+class ClarifyRequest(BaseModel):
+    symptoms: str
+    patient_context: Optional[str] = ""
+    session_id: Optional[str] = None
+
+
 @router.get("/health")
 async def health_check():
     """Check API and Ollama health."""
@@ -57,6 +63,21 @@ async def diagnose(request: DiagnoseRequest):
     return result
 
 
+@router.post("/api/v1/clarify")
+async def clarify(request: ClarifyRequest):
+    """
+    Generate 1–2 high-yield clarifying questions when the differential is uncertain.
+
+    Returns:
+    - questions: list of 1–2 {id, text, rationale} objects
+    - session_id: opaque id for the clarification turn
+    """
+    if not request.symptoms or len(request.symptoms.strip()) < 5:
+        raise HTTPException(status_code=400, detail="Symptoms must be at least 5 characters")
+
+    return await diagnosis_service.clarify(request.symptoms, request.patient_context)
+
+
 @router.post("/api/v1/triage")
 async def triage(request: TriageRequest):
     """
@@ -81,6 +102,7 @@ async def root():
         "endpoints": {
             "GET /health": "Check API and Ollama connectivity",
             "POST /api/v1/diagnose": "Generate differential diagnosis from symptoms",
+            "POST /api/v1/clarify": "Generate 1–2 clarifying questions for uncertain differentials",
             "POST /api/v1/triage": "Quick RED/YELLOW/GREEN triage",
             "GET /demo": "Interactive demo interface",
         },

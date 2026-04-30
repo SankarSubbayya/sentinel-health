@@ -75,6 +75,39 @@ class DiagnosisService:
             }
 
     @staticmethod
+    async def clarify(symptoms: str, patient_context: str = "") -> Dict[str, Any]:
+        """Generate 1–2 high-yield clarifying questions for the most likely differential."""
+        session_id = str(uuid.uuid4())
+
+        try:
+            relevant_conditions = kb.get_relevant_conditions(symptoms)
+            prompt = ollama_client.build_clarify_prompt(
+                symptoms, patient_context, relevant_conditions
+            )
+            llm_response = await ollama_client.generate_clarification(prompt)
+            parsed = DiagnosisService._parse_llm_response(llm_response)
+
+            questions = parsed.get("questions", [])[:2]
+            questions = [
+                q for q in questions
+                if isinstance(q, dict) and q.get("text", "").strip()
+            ]
+
+            return {
+                "session_id": session_id,
+                "questions": questions,
+                "disclaimer": "Clarifying questions are decision support only. Final clinical judgment rests with the licensed provider.",
+            }
+
+        except Exception as e:
+            return {
+                "session_id": session_id,
+                "questions": [],
+                "error": str(e),
+                "disclaimer": "Clarifying questions are decision support only.",
+            }
+
+    @staticmethod
     async def triage(symptoms: str) -> Dict[str, Any]:
         """Quick triage without full diagnosis."""
         session_id = str(uuid.uuid4())

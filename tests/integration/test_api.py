@@ -126,6 +126,43 @@ class TestDiagnoseEndpoint:
         assert r.status_code == 422
 
 
+class TestClarifyEndpoint:
+    def test_clarify_returns_one_or_two_nonempty_questions(
+        self, api_client, monkeypatch
+    ):
+        from unittest.mock import AsyncMock
+        from app.core import llm
+
+        canned = (
+            '{"questions": ['
+            '{"id": "q1", "text": "Did the chest pain radiate to the left arm or jaw?",'
+            ' "rationale": "Distinguishes ACS from musculoskeletal pain"},'
+            '{"id": "q2", "text": "Was the patient sweating during the episode?",'
+            ' "rationale": "Diaphoresis raises ACS likelihood"}'
+            "]}"
+        )
+        monkeypatch.setattr(
+            llm.ollama_client, "generate_clarification", AsyncMock(return_value=canned)
+        )
+
+        r = api_client.post(
+            "/api/v1/clarify",
+            json={"symptoms": "chest discomfort for 30 minutes, otherwise unsure"},
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert "session_id" in body
+        assert 1 <= len(body["questions"]) <= 2
+        for q in body["questions"]:
+            assert q["text"].strip()
+            assert "id" in q
+            assert "rationale" in q
+
+    def test_clarify_rejects_too_short(self, api_client):
+        r = api_client.post("/api/v1/clarify", json={"symptoms": "x"})
+        assert r.status_code == 400
+
+
 class TestTriageEndpoint:
     def test_triage_red_for_chest_pain(self, api_client):
         r = api_client.post(
