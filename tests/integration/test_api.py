@@ -32,6 +32,21 @@ class TestRootAndHealth:
         r = api_client.get("/health")
         assert r.status_code == 503
 
+    def test_healthz_returns_ok_even_when_ollama_down(
+        self, api_client, monkeypatch
+    ):
+        from unittest.mock import AsyncMock
+        from app.core import llm
+
+        monkeypatch.setattr(
+            llm.ollama_client,
+            "health_check",
+            AsyncMock(side_effect=RuntimeError("ollama unreachable")),
+        )
+        r = api_client.get("/healthz")
+        assert r.status_code == 200
+        assert r.json() == {"status": "ok"}
+
     def test_demo_page_served(self, api_client):
         r = api_client.get("/demo")
         # Either the HTML loads, or the file-not-found JSON branch runs

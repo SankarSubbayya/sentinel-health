@@ -24,6 +24,12 @@ class ClarifyRequest(BaseModel):
     session_id: Optional[str] = None
 
 
+@router.get("/healthz")
+async def healthz():
+    """Lightweight liveness check — does not touch Ollama."""
+    return {"status": "ok"}
+
+
 @router.get("/health")
 async def health_check():
     """Check API and Ollama health."""
@@ -126,6 +132,7 @@ async def root():
         "version": "0.1.0",
         "description": "Clinical decision support for community health workers",
         "endpoints": {
+            "GET /healthz": "Lightweight liveness check (no Ollama)",
             "GET /health": "Check API and Ollama connectivity",
             "POST /api/v1/diagnose": "Generate differential diagnosis from symptoms",
             "POST /api/v1/clarify": "Generate 1–2 clarifying questions for uncertain differentials",

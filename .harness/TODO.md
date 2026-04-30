@@ -68,7 +68,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: `grep -r 'fonts.googleapis\|cdn\|http' demo/` returns zero hits in `<link>` or `<script src>` tags.
   - File: `demo/index.html`.
 
-- [ ] **W2-P2: Add `/healthz` lightweight health endpoint that doesn't hit Ollama (for liveness checks).**
+- [x] **W2-P2: Add `/healthz` lightweight health endpoint that doesn't hit Ollama (for liveness checks).**
   - Returns `{"status": "ok"}` always, < 5 ms.
   - Acceptance: integration test that `/healthz` returns 200 even if Ollama is unreachable (mock the LLM client to fail health_check).
   - Files: `app/api/routes.py`, `tests/integration/test_api.py`.
