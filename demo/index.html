@@ -1,430 +1,829 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentinel Health - Clinical Decision Support Demo</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel Health — Clinical Triage Assistant</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --surface: #ffffff;
+      --surface-2: #f3f2ee;
+      --border: #e6e4dc;
+      --border-strong: #c9c6ba;
+      --text: #1a1815;
+      --text-muted: #6b685e;
+      --text-faint: #9a9588;
+      --accent: #c96342;
+      --accent-hover: #b04f30;
+      --red: #c0392b;
+      --red-bg: #fdecea;
+      --yellow: #b7791f;
+      --yellow-bg: #fef5e0;
+      --green: #207a48;
+      --green-bg: #e6f4ec;
+      --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+      --radius: 12px;
+      --radius-sm: 6px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .header {
-            background: white;
-            padding: 40px 20px;
-            border-radius: 8px 8px 0 0;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    body { display: flex; flex-direction: column; }
 
-        .header h1 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 2em;
-        }
+    /* === Header === */
+    .header {
+      flex: 0 0 auto;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px;
+    }
+    .brand { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+    .brand-sub { color: var(--text-muted); font-size: 13px; margin-left: 6px; }
 
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-        }
+    .header-right { display: flex; gap: 8px; align-items: center; }
+    .ollama-pill {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+    .ollama-pill .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .ollama-pill.offline .dot { background: var(--red); }
 
-        .main {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    .new-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .new-btn:hover { background: var(--surface-2); }
 
-        .input-section {
-            padding: 30px;
-            border-right: 1px solid #eee;
-        }
+    /* === Main conversation === */
+    main {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 32px 24px 200px;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
 
-        .output-section {
-            padding: 30px;
-            overflow-y: auto;
-            max-height: 600px;
-        }
+    /* === Empty state === */
+    .empty-state {
+      text-align: center;
+      padding: 48px 0 32px;
+    }
+    .empty-state h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .empty-state p {
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto 28px;
+    }
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .example {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      color: var(--text);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .example:hover { border-color: var(--border-strong); background: var(--surface-2); }
+    .example .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .example .text { font-size: 14px; line-height: 1.4; }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    /* === Messages === */
+    .msg {
+      margin-bottom: 28px;
+      animation: fadeIn 0.25s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
+    .msg-user {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .msg-user .bubble {
+      background: var(--surface-2);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      max-width: 80%;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .msg-user .context {
+      display: block;
+      margin-top: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-style: italic;
+    }
 
-        textarea, input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 1em;
-        }
+    .msg-bot { width: 100%; }
 
-        textarea {
-            resize: vertical;
-            min-height: 150px;
-        }
+    /* === Triage card === */
+    .triage-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .triage-banner {
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.01em;
+    }
+    .triage-banner.red    { background: var(--red-bg);    color: var(--red); }
+    .triage-banner.yellow { background: var(--yellow-bg); color: var(--yellow); }
+    .triage-banner.green  { background: var(--green-bg);  color: var(--green); }
+    .triage-banner .icon { font-size: 18px; }
 
-        textarea:focus, input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
+    .action-section {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .action-section .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .action-section .body {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .action-section.transport .body { color: var(--text); }
+    .action-section.transport .label { color: var(--accent); }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-        }
+    .differentials {
+      padding: 18px 20px;
+    }
+    .differentials > .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .diff-item {
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+    }
+    .diff-item:first-of-type { border-top: none; padding-top: 0; }
+    .diff-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .diff-name { font-weight: 600; font-size: 15px; }
+    .diff-conf {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      padding: 2px 7px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+    .diff-reason { color: var(--text-muted); font-size: 14px; margin-bottom: 6px; }
+    .diff-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--text-muted); }
+    .diff-meta strong { color: var(--text); font-weight: 500; }
 
-        button {
-            flex: 1;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    .session-footer {
+      padding: 12px 20px;
+      background: var(--surface-2);
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .session-footer .meta-mono { font-family: var(--font-mono); }
 
-        .btn-diagnose {
-            background: #667eea;
-            color: white;
-        }
+    /* === Loading === */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 12px 0;
+    }
+    .thinking-dots { display: flex; gap: 4px; }
+    .thinking-dots span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-faint);
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+    .thinking-dots span:nth-child(2) { animation-delay: 0.16s; }
+    .thinking-dots span:nth-child(3) { animation-delay: 0.32s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
 
-        .btn-diagnose:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-        }
+    .error-msg {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+    }
 
-        .btn-triage {
-            background: #ffa500;
-            color: white;
-        }
+    /* === Input bar === */
+    .input-area {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, var(--bg) 60%, transparent);
+      padding: 24px 24px 16px;
+      z-index: 5;
+    }
+    .input-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .input-box {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: border-color 0.15s;
+    }
+    .input-box:focus-within { border-color: var(--accent); }
+    .input-box textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.5;
+      padding: 14px 16px 4px;
+      background: transparent;
+      color: var(--text);
+      max-height: 200px;
+      min-height: 24px;
+    }
+    .input-box .context-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 0 16px 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px 8px 12px;
+    }
+    .input-hint { flex: 1; font-size: 12px; color: var(--text-faint); }
+    .icon-btn {
+      width: 36px; height: 36px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+    .icon-btn.recording { background: var(--red); color: white; border-color: var(--red); animation: pulse 1.2s infinite; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(192,57,43,0); }
+    }
+    .send-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      height: 36px;
+      transition: background 0.15s;
+    }
+    .send-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .send-btn:disabled { background: var(--border-strong); cursor: not-allowed; }
 
-        .btn-triage:hover {
-            background: #ff8c00;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 165, 0, 0.3);
-        }
+    .triage-quick-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      height: 36px;
+      transition: all 0.15s;
+    }
+    .triage-quick-btn:hover { background: var(--surface-2); color: var(--text); }
 
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+    .disclaimer {
+      max-width: 760px;
+      margin: 8px auto 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-faint);
+      padding: 0 12px;
+      line-height: 1.5;
+    }
 
-        .output-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-        }
-
-        .triage-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-        }
-
-        .triage-red {
-            background: #ff4444;
-            color: white;
-        }
-
-        .triage-yellow {
-            background: #ffb300;
-            color: white;
-        }
-
-        .triage-green {
-            background: #4caf50;
-            color: white;
-        }
-
-        .diagnosis-item {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid #667eea;
-            border-radius: 4px;
-        }
-
-        .diagnosis-item h3 {
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .diagnosis-item p {
-            color: #666;
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        .confidence {
-            display: inline-block;
-            background: #e8f4f8;
-            color: #0066cc;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .safety-alert {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .safety-alert.danger {
-            background: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-        }
-
-        .safety-alert h3 {
-            color: inherit;
-            margin-bottom: 8px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            color: #667eea;
-            font-weight: bold;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(102, 126, 234, 0.3);
-            border-radius: 50%;
-            border-top-color: #667eea;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .disclaimer {
-            color: #999;
-            font-size: 0.85em;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            line-height: 1.6;
-        }
-
-        .error-box {
-            background: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .main {
-                grid-template-columns: 1fr;
-            }
-
-            .input-section {
-                border-right: none;
-                border-bottom: 1px solid #eee;
-            }
-
-            .output-section {
-                max-height: none;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-        }
-    </style>
+    @media (max-width: 600px) {
+      .header { padding: 12px 16px; }
+      .ollama-pill { display: none; }
+      main { padding: 20px 16px 220px; }
+      .input-area { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏥 Sentinel Health</h1>
-            <p>Clinical Decision Support for Community Health Workers</p>
-        </div>
 
-        <div class="main">
-            <div class="input-section">
-                <form id="symptomForm">
-                    <div class="form-group">
-                        <label for="symptoms">Patient Symptoms *</label>
-                        <textarea
-                            id="symptoms"
-                            placeholder="Describe patient symptoms (e.g., 'Chest pain, shortness of breath for 2 hours, sweating, 55-year-old male with hypertension')"
-                            required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="context">Patient Context (Optional)</label>
-                        <input
-                            type="text"
-                            id="context"
-                            placeholder="e.g., Age, sex, known conditions, medications">
-                    </div>
-
-                    <div class="button-group">
-                        <button type="button" class="btn-diagnose" onclick="diagnose()">
-                            Differential Diagnosis
-                        </button>
-                        <button type="button" class="btn-triage" onclick="triage()">
-                            Quick Triage
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="output-section" id="output">
-                <h2>Results</h2>
-                <p style="color: #999;">Enter symptoms and click a button to get results...</p>
-            </div>
-        </div>
+<header class="header">
+  <div class="header-left">
+    <div class="logo">S</div>
+    <div>
+      <span class="brand">Sentinel Health</span>
+      <span class="brand-sub">Clinical triage assistant</span>
     </div>
+  </div>
+  <div class="header-right">
+    <span id="ollamaPill" class="ollama-pill"><span class="dot"></span><span id="ollamaText">checking…</span></span>
+    <button class="new-btn" onclick="newPatient()">+ New patient</button>
+  </div>
+</header>
 
-    <script>
-        async function diagnose() {
-            const symptoms = document.getElementById('symptoms').value.trim();
-            const context = document.getElementById('context').value.trim();
+<main id="main">
+  <div class="container" id="conversation">
+    <div class="empty-state" id="emptyState">
+      <h1>Triage a patient</h1>
+      <p>Describe the patient's symptoms by voice or text. The model runs entirely on this device — no internet required.</p>
+      <div class="examples">
+        <button class="example" onclick="useExample(this)">
+          <div class="label">Cardiac · RED</div>
+          <div class="text">60-year-old woman with jaw pain, nausea, fatigue for one hour</div>
+          <div class="text" style="color: var(--text-faint); margin-top: 4px; font-size: 12px;">Context: Type 2 diabetes, hypertension</div>
+        </button>
+        <button class="example" onclick="useExample(this)">
+          <div class="label">Snake bite · RED</div>
+          <div class="text">Snake bit child two hours ago, family tied a rope, swelling at bite site</div>
+          <div class="text" style="color: var(--text-faint); margin-top: 4px; font-size: 12px;">Context: Rural India, monsoon season</div>
+        </button>
+        <button class="example" onclick="useExample(this)">
+          <div class="label">Poisoning · RED</div>
+          <div class="text">Farmer ingested pesticide one hour ago, drooling, small pupils, slow heart rate</div>
+          <div class="text" style="color: var(--text-faint); margin-top: 4px; font-size: 12px;">Context: Suspected organophosphate</div>
+        </button>
+        <button class="example" onclick="useExample(this)">
+          <div class="label">Benign · GREEN</div>
+          <div class="text">Cut finger on a knife while cooking, bleeding controlled, no other injury</div>
+          <div class="text" style="color: var(--text-faint); margin-top: 4px; font-size: 12px;">Context: Otherwise well adult</div>
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
 
-            if (!symptoms) {
-                alert('Please enter symptoms');
-                return;
-            }
+<div class="input-area">
+  <div class="input-wrap">
+    <div class="input-box">
+      <textarea id="symptoms" placeholder="Describe the patient's symptoms…" rows="1"></textarea>
+      <input id="context" type="text" class="context-input" placeholder="Patient context (age, history, medications) — optional" />
+      <div class="input-row">
+        <span class="input-hint" id="inputHint">Enter to send · Shift+Enter for new line</span>
+        <button id="quickBtn" class="triage-quick-btn" onclick="quickTriage()" title="Rules-only triage (no LLM)">Quick triage</button>
+        <button id="micBtn" class="icon-btn" onclick="toggleMic()" title="Voice input">🎤</button>
+        <button id="sendBtn" class="send-btn" onclick="sendDiagnose()">Diagnose</button>
+      </div>
+    </div>
+    <p class="disclaimer">
+      <strong>Triage support only.</strong> Not a substitute for clinical judgment.
+      In emergencies, escalate immediately.
+    </p>
+  </div>
+</div>
 
-            await callAPI('/api/v1/diagnose', { symptoms, patient_context: context });
-        }
+<script>
+  const conversation = document.getElementById('conversation');
+  const emptyState = document.getElementById('emptyState');
+  const symptomsInput = document.getElementById('symptoms');
+  const contextInput = document.getElementById('context');
+  const sendBtn = document.getElementById('sendBtn');
+  const quickBtn = document.getElementById('quickBtn');
+  const micBtn = document.getElementById('micBtn');
+  const inputHint = document.getElementById('inputHint');
 
-        async function triage() {
-            const symptoms = document.getElementById('symptoms').value.trim();
+  // --- Auto-grow textarea ---
+  symptomsInput.addEventListener('input', () => {
+    symptomsInput.style.height = 'auto';
+    symptomsInput.style.height = Math.min(symptomsInput.scrollHeight, 200) + 'px';
+  });
 
-            if (!symptoms) {
-                alert('Please enter symptoms');
-                return;
-            }
+  // --- Enter to send, Shift+Enter for newline ---
+  symptomsInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendDiagnose();
+    }
+  });
 
-            await callAPI('/api/v1/triage', { symptoms });
-        }
+  // --- Health pill ---
+  async function checkHealth() {
+    const pill = document.getElementById('ollamaPill');
+    const txt = document.getElementById('ollamaText');
+    try {
+      const r = await fetch('/health');
+      if (r.ok) {
+        const d = await r.json();
+        pill.classList.remove('offline');
+        txt.textContent = d.model || 'connected';
+      } else {
+        pill.classList.add('offline');
+        txt.textContent = 'Ollama offline';
+      }
+    } catch {
+      pill.classList.add('offline');
+      txt.textContent = 'offline';
+    }
+  }
+  checkHealth();
 
-        async function callAPI(endpoint, payload) {
-            const output = document.getElementById('output');
-            const buttons = document.querySelectorAll('button');
+  // --- Examples ---
+  function useExample(btn) {
+    const text = btn.querySelector('.text').textContent;
+    const contextLine = btn.querySelectorAll('.text')[1];
+    symptomsInput.value = text;
+    if (contextLine) {
+      contextInput.value = contextLine.textContent.replace(/^Context:\s*/, '');
+    }
+    symptomsInput.focus();
+    symptomsInput.dispatchEvent(new Event('input'));
+  }
 
-            buttons.forEach(btn => btn.disabled = true);
-            output.innerHTML = '<div class="loading"><div class="spinner"></div> Processing...</div>';
+  // --- New patient ---
+  function newPatient() {
+    document.querySelectorAll('.msg, .thinking, .error-msg').forEach(el => el.remove());
+    if (!emptyState.parentNode) conversation.appendChild(emptyState);
+    emptyState.style.display = '';
+    symptomsInput.value = '';
+    contextInput.value = '';
+    symptomsInput.style.height = 'auto';
+    symptomsInput.focus();
+  }
 
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+  // --- Send a user message bubble ---
+  function appendUserMsg(symptoms, context) {
+    emptyState.style.display = 'none';
+    const msg = document.createElement('div');
+    msg.className = 'msg msg-user';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = symptoms;
+    if (context) {
+      const ctx = document.createElement('span');
+      ctx.className = 'context';
+      ctx.textContent = '(' + context + ')';
+      bubble.appendChild(ctx);
+    }
+    msg.appendChild(bubble);
+    conversation.appendChild(msg);
+    scrollToBottom();
+  }
 
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
-                }
+  function appendThinking() {
+    const t = document.createElement('div');
+    t.className = 'thinking';
+    t.id = 'thinking';
+    t.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div><span>Reasoning with Gemma 4 locally…</span>';
+    conversation.appendChild(t);
+    scrollToBottom();
+  }
+  function removeThinking() {
+    const t = document.getElementById('thinking');
+    if (t) t.remove();
+  }
 
-                const data = await response.json();
-                displayResults(data, endpoint);
-            } catch (error) {
-                output.innerHTML = `<div class="error-box">Error: ${error.message}</div>`;
-            } finally {
-                buttons.forEach(btn => btn.disabled = false);
-            }
-        }
+  function appendError(message) {
+    const m = document.createElement('div');
+    m.className = 'msg msg-bot';
+    m.innerHTML = `<div class="error-msg">⚠ ${message}</div>`;
+    conversation.appendChild(m);
+    scrollToBottom();
+  }
 
-        function displayResults(data, endpoint) {
-            const output = document.getElementById('output');
-            let html = '<h2>Results</h2>';
+  function scrollToBottom() {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+  }
 
-            if (data.error) {
-                html += `<div class="error-box">Error: ${data.error}</div>`;
-            }
+  function escapeHtml(s) {
+    if (s === undefined || s === null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
-            const triage = data.triage_level || 'YELLOW';
-            const triageClass = {
-                'RED': 'triage-red',
-                'YELLOW': 'triage-yellow',
-                'GREEN': 'triage-green'
-            }[triage] || 'triage-yellow';
+  // --- Render assistant diagnosis card ---
+  function renderDiagnosis(data) {
+    const triage = (data.triage_level || 'YELLOW').toUpperCase();
+    const klass = triage.toLowerCase();
+    const icon = triage === 'RED' ? '⚠' : triage === 'YELLOW' ? '⚡' : '✓';
+    const banner = triage === 'RED'
+      ? 'ESCALATE NOW — ' + (data.safety?.escalation_reason || 'Red flag detected')
+      : triage === 'YELLOW' ? 'URGENT — evaluate within 1 hour' : 'NON-URGENT — outpatient follow-up';
 
-            html += `<div class="triage-badge ${triageClass}">Triage: ${triage}</div>`;
+    const top = data.differential_diagnosis?.[0];
+    const action = top?.recommendation || 'Refer to a clinician.';
+    const transport = top?.during_transport || data.during_transport;
 
-            if (data.safety && data.safety.escalation_required) {
-                html += `<div class="safety-alert danger">
-                    <h3>⚠️ Escalation Required</h3>
-                    <p>${data.safety.escalation_reason || 'Immediate medical evaluation needed'}</p>
-                </div>`;
-            }
+    let html = `
+      <div class="triage-card">
+        <div class="triage-banner ${klass}">
+          <span class="icon">${icon}</span>
+          <span>${escapeHtml(banner)}</span>
+        </div>
+        <div class="action-section">
+          <div class="label">Action</div>
+          <div class="body">${escapeHtml(action)}</div>
+        </div>`;
 
-            if (data.differential_diagnosis && data.differential_diagnosis.length > 0) {
-                html += '<h3 style="margin-top: 20px; color: #333;">Differential Diagnosis</h3>';
-                data.differential_diagnosis.forEach((diag, idx) => {
-                    const confidence = (diag.confidence * 100).toFixed(0);
-                    html += `<div class="diagnosis-item">
-                        <h3>${idx + 1}. ${diag.condition}</h3>
-                        <p><span class="confidence">${confidence}% confidence</span></p>
-                        <p><strong>Reasoning:</strong> ${diag.reasoning || 'N/A'}</p>
-                        <p><strong>Guideline:</strong> ${diag.guideline_reference || 'N/A'}</p>
-                        <p><strong>Recommendation:</strong> ${diag.recommendation || 'Refer to healthcare provider'}</p>
-                    </div>`;
-                });
-            }
+    if (transport && triage === 'RED') {
+      html += `
+        <div class="action-section transport">
+          <div class="label">During transport</div>
+          <div class="body">${escapeHtml(transport)}</div>
+        </div>`;
+    }
 
-            if (data.recommendation) {
-                html += `<div class="diagnosis-item" style="border-left-color: #ffa500;">
-                    <strong>Action:</strong> ${data.recommendation}
-                </div>`;
-            }
+    if (data.differential_diagnosis?.length) {
+      html += `<div class="differentials">
+        <div class="label">Differential</div>`;
+      data.differential_diagnosis.forEach(d => {
+        const conf = ((d.confidence ?? 0) * 100).toFixed(0);
+        html += `
+          <div class="diff-item">
+            <div class="diff-head">
+              <div class="diff-name">${escapeHtml(d.condition)}</div>
+              <div class="diff-conf">${conf}%</div>
+            </div>
+            <div class="diff-reason">${escapeHtml(d.reasoning || '')}</div>
+            <div class="diff-meta">
+              <span><strong>Guideline:</strong> ${escapeHtml(d.guideline_reference || '—')}</span>
+            </div>
+          </div>`;
+      });
+      html += `</div>`;
+    }
 
-            html += `<div class="disclaimer">
-                <strong>DISCLAIMER:</strong> This is a clinical decision support tool, not a diagnostic system.
-                Results are for triage guidance only and should not replace clinical judgment by licensed healthcare providers.
-                Always consult with a qualified physician for diagnosis and treatment recommendations.
-            </div>`;
+    html += `
+        <div class="session-footer">
+          <span class="meta-mono">session ${escapeHtml((data.session_id || '').slice(0,8))}</span>
+          <span>Gemma 4 · local · offline</span>
+        </div>
+      </div>`;
 
-            output.innerHTML = html;
-        }
+    const msg = document.createElement('div');
+    msg.className = 'msg msg-bot';
+    msg.innerHTML = html;
+    conversation.appendChild(msg);
+    scrollToBottom();
+  }
 
-        // Auto-focus on symptoms field
-        window.addEventListener('load', () => {
-            document.getElementById('symptoms').focus();
-        });
-    </script>
+  function renderQuickTriage(data) {
+    const triage = (data.triage_level || 'YELLOW').toUpperCase();
+    const klass = triage.toLowerCase();
+    const icon = triage === 'RED' ? '⚠' : triage === 'YELLOW' ? '⚡' : '✓';
+    const banner = triage === 'RED'
+      ? 'ESCALATE NOW — ' + (data.escalation_reason || 'Red flag')
+      : triage === 'YELLOW' ? 'URGENT' : 'NON-URGENT';
+
+    const html = `
+      <div class="triage-card">
+        <div class="triage-banner ${klass}">
+          <span class="icon">${icon}</span>
+          <span>${escapeHtml(banner)}</span>
+        </div>
+        <div class="action-section">
+          <div class="label">Quick triage (rules only)</div>
+          <div class="body">${escapeHtml(data.recommendation || '')}</div>
+        </div>
+        <div class="session-footer">
+          <span class="meta-mono">session ${escapeHtml((data.session_id || '').slice(0,8))}</span>
+          <span>Rule engine · ~10 ms</span>
+        </div>
+      </div>`;
+
+    const msg = document.createElement('div');
+    msg.className = 'msg msg-bot';
+    msg.innerHTML = html;
+    conversation.appendChild(msg);
+    scrollToBottom();
+  }
+
+  // --- Diagnose ---
+  async function sendDiagnose() {
+    const symptoms = symptomsInput.value.trim();
+    const context = contextInput.value.trim();
+    if (!symptoms) return;
+    if (symptoms.length < 5) {
+      appendError('Please describe the symptoms in more detail (at least 5 characters).');
+      return;
+    }
+
+    appendUserMsg(symptoms, context);
+    symptomsInput.value = '';
+    contextInput.value = '';
+    symptomsInput.style.height = 'auto';
+    sendBtn.disabled = true;
+    quickBtn.disabled = true;
+    appendThinking();
+
+    try {
+      const r = await fetch('/api/v1/diagnose', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ symptoms, patient_context: context })
+      });
+      removeThinking();
+      if (!r.ok) {
+        const errText = await r.text();
+        appendError(`Server error (${r.status}): ${errText.slice(0,200)}`);
+        return;
+      }
+      const data = await r.json();
+      if (data.error) appendError(data.error);
+      renderDiagnosis(data);
+    } catch (e) {
+      removeThinking();
+      appendError('Network error: ' + e.message);
+    } finally {
+      sendBtn.disabled = false;
+      quickBtn.disabled = false;
+      symptomsInput.focus();
+    }
+  }
+
+  async function quickTriage() {
+    const symptoms = symptomsInput.value.trim();
+    if (!symptoms || symptoms.length < 5) {
+      appendError('Please describe the symptoms first.');
+      return;
+    }
+    appendUserMsg(symptoms, contextInput.value.trim());
+    symptomsInput.value = '';
+    contextInput.value = '';
+    symptomsInput.style.height = 'auto';
+    quickBtn.disabled = true;
+    sendBtn.disabled = true;
+
+    try {
+      const r = await fetch('/api/v1/triage', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ symptoms })
+      });
+      const data = await r.json();
+      renderQuickTriage(data);
+    } catch (e) {
+      appendError('Network error: ' + e.message);
+    } finally {
+      quickBtn.disabled = false;
+      sendBtn.disabled = false;
+      symptomsInput.focus();
+    }
+  }
+
+  // --- Voice input via Web Speech API ---
+  let recognition = null;
+  let isRecording = false;
+  function initSpeech() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      micBtn.disabled = true;
+      micBtn.title = 'Voice not supported in this browser (Chrome / Safari only)';
+      micBtn.style.opacity = '0.4';
+      return;
+    }
+    recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let baseText = '';
+    recognition.onstart = () => {
+      isRecording = true;
+      micBtn.classList.add('recording');
+      inputHint.textContent = 'Listening… click 🎤 again to stop';
+      baseText = symptomsInput.value;
+      if (baseText && !baseText.endsWith(' ')) baseText += ' ';
+    };
+    recognition.onresult = (e) => {
+      let transcript = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        transcript += e.results[i][0].transcript;
+      }
+      symptomsInput.value = baseText + transcript;
+      symptomsInput.dispatchEvent(new Event('input'));
+    };
+    recognition.onerror = (e) => {
+      appendError('Voice input error: ' + e.error);
+    };
+    recognition.onend = () => {
+      isRecording = false;
+      micBtn.classList.remove('recording');
+      inputHint.textContent = 'Enter to send · Shift+Enter for new line';
+    };
+  }
+  initSpeech();
+
+  function toggleMic() {
+    if (!recognition) return;
+    if (isRecording) recognition.stop();
+    else recognition.start();
+  }
+</script>
+
 </body>
 </html>

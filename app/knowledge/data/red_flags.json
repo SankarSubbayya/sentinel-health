@@ -109,6 +109,66 @@
       "escalation_reason": "Airway compromise risk",
       "urgency": "IMMEDIATE",
       "action": "Epinephrine IM, antihistamines, hospital admission"
+    },
+    {
+      "id": "rf_anginal_history",
+      "name": "Typical Anginal Pain by History",
+      "keywords": ["anginal pain", "pressure-like chest", "squeezing chest", "tight chest", "heaviness in chest", "chest pressure with exertion", "exertional chest pain", "chest pain radiating to jaw", "chest pain radiating to arm", "chest pain radiating to shoulder"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Typical anginal character — must escalate even if ECG/Echo/troponin are normal (unstable angina presents this way)",
+      "urgency": "IMMEDIATE",
+      "action": "Hospital referral for angiography per ACC/AHA 2023; do not let normal initial tests reassure"
+    },
+    {
+      "id": "rf_atypical_acs_high_risk",
+      "name": "Atypical ACS in High-Risk Patient",
+      "keywords": ["jaw pain", "shoulder pain", "epigastric pain", "unexplained nausea", "sudden fatigue"],
+      "combined_symptoms": ["diabetes", "elderly", "woman", "female", "diabetic"],
+      "triage_level": "RED",
+      "escalation_reason": "Atypical ACS presentation in high-risk patient (women, elderly, diabetics often present without classic chest pain)",
+      "urgency": "IMMEDIATE",
+      "action": "Treat as ACS until proven otherwise; arrange transport"
+    },
+    {
+      "id": "rf_major_trauma",
+      "name": "Major Trauma",
+      "keywords": ["road accident", "traffic accident", "fall from height", "fell from", "penetrating injury", "stab wound", "gunshot", "crush injury", "open fracture", "uncontrolled bleeding", "unconscious after injury"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Major trauma — primary survey and rapid transport per ATLS",
+      "urgency": "IMMEDIATE",
+      "action": "ABC primary survey, control bleeding, immobilize C-spine, arrange transport, do NOT remove impaled objects"
+    },
+    {
+      "id": "rf_poisoning",
+      "name": "Acute Poisoning / Ingestion",
+      "keywords": ["swallowed poison", "ingested pesticide", "drank pesticide", "swallowed pills", "took overdose", "organophosphate", "drank kerosene", "swallowed bleach", "child swallowed", "intentional ingestion", "accidental ingestion"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Acute poisoning — antidote may be time-critical; do not induce vomiting",
+      "urgency": "IMMEDIATE",
+      "action": "Hospital transport, bring the container/label, recovery position if unconscious, maintain airway"
+    },
+    {
+      "id": "rf_organophosphate",
+      "name": "Organophosphate Pesticide Toxicity",
+      "keywords": ["pesticide", "insecticide", "organophosphate", "drooling", "salivation", "small pupils", "miosis"],
+      "combined_symptoms": ["confusion", "seizure", "difficulty breathing", "slow heart rate"],
+      "triage_level": "RED",
+      "escalation_reason": "Cholinergic crisis — atropine is the antidote, time-critical",
+      "urgency": "IMMEDIATE",
+      "action": "Hospital transport, atropine if clinician trained, decontaminate skin if topical exposure"
+    },
+    {
+      "id": "rf_snake_bite",
+      "name": "Snake Bite",
+      "keywords": ["snake bite", "snake bit", "bitten by snake", "fang marks", "bite mark from snake"],
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Potential envenomation — neurotoxic effects can have 30–60 min lag; transport for anti-venom",
+      "urgency": "IMMEDIATE",
+      "action": "Immobilize limb below heart level, remove constricting items, transport now. DO NOT apply tourniquet, DO NOT cut/suck the wound, DO NOT wait for symptoms."
     }
   ]
 }

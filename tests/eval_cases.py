@@ -31,7 +31,9 @@ CASES_PATH = Path(__file__).parent / "cases" / "clinical_cases.json"
 RESULTS_DIR = Path(__file__).parent / "results"
 
 TRIAGE_RANK = {"GREEN": 0, "YELLOW": 1, "RED": 2}
-PASS_THRESHOLD = 0.90  # 18/20
+PASS_THRESHOLD = 0.90  # ≥ 27/30
+SENSITIVITY_TARGET = 0.95  # of RED cases, ≥ 95% must be caught as RED
+SPECIFICITY_TARGET = 0.80  # of non-RED cases, ≥ 80% must NOT be over-escalated to RED
 
 
 SYNONYMS = {
@@ -60,6 +62,44 @@ SYNONYMS = {
     "hypertensive emergency": "hypertensive_crisis",
     "hypertensive encephalopathy": "htn_encephalopathy",
     "anaphylactic reaction": "anaphylaxis",
+    "trauma": "major_trauma",
+    "polytrauma": "major_trauma",
+    "blunt trauma": "major_trauma",
+    "head injury": "major_trauma",
+    "traumatic brain injury": "major_trauma",
+    "tbi": "major_trauma",
+    "fracture": "major_trauma",
+    "laceration": "major_trauma",
+    "minor laceration": "major_trauma",
+    "minor injury": "major_trauma",
+    "intoxication": "poisoning",
+    "overdose": "poisoning",
+    "drug overdose": "poisoning",
+    "paracetamol overdose": "poisoning",
+    "acetaminophen overdose": "poisoning",
+    "organophosphate poisoning": "poisoning",
+    "organophosphate toxicity": "poisoning",
+    "pesticide poisoning": "poisoning",
+    "ingestion": "poisoning",
+    "accidental ingestion": "poisoning",
+    "snake bite": "snake_bite",
+    "snakebite": "snake_bite",
+    "envenomation": "snake_bite",
+    "snake envenomation": "snake_bite",
+    "neurotoxic envenomation": "snake_bite",
+    "hemotoxic envenomation": "snake_bite",
+    "viper bite": "snake_bite",
+    "cobra bite": "snake_bite",
+    "krait bite": "snake_bite",
+    "no acute condition identified": "benign_default",
+    "no acute condition": "benign_default",
+    "no specific condition": "benign_default",
+    "no specific condition identified": "benign_default",
+    "minor injury": "benign_default",
+    "minor laceration": "benign_default",
+    "minor wound": "benign_default",
+    "no urgent diagnosis": "benign_default",
+    "no acute finding": "benign_default",
 }
 
 
@@ -195,8 +235,28 @@ async def main() -> int:
     total = len(scores)
     pass_rate = passed / total if total else 0.0
 
+    red_total = sum(1 for s in scores if s["expected_triage"] == "RED")
+    red_caught = sum(
+        1 for s in scores if s["expected_triage"] == "RED" and s["predicted_triage"] == "RED"
+    )
+    nonred_total = sum(1 for s in scores if s["expected_triage"] != "RED")
+    nonred_kept = sum(
+        1 for s in scores if s["expected_triage"] != "RED" and s["predicted_triage"] != "RED"
+    )
+    sensitivity = red_caught / red_total if red_total else 0.0
+    specificity = nonred_kept / nonred_total if nonred_total else 0.0
+
     print("-" * 100)
     print(f"PASS: {passed}/{total}  ({pass_rate * 100:.1f}%)")
+    print(
+        f"SENSITIVITY: {red_caught}/{red_total}  ({sensitivity * 100:.1f}%)  "
+        f"[target ≥ {SENSITIVITY_TARGET * 100:.0f}%]"
+    )
+    print(
+        f"SPECIFICITY: {nonred_kept}/{nonred_total}  ({specificity * 100:.1f}%)  "
+        f"[target ≥ {SPECIFICITY_TARGET * 100:.0f}%]"
+    )
+
     breakdown = {}
     for s in scores:
         cat = s["category"]
@@ -205,7 +265,7 @@ async def main() -> int:
         if s["overall_pass"]:
             breakdown[cat][0] += 1
     for cat, (p, t) in sorted(breakdown.items()):
-        print(f"  {cat:<12}  {p}/{t}")
+        print(f"  {cat:<14}  {p}/{t}")
 
     failure_modes = {"triage": 0, "diagnosis": 0, "red_flag": 0}
     for s in scores:
@@ -231,6 +291,12 @@ async def main() -> int:
                     "passed": passed,
                     "total": total,
                     "pass_rate": pass_rate,
+                    "sensitivity": sensitivity,
+                    "specificity": specificity,
+                    "red_caught": red_caught,
+                    "red_total": red_total,
+                    "nonred_kept": nonred_kept,
+                    "nonred_total": nonred_total,
                     "scores": scores,
                 },
                 indent=2,
@@ -238,7 +304,12 @@ async def main() -> int:
         )
         print(f"Results written to {out}")
 
-    return 0 if pass_rate >= PASS_THRESHOLD else 1
+    targets_hit = (
+        pass_rate >= PASS_THRESHOLD
+        and sensitivity >= SENSITIVITY_TARGET
+        and specificity >= SPECIFICITY_TARGET
+    )
+    return 0 if targets_hit else 1
 
 
 if __name__ == "__main__":

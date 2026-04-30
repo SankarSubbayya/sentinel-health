@@ -31,12 +31,14 @@ class DiagnosisService:
                 parsed.get("triage_level", "YELLOW"), symptoms, parsed
             )
 
+            final_triage = safety_post["final_triage"]
             response = {
                 "session_id": session_id,
                 "differential_diagnosis": parsed.get("differential_diagnosis", []),
                 "safety": {
                     "is_red_flag": safety_post["pre_check_flags"]["is_red_flag"],
-                    "escalation_required": safety_post["override_applied"]
+                    "escalation_required": final_triage == "RED"
+                    or safety_post["override_applied"]
                     or safety_post["pre_check_flags"]["escalation_required"],
                     "escalation_reason": safety_post["override_reason"]
                     or (
@@ -45,7 +47,7 @@ class DiagnosisService:
                         else None
                     ),
                 },
-                "triage_level": safety_post["final_triage"],
+                "triage_level": final_triage,
                 "disclaimer": "For triage support only. Not a substitute for clinical judgment. Always consult a healthcare provider for final diagnosis and treatment decisions.",
             }
 

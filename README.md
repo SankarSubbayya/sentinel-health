@@ -1,10 +1,12 @@
 # Sentinel Health
 
-> **Specialist-grade triage in the world's least-connected clinics.**
+> **An offline triage net for the five grassroots emergencies — Trauma, Poisoning, Snake Bite, MI, Stroke.**
 
-Sentinel Health is an offline-first, voice-enabled clinical decision support web app powered by **Gemma 4** running locally via **Ollama**. It helps community health workers and rural clinicians triage patients in low-resource, low-connectivity settings — no cloud, no excuses.
+Sentinel Health is an offline-first, voice-enabled clinical decision support web app powered by **Gemma 4** running locally via **Ollama**. It is the **AI triage layer for the spoke** in a hub-and-spoke healthcare network — designed to help a community health worker or rural clinician decide *treat-here vs. escalate-to-hub* in seconds, even with no internet.
 
-Built for the **Gemma 4 Good Hackathon** (Google DeepMind / Kaggle, 2026).
+Scope is aligned to **TAI-VADE**, the Indian Ministry of Health framework for grassroots emergency care: Trauma, Poisoning, Snake Bite, MI, and Stroke — plus the high-yield conditions that present similarly (DKA, hypoglycemia, sepsis, anaphylaxis, severe dehydration).
+
+Built for the **Gemma 4 Good Hackathon** (Google DeepMind / Kaggle, 2026), with clinical advisory from a practising clinician.
 
 ---
 
@@ -17,7 +19,14 @@ Sentinel Health gives community health workers an offline AI assistant that help
 Two billion people get their primary care from community health workers, not doctors. These workers see chest pain, fever, sudden confusion every day — but they aren't trained to diagnose, and they have no internet to look things up. Sentinel Health runs Gemma 4 entirely on a clinic laptop. Voice in, ranked differential diagnosis out, with a guideline citation and a hard safety layer that flags emergencies. No cloud, no excuses.
 
 **Mission:**
-Democratize clinical decision support for low-resource healthcare.
+Democratize clinical decision support for low-resource healthcare — supplementary to the clinician, never a replacement.
+
+### Design principles (from clinician review)
+1. **Supplementary, not replacement.** No doctor can be replaced by an app — the disclaimer is load-bearing.
+2. **Confirmatory, not informational.** Lead with action ("Refer NOW; aspirin 325 mg if no allergy"), not menus of possibilities.
+3. **No over- and no under-diagnosis.** We track sensitivity and specificity separately.
+4. **History trumps tests.** Typical anginal pain → escalate, even if ECG / Echo / troponin are normal (unstable angina).
+5. **Bridge the referral.** Every RED diagnosis ships with a *during-transport* protocol.
 
 ---
 

@@ -43,10 +43,13 @@ DIAGNOSIS_SCHEMA: dict[str, Any] = {
 }
 
 
-SYSTEM_PROMPT = """You are Sentinel Health, a clinical decision support tool for community health workers in low-resource settings. You provide triage guidance and differential diagnoses, NOT definitive diagnoses.
+SYSTEM_PROMPT = """You are Sentinel Health, a clinical decision support tool for community health workers in low-resource settings. You provide triage guidance and differential diagnoses, NOT definitive diagnoses. Be confirmatory, not informational — lead with action, not menus of possibilities.
 
 Rules:
-- Reason ONLY from the candidate conditions provided to you. Do not invent conditions.
+- Reason ONLY from the candidate conditions provided to you. NEVER invent or guess conditions that are not in the candidate list.
+- If the candidate list is empty or none of the candidates plausibly fit the symptoms, return EXACTLY:
+    differential_diagnosis: [{"condition": "No acute condition identified", "confidence": 0.5, "reasoning": "Symptoms do not match any condition in the local knowledge base. This is likely benign or out of scope.", "guideline_reference": "N/A — refer to clinician if concern persists", "recommendation": "Observe and follow up. Refer to a clinician if symptoms worsen or new symptoms develop."}]
+  with triage_level "GREEN" and escalation_required false. Do NOT invent a condition like "MI" or "Stroke" to fill the slot.
 - Cap confidence at 0.9 — never claim certainty.
 - triage_level is RED for life-threatening, YELLOW for urgent, GREEN for non-urgent.
 - escalation_required must be true for any RED triage.
@@ -113,7 +116,11 @@ class OllamaClient:
                 for c in relevant_conditions[:6]
             )
         else:
-            conditions_block = "(no specific candidates matched — reason from general medicine)"
+            conditions_block = (
+                "(NONE — no candidate conditions matched the symptoms in our KB. "
+                "Per system rules, return the 'No acute condition identified' "
+                "default with triage GREEN. Do NOT invent a condition.)"
+            )
 
         context_block = patient_context.strip() if patient_context.strip() else "(none provided)"
 

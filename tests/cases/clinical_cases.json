@@ -186,6 +186,105 @@
       "expected_triage": "GREEN",
       "expected_condition_ids": ["common_cold", "flu"],
       "expected_red_flag": false
+    },
+    {
+      "id": "card_09_atypical_angina_normal_ecg",
+      "category": "cardiology",
+      "symptoms": "Pressure-like chest discomfort that comes when walking uphill, radiates to jaw, relieved by rest",
+      "patient_context": "62-year-old diabetic male; ECG done at clinic last month was reportedly normal",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["acs", "acute_mi"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "card_10_unstable_angina_history",
+      "category": "cardiology",
+      "symptoms": "Squeezing chest pain at rest, two episodes today, 20 minutes each, radiating to left arm",
+      "patient_context": "55-year-old, known hypertension, smoker, no formal cardiac diagnosis",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["acs", "acute_mi"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "trauma_01_road_accident",
+      "category": "trauma",
+      "symptoms": "Patient brought in after motorbike accident, road accident 30 minutes ago, complains of chest pain and right thigh deformity, conscious but pale",
+      "patient_context": "30-year-old male, helmet on, no LOC reported",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["major_trauma"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "trauma_02_fall_height",
+      "category": "trauma",
+      "symptoms": "Construction worker fell from height of 3 meters, severe back pain, cannot move right leg, brief loss of consciousness",
+      "patient_context": "45-year-old male",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["major_trauma", "stroke"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "trauma_03_minor_laceration",
+      "category": "trauma",
+      "symptoms": "Cut finger on a knife while cooking, bleeding controlled with pressure, no other injury",
+      "patient_context": "Otherwise well adult",
+      "expected_triage": "GREEN",
+      "expected_condition_ids": ["benign_default", "major_trauma"],
+      "expected_red_flag": false
+    },
+    {
+      "id": "tox_01_organophosphate",
+      "category": "toxicology",
+      "symptoms": "Farmer ingested pesticide one hour ago, drooling heavily, small pupils, confused, slow heart rate",
+      "patient_context": "Suspected organophosphate, found near pesticide container",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["poisoning"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "tox_02_paracetamol_overdose",
+      "category": "toxicology",
+      "symptoms": "Took 30 paracetamol tablets 2 hours ago in self-harm attempt, currently nauseated, otherwise alert",
+      "patient_context": "Adult, no other co-ingestion known",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["poisoning"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "tox_03_child_accidental_ingestion",
+      "category": "toxicology",
+      "symptoms": "3-year-old child swallowed unknown amount of grandmother's pills 30 minutes ago, currently sleepy and unsteady",
+      "patient_context": "Pills are blood pressure medication",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["poisoning"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "snake_01_neurotoxic",
+      "category": "envenomation",
+      "symptoms": "Snake bite on right ankle 30 minutes ago, drooping eyelids starting, difficulty swallowing, fang marks visible",
+      "patient_context": "Rural farmer, monsoon season, suspected krait",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["snake_bite"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "snake_02_with_tourniquet",
+      "category": "envenomation",
+      "symptoms": "Snake bit child two hours ago, family tied a rope tightly above the bite, swelling and pain at bite site",
+      "patient_context": "Tourniquet still in place; rural India",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["snake_bite"],
+      "expected_red_flag": true
+    },
+    {
+      "id": "snake_03_dry_bite_observation",
+      "category": "envenomation",
+      "symptoms": "Snake bite reported one hour ago, no swelling, no bleeding, no neurologic symptoms, patient anxious",
+      "patient_context": "Endemic area, species unknown",
+      "expected_triage": "RED",
+      "expected_condition_ids": ["snake_bite"],
+      "expected_red_flag": true
     }
   ]
 }

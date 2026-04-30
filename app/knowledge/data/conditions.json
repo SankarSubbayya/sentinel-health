@@ -4,11 +4,13 @@
       "id": "acs",
       "name": "Acute Coronary Syndrome",
       "category": "cardiology",
-      "symptoms": ["chest pain", "chest discomfort", "chest pressure", "shortness of breath", "dyspnea", "diaphoresis", "nausea", "jaw pain", "shoulder pain", "arm pain"],
+      "symptoms": ["chest pain", "chest discomfort", "chest pressure", "chest tightness", "tightness in chest", "tight chest", "chest squeezing", "chest heaviness", "exertional chest", "chest pain on exertion", "chest tightness on exertion", "chest pain with exertion", "shortness of breath", "dyspnea", "diaphoresis", "nausea", "jaw pain", "shoulder pain", "arm pain", "stable angina", "angina"],
       "high_risk_factors": ["age > 40", "hypertension", "diabetes", "smoking", "high cholesterol", "male"],
       "guideline": "2023 ACC/AHA Chest Pain Protocol",
       "urgency": "IMMEDIATE",
-      "recommendation": "Immediate hospital referral, EKG within 10 minutes, troponin testing",
+      "recommendation": "Arrange immediate hospital transport. Aspirin 325 mg chewed if no allergy. ECG within 10 minutes if available. Document onset time.",
+      "during_transport": "Continuous vitals (BP, HR, SpO2). Second aspirin if ongoing pain. Avoid nitrates if SBP < 90. If cardiac arrest, start CPR.",
+      "history_trigger": "Typical anginal character (pressure/squeezing, exertional, radiating to jaw or left arm) escalates to RED even with normal ECG/Echo/troponin — this is unstable angina.",
       "differential_conditions": ["pulmonary embolism", "aortic dissection", "pneumonia"]
     },
     {
@@ -19,7 +21,8 @@
       "high_risk_factors": ["known hypertension", "discontinuation of antihypertensives", "preeclampsia"],
       "guideline": "ACC/AHA Hypertension Guidelines 2023",
       "urgency": "IMMEDIATE",
-      "recommendation": "Immediate referral, BP measurement, monitor for complications",
+      "recommendation": "Arrange immediate hospital transport. Document BP. Do NOT lower BP rapidly outside hospital — controlled reduction prevents stroke from over-correction.",
+      "during_transport": "Recheck BP every 15 min. Avoid sudden lowering. Patient seated upright. Watch for neurologic deficit (suggests stroke from over-correction or hypertensive encephalopathy).",
       "differential_conditions": ["stroke", "intracranial hemorrhage"]
     },
     {
@@ -30,18 +33,20 @@
       "high_risk_factors": ["type 1 diabetes", "infection", "stress", "missed insulin"],
       "guideline": "ADA Diabetes Management Standards 2026",
       "urgency": "IMMEDIATE",
-      "recommendation": "Immediate hospital admission, IV fluids, insulin therapy, lab work",
+      "recommendation": "Arrange immediate hospital admission for IV fluids and insulin. Do NOT give insulin without hospital monitoring (risk of cerebral edema in children). Check fingerstick glucose.",
+      "during_transport": "IV access, normal saline if trained. Monitor consciousness. NPO. Oxygen if dyspneic. If patient deteriorates, check glucose — DKA can co-exist with concurrent illness.",
       "differential_conditions": ["hypoglycemia", "severe infection"]
     },
     {
       "id": "hypoglycemia",
       "name": "Hypoglycemia",
       "category": "diabetes",
-      "symptoms": ["trembling", "sweating", "palpitations", "anxiety", "confusion", "blurred vision", "loss of consciousness"],
+      "symptoms": ["trembling", "shaky", "shakiness", "shaking", "sweating", "sweaty", "perspiring", "palpitations", "anxiety", "confusion", "blurred vision", "loss of consciousness", "low sugar feeling", "feeling faint after meal skip", "ate sugar to feel better"],
       "high_risk_factors": ["diabetes on insulin", "skipped meals", "excessive exercise"],
       "guideline": "ADA Hypoglycemia Management",
       "urgency": "URGENT",
-      "recommendation": "Immediate glucose intake (15g fast carbs), recheck glucose, monitor",
+      "recommendation": "If conscious: 15 g fast carbs (juice, sugar). Recheck glucose in 15 min. Repeat if still low. If unconscious or seizing: IM glucagon if available, otherwise sugar/honey on gums + arrange transport.",
+      "during_transport": "If unconscious, recovery position, NPO. Monitor airway. IM glucagon if available. Notify hospital that patient is hypoglycemic (do not delay for IV access).",
       "differential_conditions": ["anxiety", "intoxication"]
     },
     {
@@ -52,7 +57,8 @@
       "high_risk_factors": ["recent surgery", "prolonged immobility", "cancer", "hypercoagulability", "recent flight"],
       "guideline": "ACCP PE Guidelines 2023",
       "urgency": "IMMEDIATE",
-      "recommendation": "Immediate hospital referral, CT angiography, anticoagulation consideration",
+      "recommendation": "Arrange immediate hospital transport for CT angiography. Oxygen if SpO2 < 92%. Do NOT give heparin/anticoagulant outside hospital — confirm diagnosis first.",
+      "during_transport": "Sit patient upright. Oxygen. Monitor for cardiac arrest (massive PE can cause sudden collapse). IV access if trained. Do not delay transport.",
       "differential_conditions": ["acute coronary syndrome", "pneumonia"]
     },
     {
@@ -63,7 +69,8 @@
       "high_risk_factors": ["hypertension", "atrial fibrillation", "diabetes", "smoking"],
       "guideline": "AHA/ASA Stroke Guidelines 2023",
       "urgency": "IMMEDIATE",
-      "recommendation": "Immediate hospital referral (thrombolytic window critical), CT/MRI",
+      "recommendation": "Arrange immediate hospital transport. Document time of symptom onset (thrombolytic window is 4.5 hours). Do NOT give aspirin until hemorrhagic stroke is ruled out by CT.",
+      "during_transport": "Keep head elevated 30 degrees. NPO (nothing by mouth). Monitor BP — do not aggressively lower unless > 220/120. Glucose check (hypoglycemia mimics stroke).",
       "differential_conditions": ["seizure", "migraine", "intracranial hemorrhage"]
     },
     {
@@ -74,7 +81,8 @@
       "high_risk_factors": ["infection source", "immunocompromised", "recent surgery", "urinary catheter"],
       "guideline": "Surviving Sepsis Campaign 2023",
       "urgency": "IMMEDIATE",
-      "recommendation": "Immediate hospital admission, blood cultures, IV antibiotics, fluid resuscitation",
+      "recommendation": "Arrange immediate hospital transport. IV access and fluid resuscitation if trained (30 mL/kg crystalloid). Oxygen. Document time of first symptom (1-hour bundle target).",
+      "during_transport": "Continue fluids. Monitor BP, HR, SpO2, mental status. If hypotensive, lay flat with legs elevated. Notify hospital of suspected sepsis on arrival so antibiotics start within the first hour.",
       "differential_conditions": ["severe infection", "shock"]
     },
     {
@@ -107,7 +115,8 @@
       "high_risk_factors": ["age", "smoking", "family history", "hypertension"],
       "guideline": "2023 ACC/AHA STEMI Protocol",
       "urgency": "IMMEDIATE",
-      "recommendation": "Emergency PCI or thrombolytics, aspirin, nitrates, oxygen",
+      "recommendation": "Arrange emergency PCI-capable hospital transport. Aspirin 325 mg chewed. Oxygen if SpO2 < 90%. Call ahead so cath lab is ready.",
+      "during_transport": "Cardiac monitoring. Second aspirin if pain persists. Nitrates only if SBP > 90. IV access. Defibrillator on standby.",
       "differential_conditions": ["unstable angina", "aortic dissection"]
     },
     {
@@ -151,7 +160,8 @@
       "high_risk_factors": ["known allergy", "recent allergen exposure", "bee sting", "food allergy", "drug reaction"],
       "guideline": "WAO Anaphylaxis Guidelines 2023",
       "urgency": "IMMEDIATE",
-      "recommendation": "Epinephrine IM (0.3-0.5mg adult), oxygen, IV fluids, hospital admission, antihistamines",
+      "recommendation": "Epinephrine IM 0.3–0.5 mg into anterolateral thigh — give FIRST, before transport. Lay flat with legs elevated (do not stand patient up). Arrange immediate hospital transport. Repeat epinephrine every 5–15 min if no improvement.",
+      "during_transport": "Patient supine. Oxygen. Monitor airway closely (delayed swelling possible). Be ready to repeat IM epinephrine. IV antihistamines and steroids are adjuncts only — epinephrine is the lifesaver.",
       "differential_conditions": ["asthma exacerbation", "vasovagal syncope", "panic attack"]
     },
     {
@@ -164,6 +174,46 @@
       "urgency": "URGENT",
       "recommendation": "Blood glucose check, insulin adjustment, identify trigger",
       "differential_conditions": ["diabetes insipidus", "infection"]
+    },
+    {
+      "id": "major_trauma",
+      "name": "Major Trauma",
+      "category": "trauma",
+      "symptoms": ["road accident", "traffic accident", "motorbike accident", "fall from height", "fell from", "fell from height", "penetrating injury", "stab wound", "gunshot", "uncontrolled bleeding", "heavy bleeding", "unconscious after injury", "loss of consciousness after injury", "brief loss of consciousness", "open fracture", "deformity", "severe pain after injury", "blood loss", "back pain after fall", "cannot move leg", "cannot move arm", "head injury"],
+      "high_risk_factors": ["high-velocity impact", "elderly", "anticoagulant use", "head injury", "chest injury", "abdominal injury"],
+      "guideline": "ATLS 10th Edition + WHO Trauma Care Checklist",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Primary survey (Airway-Breathing-Circulation). Control external bleeding with direct pressure. Stabilize cervical spine if head/neck injury suspected. Arrange immediate hospital transport. Do NOT remove impaled objects.",
+      "during_transport": "Maintain airway. Two large-bore IV lines if trained. Keep patient warm (hypothermia worsens bleeding). Monitor consciousness (GCS). Splint long-bone fractures. Document mechanism of injury and time.",
+      "history_trigger": "High-velocity mechanism (road accident, fall from height) + any altered consciousness, chest/abdominal pain, or limb deformity → RED regardless of how the patient looks initially. Internal injuries can be silent for the first 30 minutes.",
+      "differential_conditions": ["head injury", "internal bleeding", "tension pneumothorax", "hypovolemic shock"]
+    },
+    {
+      "id": "poisoning",
+      "name": "Acute Poisoning",
+      "category": "toxicology",
+      "symptoms": ["ingested poison", "swallowed pesticide", "swallowed pills", "took tablets", "took pills", "took overdose", "took an overdose", "drank pesticide", "drank kerosene", "drank bleach", "ingested", "ingestion", "self-harm attempt", "intentional self-harm", "child swallowed", "accidental ingestion", "paracetamol overdose", "acetaminophen overdose", "vomiting", "drowsiness", "confusion", "seizures", "drooling", "small pupils", "large pupils", "difficulty breathing", "slow heart rate"],
+      "high_risk_factors": ["pesticide exposure (organophosphate)", "intentional self-harm", "child accidental ingestion", "alcohol/methanol", "paracetamol overdose", "drug overdose"],
+      "guideline": "WHO Poisons Centres + AAPCC Guidelines",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Identify the poison if possible (bring container or sample). Arrange immediate hospital transport. Do NOT induce vomiting. Do NOT give milk or water unless directed by Poison Control. For organophosphate (pesticide) exposure with drooling/small pupils/slow HR, atropine is the antidote — clinician judgement.",
+      "during_transport": "Maintain airway (poisoning patients often vomit). Recovery position if unconscious. Bring the poison container/label with the patient. Monitor for seizures and respiratory failure. Note time of ingestion and amount.",
+      "history_trigger": "Any history of ingestion + drooling, miosis (small pupils), bradycardia, or respiratory distress strongly suggests organophosphate — escalate immediately.",
+      "differential_conditions": ["sepsis", "stroke", "hypoglycemia", "drug overdose"]
+    },
+    {
+      "id": "snake_bite",
+      "name": "Snake Bite Envenomation",
+      "category": "envenomation",
+      "symptoms": ["snake bite", "snake bit", "snakebite", "bitten by snake", "fang marks", "bite mark", "swelling around bite", "swelling at bite site", "pain at bite site", "bleeding from gums", "drooping eyelids", "difficulty swallowing", "muscle weakness", "blood in urine", "severe pain at bite site", "tied a rope", "tied a tourniquet", "applied tourniquet"],
+      "high_risk_factors": ["rural agricultural area", "monsoon season", "barefoot", "night-time exposure", "venomous species in region (cobra, krait, viper)"],
+      "guideline": "WHO Snake Bite Management 2017 + ICMR India Snakebite Treatment Protocol",
+      "urgency": "IMMEDIATE",
+      "recommendation": "Arrange immediate hospital transport for anti-venom. Reassure the patient (panic raises HR and spreads venom). Immobilize the bitten limb in a splint, kept BELOW heart level. Remove rings/watches/tight clothing before swelling. Mark the leading edge of swelling on the skin with time noted.",
+      "during_transport": "Keep limb immobilized and below heart level. Monitor for neurotoxic signs (drooping eyelids, drooling, weak breathing — indicates cobra/krait) and hemotoxic signs (gum bleeding, oozing — indicates viper). Photograph the snake ONLY if dead and safe.",
+      "history_trigger": "Any reported snake bite in an endemic area is a potential emergency, even if patient looks well — neurotoxic envenomation can have a 30–60 minute lag before paralysis sets in.",
+      "folk_error_correction": "DO NOT apply a tourniquet or tight tie — this concentrates venom and causes limb necrosis. DO NOT cut and suck the wound. DO NOT give alcohol or coffee. DO NOT wait to see if symptoms develop — transport now.",
+      "differential_conditions": ["insect sting", "scorpion sting", "anaphylaxis", "panic attack"]
     }
   ]
 }
