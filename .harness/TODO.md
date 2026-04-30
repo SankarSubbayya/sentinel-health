@@ -51,7 +51,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: a low-confidence case shows clarifying questions; clicking a button extends the conversation.
   - File: `demo/index.html`. Depends on **W2-B2**.
 
-- [ ] **W2-F4: KB browser modal.**
+- [x] **W2-F4: KB browser modal.**
   - Add a small "Browse KB" link in the header that opens a modal listing all conditions (grouped by category), each clickable to show full record (symptoms, guideline, during-transport, folk-error if any).
   - Acceptance: opens on click, lists all 18 conditions, snake_bite shows its folk-error.
   - File: `demo/index.html`. Depends on **W2-B3**.
