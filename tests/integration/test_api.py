@@ -195,3 +195,31 @@ class TestTriageEndpoint:
     def test_triage_rejects_too_short(self, api_client):
         r = api_client.post("/api/v1/triage", json={"symptoms": "x"})
         assert r.status_code == 400
+
+
+class TestKBEndpoints:
+    def test_list_conditions_returns_summary_fields(self, api_client):
+        r = api_client.get("/api/v1/kb/conditions")
+        assert r.status_code == 200
+        body = r.json()
+        assert "conditions" in body
+        assert len(body["conditions"]) >= 18
+        ids = {c["id"] for c in body["conditions"]}
+        assert "snake_bite" in ids
+        assert "acs" in ids
+        # Summary fields only — must NOT leak full record
+        for c in body["conditions"]:
+            assert set(c.keys()) == {"id", "name", "category", "urgency"}
+
+    def test_get_condition_detail_exposes_folk_error_correction(self, api_client):
+        r = api_client.get("/api/v1/kb/conditions/snake_bite")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["id"] == "snake_bite"
+        assert "folk_error_correction" in body
+        assert body["folk_error_correction"].strip()
+        assert "DO NOT" in body["folk_error_correction"]
+
+    def test_get_condition_unknown_returns_404(self, api_client):
+        r = api_client.get("/api/v1/kb/conditions/not_a_real_condition")
+        assert r.status_code == 404

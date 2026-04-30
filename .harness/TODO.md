@@ -24,7 +24,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: integration test that posts symptoms and asserts 1–2 questions returned, each non-empty.
   - Files: `app/api/routes.py`, `app/services/diagnosis.py` (new method), `tests/integration/test_api.py`.
 
-- [ ] **W2-B3: Add `GET /api/v1/kb/conditions` and `GET /api/v1/kb/conditions/{id}` endpoints.**
+- [x] **W2-B3: Add `GET /api/v1/kb/conditions` and `GET /api/v1/kb/conditions/{id}` endpoints.**
   - Returns the KB conditions list (id, name, category, urgency only) and a single condition by id (full record).
   - Acceptance: integration tests asserting the snake_bite condition has `folk_error_correction` field exposed via the detail endpoint.
   - Files: `app/api/routes.py`, `tests/integration/test_api.py`.

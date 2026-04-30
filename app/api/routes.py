@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from app.core.llm import ollama_client
+from app.knowledge.loader import kb
 from app.services.diagnosis import diagnosis_service
 
 router = APIRouter()
@@ -78,6 +79,31 @@ async def clarify(request: ClarifyRequest):
     return await diagnosis_service.clarify(request.symptoms, request.patient_context)
 
 
+@router.get("/api/v1/kb/conditions")
+async def list_kb_conditions():
+    """List KB conditions with summary fields (id, name, category, urgency)."""
+    return {
+        "conditions": [
+            {
+                "id": c.get("id"),
+                "name": c.get("name"),
+                "category": c.get("category"),
+                "urgency": c.get("urgency"),
+            }
+            for c in kb.conditions
+        ]
+    }
+
+
+@router.get("/api/v1/kb/conditions/{condition_id}")
+async def get_kb_condition(condition_id: str):
+    """Return the full KB record for a single condition by id."""
+    for c in kb.conditions:
+        if c.get("id") == condition_id:
+            return c
+    raise HTTPException(status_code=404, detail=f"Condition '{condition_id}' not found")
+
+
 @router.post("/api/v1/triage")
 async def triage(request: TriageRequest):
     """
@@ -104,6 +130,8 @@ async def root():
             "POST /api/v1/diagnose": "Generate differential diagnosis from symptoms",
             "POST /api/v1/clarify": "Generate 1–2 clarifying questions for uncertain differentials",
             "POST /api/v1/triage": "Quick RED/YELLOW/GREEN triage",
+            "GET /api/v1/kb/conditions": "List KB conditions (id, name, category, urgency)",
+            "GET /api/v1/kb/conditions/{id}": "Full KB record for one condition",
             "GET /demo": "Interactive demo interface",
         },
         "disclaimer": "This is a decision support tool, not a diagnostic system. Always consult licensed healthcare providers.",
