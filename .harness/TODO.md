@@ -36,7 +36,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
 
 ### Frontend
 
-- [ ] **W2-F1: Render `during_transport` as a distinct panel in the UI when triage is RED.**
+- [x] **W2-F1: Render `during_transport` as a distinct panel in the UI when triage is RED.**
   - The new `demo/index.html` already has the CSS/HTML structure (`.action-section.transport`); wire it to read `response.during_transport` (preferred) before falling back to `differential_diagnosis[0].during_transport`.
   - Acceptance: a curl call returns the transport text and (manually) it shows in a panel below the action.
   - File: `demo/index.html`.

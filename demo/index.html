@@ -616,7 +616,7 @@
 
     const top = data.differential_diagnosis?.[0];
     const action = top?.recommendation || 'Refer to a clinician.';
-    const transport = top?.during_transport || data.during_transport;
+    const transport = data.during_transport || top?.during_transport;
 
     let html = `
       <div class="triage-card">
