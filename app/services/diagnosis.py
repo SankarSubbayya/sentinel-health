@@ -51,6 +51,13 @@ class DiagnosisService:
                 "disclaimer": "For triage support only. Not a substitute for clinical judgment. Always consult a healthcare provider for final diagnosis and treatment decisions.",
             }
 
+            if final_triage == "RED":
+                for cond in relevant_conditions:
+                    transport = cond.get("during_transport")
+                    if transport:
+                        response["during_transport"] = transport
+                        break
+
             return response
 
         except Exception as e:

@@ -10,11 +10,12 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
 
 ### Backend
 
-- [ ] **W2-B1: Expose `during_transport` in the `/api/v1/diagnose` response.**
-  - Today, the LLM may include it but the API contract doesn't surface it as a top-level field. Pick the most relevant condition's `during_transport` from the matched KB candidates (when triage is RED) and include it as `response.during_transport` (string).
-  - Acceptance: a curl call against the hero scenario (atypical ACS) returns a non-empty `during_transport` string.
-  - Add a unit test in `tests/unit/test_diagnosis.py` asserting `during_transport` is set when a RED-eligible condition matches.
-  - Files: `app/services/diagnosis.py`, `tests/unit/test_diagnosis.py`.
+- [x] **W2-B1: Expose `during_transport` in the `/api/v1/diagnose` response.** — Code shipped in commit after iteration 1 (timed out before the unit-test step). `app/services/diagnosis.py` now attaches `response["during_transport"]` from the first matched RED-eligible KB candidate.
+
+- [ ] **W2-B1-test: Add unit test for `during_transport` propagation.**
+  - Verify in `tests/unit/test_diagnosis.py` that when a RED-eligible condition matches (e.g., chest pain → ACS), `result["during_transport"]` is a non-empty string. Use `patch_ollama_generate` with a RED-flagged response.
+  - Acceptance: new test passes; existing tests stay green.
+  - Files: `tests/unit/test_diagnosis.py`.
 
 - [ ] **W2-B2: Add `POST /api/v1/clarify` endpoint.**
   - Returns 1–2 high-yield clarifying questions targeted at the most likely differential, given the symptoms so far.
@@ -81,24 +82,24 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
 
 ## Week 3 — Demo + writeup + submit (May 11 – May 17, 2026)
 
-These are NOT yet ready for the autonomous worker — they need human review (video direction, copy, deployment credentials).
+These need human review (video direction, copy, deployment credentials) and are explicitly out of scope for the autonomous worker.
 
-- [ ] **W3-D1: Dockerfile for Ollama-in-container** — pulls `gemma4:e4b-it-q4_K_M`, runs FastAPI + Ollama in one container.
-- [ ] **W3-D2: docker-compose.yml** for judges to spin up locally.
-- [ ] **W3-D3: Cloud deploy** — Fly.io or Railway with Ollama warm-loaded.
-- [ ] **W3-W1: Kaggle writeup outline** (≤ 1500 words) — needs human voice.
-- [ ] **W3-V1: Video script** (≤ 3 min) — Maria + atypical-ACS hero + clinician (Mama) endorsement; needs human direction.
-- [ ] **W3-V2: Cover image / media gallery** — needs human design call.
-- [ ] **W3-S1: Final submission rehearsal** — needs human eyes on the Kaggle form.
+- [ ] [BLOCKED: needs human direction] **W3-D1: Dockerfile for Ollama-in-container** — pulls `gemma4:e4b-it-q4_K_M`, runs FastAPI + Ollama in one container.
+- [ ] [BLOCKED: needs human direction] **W3-D2: docker-compose.yml** for judges to spin up locally.
+- [ ] [BLOCKED: needs human direction] **W3-D3: Cloud deploy** — Fly.io or Railway with Ollama warm-loaded.
+- [ ] [BLOCKED: needs human voice] **W3-W1: Kaggle writeup outline** (≤ 1500 words).
+- [ ] [BLOCKED: needs human direction] **W3-V1: Video script** (≤ 3 min) — Maria + atypical-ACS hero + clinician (Mama) endorsement.
+- [ ] [BLOCKED: needs human design call] **W3-V2: Cover image / media gallery**.
+- [ ] [BLOCKED: needs human review] **W3-S1: Final submission rehearsal** — needs human eyes on the Kaggle form.
 
 ---
 
 ## Backlog / nice-to-have (only if Week 2 finishes early)
 
-- [ ] **BL-1: Hindi voice input.** Web Speech API supports `hi-IN`. Add a language toggle.
-- [ ] **BL-2: Print/PDF export of patient note.**
-- [ ] **BL-3: Auto-escalation timer** — if no provider review in N minutes, surface a warning (mirrors the doctor's 10-minute ECG SLO).
-- [ ] **BL-4: Multilingual voice** — Spanish, Swahili (`es-ES`, `sw-KE`).
+- [ ] [BLOCKED: deferred — only after Week 2 fully complete] **BL-1: Hindi voice input.** Web Speech API supports `hi-IN`. Add a language toggle.
+- [ ] [BLOCKED: deferred — only after Week 2 fully complete] **BL-2: Print/PDF export of patient note.**
+- [ ] [BLOCKED: deferred — only after Week 2 fully complete] **BL-3: Auto-escalation timer** — if no provider review in N minutes, surface a warning (mirrors the doctor's 10-minute ECG SLO).
+- [ ] [BLOCKED: deferred — only after Week 2 fully complete] **BL-4: Multilingual voice** — Spanish, Swahili (`es-ES`, `sw-KE`).
 
 ---
 
