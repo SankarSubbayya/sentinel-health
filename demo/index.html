@@ -222,6 +222,29 @@
     .action-section.transport .body { color: var(--text); }
     .action-section.transport .label { color: var(--accent); }
 
+    .folk-error-banner {
+      margin: 16px 20px 0;
+      padding: 14px 16px;
+      background: var(--yellow-bg);
+      border: 1px solid var(--yellow);
+      border-left: 4px solid var(--yellow);
+      border-radius: var(--radius-sm);
+      color: var(--yellow);
+    }
+    .folk-error-banner .label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .folk-error-banner .body {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      font-weight: 600;
+    }
+
     .differentials {
       padding: 18px 20px;
     }
@@ -634,6 +657,14 @@
         <div class="action-section transport">
           <div class="label">During transport</div>
           <div class="body">${escapeHtml(transport)}</div>
+        </div>`;
+    }
+
+    if (data.folk_error_correction) {
+      html += `
+        <div class="folk-error-banner">
+          <div class="label">⚠ DO NOT — folk remedy correction</div>
+          <div class="body">${escapeHtml(data.folk_error_correction)}</div>
         </div>`;
     }
 

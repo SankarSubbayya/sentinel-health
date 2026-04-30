@@ -41,7 +41,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: a curl call returns the transport text and (manually) it shows in a panel below the action.
   - File: `demo/index.html`.
 
-- [ ] **W2-F2: Render `folk_error_correction` as a prominent banner above the differential.**
+- [x] **W2-F2: Render `folk_error_correction` as a prominent banner above the differential.**
   - Yellow/orange callout, bold "DO NOT" copy. This is the doctor's specific request.
   - Acceptance: the snake bite + tourniquet example renders the correction banner.
   - File: `demo/index.html`.
