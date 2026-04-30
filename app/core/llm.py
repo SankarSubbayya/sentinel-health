@@ -1,3 +1,5 @@
+"""Ollama client plus diagnosis/clarify JSON schemas and system prompts."""
+
 import json
 import httpx
 from typing import Any

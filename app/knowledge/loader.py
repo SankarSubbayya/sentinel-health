@@ -1,3 +1,5 @@
+"""KB loader: reads JSON files and matches symptoms to conditions / red flags."""
+
 import json
 from pathlib import Path
 from typing import List, Dict, Any

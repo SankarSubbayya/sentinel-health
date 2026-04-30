@@ -1,3 +1,5 @@
+"""Diagnosis orchestrator: combines KB, LLM, and the safety engine."""
+
 import json
 import uuid
 from typing import Dict, Any

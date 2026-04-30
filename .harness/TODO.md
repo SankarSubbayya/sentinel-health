@@ -73,7 +73,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: integration test that `/healthz` returns 200 even if Ollama is unreachable (mock the LLM client to fail health_check).
   - Files: `app/api/routes.py`, `tests/integration/test_api.py`.
 
-- [ ] **W2-P3: Trim the docstrings of internal modules; add a one-line module docstring to each `app/**/*.py` file describing its job.**
+- [x] **W2-P3: Trim the docstrings of internal modules; add a one-line module docstring to each `app/**/*.py` file describing its job.**
   - Helps future contributors and the writeup.
   - Acceptance: every Python file under `app/` has a one-line top-of-file docstring; pytest still green.
   - Files: `app/**/*.py`.

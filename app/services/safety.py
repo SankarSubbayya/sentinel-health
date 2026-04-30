@@ -1,3 +1,5 @@
+"""Red-flag safety engine that can override soft LLM triage to RED."""
+
 from typing import Dict, List, Any
 from app.knowledge.loader import kb
 

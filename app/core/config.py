@@ -1,3 +1,5 @@
+"""Application settings (model name, Ollama URL, timeouts) loaded from env."""
+
 from pydantic_settings import BaseSettings
 
 
