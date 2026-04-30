@@ -46,7 +46,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: the snake bite + tourniquet example renders the correction banner.
   - File: `demo/index.html`.
 
-- [ ] **W2-F3: Add multi-turn clarifying flow.**
+- [x] **W2-F3: Add multi-turn clarifying flow.**
   - After the first diagnose response, if confidence on the top differential is < 0.6, fetch `/api/v1/clarify` and render the questions as inline buttons. User clicks an answer or types one, then re-submits with combined context. Cap at 2 rounds total.
   - Acceptance: a low-confidence case shows clarifying questions; clicking a button extends the conversation.
   - File: `demo/index.html`. Depends on **W2-B2**.

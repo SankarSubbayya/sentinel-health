@@ -425,6 +425,41 @@
     }
     .triage-quick-btn:hover { background: var(--surface-2); color: var(--text); }
 
+    /* === Clarifying questions === */
+    .clarify-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 20px;
+    }
+    .clarify-card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .clarify-q { padding: 10px 0; border-top: 1px solid var(--border); }
+    .clarify-q:first-of-type { border-top: none; padding-top: 0; }
+    .clarify-q-text { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .clarify-q-rationale { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .clarify-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .clarify-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .clarify-btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--accent); }
+    .clarify-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
     .disclaimer {
       max-width: 760px;
       margin: 8px auto 0;
@@ -566,14 +601,23 @@
     symptomsInput.dispatchEvent(new Event('input'));
   }
 
+  // --- Clarifying-flow state (multi-turn) ---
+  const MAX_CLARIFY_ROUNDS = 2;
+  let clarifyRound = 0;
+  let cumulativeSymptoms = '';
+  let cumulativeContext = '';
+
   // --- New patient ---
   function newPatient() {
-    document.querySelectorAll('.msg, .thinking, .error-msg').forEach(el => el.remove());
+    document.querySelectorAll('.msg, .thinking, .error-msg, .clarify-card').forEach(el => el.remove());
     if (!emptyState.parentNode) conversation.appendChild(emptyState);
     emptyState.style.display = '';
     symptomsInput.value = '';
     contextInput.value = '';
     symptomsInput.style.height = 'auto';
+    clarifyRound = 0;
+    cumulativeSymptoms = '';
+    cumulativeContext = '';
     symptomsInput.focus();
   }
 
@@ -747,6 +791,16 @@
     symptomsInput.value = '';
     contextInput.value = '';
     symptomsInput.style.height = 'auto';
+
+    // First turn: reset round counter and seed accumulators.
+    clarifyRound = 0;
+    cumulativeSymptoms = symptoms;
+    cumulativeContext = context;
+
+    await runDiagnose(cumulativeSymptoms, cumulativeContext);
+  }
+
+  async function runDiagnose(symptoms, context) {
     sendBtn.disabled = true;
     quickBtn.disabled = true;
     appendThinking();
@@ -766,6 +820,11 @@
       const data = await r.json();
       if (data.error) appendError(data.error);
       renderDiagnosis(data);
+
+      const topConf = data.differential_diagnosis?.[0]?.confidence ?? 1;
+      if (topConf < 0.6 && clarifyRound < MAX_CLARIFY_ROUNDS) {
+        await fetchAndRenderClarify(symptoms, context);
+      }
     } catch (e) {
       removeThinking();
       appendError('Network error: ' + e.message);
@@ -774,6 +833,58 @@
       quickBtn.disabled = false;
       symptomsInput.focus();
     }
+  }
+
+  async function fetchAndRenderClarify(symptoms, context) {
+    try {
+      const r = await fetch('/api/v1/clarify', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ symptoms, patient_context: context })
+      });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (data.questions?.length) renderClarify(data.questions);
+    } catch (e) {
+      // Clarify is best-effort; ignore network errors here.
+    }
+  }
+
+  function renderClarify(questions) {
+    const items = questions.slice(0, 2).map((q, i) => {
+      const qText = q.text || '';
+      const rationale = q.rationale || '';
+      const qId = `clarify-q-${Date.now()}-${i}`;
+      return `
+        <div class="clarify-q">
+          <div class="clarify-q-text">${escapeHtml(qText)}</div>
+          ${rationale ? `<div class="clarify-q-rationale">${escapeHtml(rationale)}</div>` : ''}
+          <div class="clarify-btns">
+            <button class="clarify-btn" data-q="${escapeHtml(qText)}" data-a="Yes" onclick="answerClarify(this)">Yes</button>
+            <button class="clarify-btn" data-q="${escapeHtml(qText)}" data-a="No" onclick="answerClarify(this)">No</button>
+            <button class="clarify-btn" data-q="${escapeHtml(qText)}" data-a="Unsure" onclick="answerClarify(this)">Unsure</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = 'msg msg-bot clarify-card';
+    card.innerHTML = `<div class="label">A few clarifying questions</div>${items}`;
+    conversation.appendChild(card);
+    scrollToBottom();
+  }
+
+  async function answerClarify(btn) {
+    const card = btn.closest('.clarify-card');
+    if (card) card.querySelectorAll('.clarify-btn').forEach(b => b.disabled = true);
+    const qText = btn.dataset.q || '';
+    const aText = btn.dataset.a || '';
+
+    cumulativeSymptoms = `${cumulativeSymptoms}. Q: ${qText} A: ${aText}`;
+    clarifyRound += 1;
+
+    appendUserMsg(`${qText} → ${aText}`, '');
+    await runDiagnose(cumulativeSymptoms, cumulativeContext);
   }
 
   async function quickTriage() {
