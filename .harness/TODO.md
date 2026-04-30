@@ -12,7 +12,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
 
 - [x] **W2-B1: Expose `during_transport` in the `/api/v1/diagnose` response.** — Code shipped in commit after iteration 1 (timed out before the unit-test step). `app/services/diagnosis.py` now attaches `response["during_transport"]` from the first matched RED-eligible KB candidate.
 
-- [ ] **W2-B1-test: Add unit test for `during_transport` propagation.**
+- [x] **W2-B1-test: Add unit test for `during_transport` propagation.**
   - Verify in `tests/unit/test_diagnosis.py` that when a RED-eligible condition matches (e.g., chest pain → ACS), `result["during_transport"]` is a non-empty string. Use `patch_ollama_generate` with a RED-flagged response.
   - Acceptance: new test passes; existing tests stay green.
   - Files: `tests/unit/test_diagnosis.py`.

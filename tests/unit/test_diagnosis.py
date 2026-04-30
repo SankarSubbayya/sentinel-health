@@ -84,6 +84,26 @@ class TestDiagnoseFlow:
         assert result["triage_level"] == "GREEN"
         assert result["safety"]["escalation_required"] is False
 
+    async def test_diagnose_propagates_during_transport_on_red(
+        self, patch_ollama_generate, mock_llm_response_factory
+    ):
+        """RED triage with a matching KB condition (ACS for chest pain) must
+        attach a non-empty during_transport bridging instruction."""
+        patch_ollama_generate(
+            mock_llm_response_factory(
+                triage="RED",
+                primary_condition="Acute Coronary Syndrome",
+                primary_confidence=0.85,
+            )
+        )
+        result = await diagnosis_service.diagnose(
+            symptoms="chest pain with shortness of breath and sweating",
+            patient_context="55-year-old smoker",
+        )
+        assert result["triage_level"] == "RED"
+        assert isinstance(result.get("during_transport"), str)
+        assert result["during_transport"].strip()
+
     async def test_diagnose_returns_disclaimer(
         self, patch_ollama_generate, mock_llm_response_factory
     ):
