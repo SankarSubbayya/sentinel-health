@@ -657,10 +657,21 @@
   </div>
   <div class="header-right">
     <span id="ollamaPill" class="ollama-pill"><span class="dot"></span><span id="ollamaText">checking…</span></span>
+    <button class="kb-link" onclick="openPastPatients()">Past patients</button>
     <button class="kb-link" onclick="openKb()">Browse KB</button>
     <button class="new-btn" onclick="newPatient()">+ New patient</button>
   </div>
 </header>
+
+<div id="pastModal" class="kb-modal" onclick="if(event.target===this)closePastPatients()">
+  <div class="kb-dialog" role="dialog" aria-modal="true" aria-labelledby="pastTitle">
+    <div class="kb-head">
+      <h2 id="pastTitle">Past patients</h2>
+      <button class="kb-close" onclick="closePastPatients()" aria-label="Close">×</button>
+    </div>
+    <div id="pastBody" class="kb-body"></div>
+  </div>
+</div>
 
 <div id="kbModal" class="kb-modal" onclick="if(event.target===this)closeKb()">
   <div class="kb-dialog" role="dialog" aria-modal="true" aria-labelledby="kbTitle">
@@ -1001,6 +1012,13 @@
       const data = await r.json();
       if (data.error) appendError(data.error);
       renderDiagnosis(data);
+      savePastPatient({
+        session_id: data.session_id || '',
+        timestamp: Date.now(),
+        symptoms,
+        triage_level: (data.triage_level || '').toUpperCase(),
+        top_diagnosis: data.differential_diagnosis?.[0]?.condition || '',
+      });
 
       const topConf = data.differential_diagnosis?.[0]?.confidence ?? 1;
       if (topConf < 0.6 && clarifyRound < MAX_CLARIFY_ROUNDS) {
@@ -1305,6 +1323,68 @@
     } catch (e) {
       kbBody.innerHTML = `<div class="kb-empty">Could not load condition: ${escapeHtml(e.message)}</div>`;
     }
+  }
+
+  // --- Past patients (local browser persistence) ---
+  const PAST_KEY = 'sentinel.pastPatients.v1';
+  const PAST_MAX = 50;
+  const PAST_SHOW = 20;
+  const pastModal = document.getElementById('pastModal');
+  const pastBody = document.getElementById('pastBody');
+
+  function loadPastPatients() {
+    try { return JSON.parse(localStorage.getItem(PAST_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function savePastPatient(record) {
+    try {
+      const list = loadPastPatients();
+      list.unshift(record);
+      if (list.length > PAST_MAX) list.length = PAST_MAX;
+      localStorage.setItem(PAST_KEY, JSON.stringify(list));
+    } catch {}
+  }
+
+  function openPastPatients() {
+    pastModal.classList.add('open');
+    document.addEventListener('keydown', pastKeyHandler);
+    renderPastPatients();
+  }
+
+  function closePastPatients() {
+    pastModal.classList.remove('open');
+    document.removeEventListener('keydown', pastKeyHandler);
+  }
+
+  function pastKeyHandler(e) {
+    if (e.key === 'Escape') closePastPatients();
+  }
+
+  function renderPastPatients() {
+    const list = loadPastPatients().slice(0, PAST_SHOW);
+    if (!list.length) {
+      pastBody.innerHTML = '<div class="kb-empty">No past patients saved yet. Diagnoses you run will appear here.</div>';
+      return;
+    }
+    const triageToUrgency = { RED: 'IMMEDIATE', YELLOW: 'URGENT', GREEN: 'ROUTINE' };
+    let html = '';
+    for (const r of list) {
+      const dt = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
+      const triage = (r.triage_level || '').toUpperCase();
+      const u = URGENCY_LABELS[triageToUrgency[triage]] || { cls: '', text: triage || '—' };
+      html += `
+        <div class="kb-item" style="cursor:default; flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; justify-content:space-between; width:100%; gap:12px; align-items:center;">
+            <span class="kb-name">${escapeHtml(r.top_diagnosis || '—')}</span>
+            <span class="kb-urgency ${u.cls}">${escapeHtml(triage || '—')}</span>
+          </div>
+          <div style="font-size:13px; color: var(--text-muted); line-height:1.4;">${escapeHtml(r.symptoms || '')}</div>
+          <div style="font-size:11px; color: var(--text-faint); font-family: var(--font-mono);">${escapeHtml(dt)} · ${escapeHtml((r.session_id || '').slice(0,8))}</div>
+        </div>`;
+    }
+    pastBody.innerHTML = html;
+    pastBody.scrollTop = 0;
   }
 </script>
 

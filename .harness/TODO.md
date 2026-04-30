@@ -56,7 +56,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
   - Acceptance: opens on click, lists all 18 conditions, snake_bite shows its folk-error.
   - File: `demo/index.html`. Depends on **W2-B3**.
 
-- [ ] **W2-F5: Local notes via SQLite-WASM.**
+- [x] **W2-F5: Local notes via SQLite-WASM.**
   - On every diagnose response, persist `{session_id, timestamp, symptoms, triage_level, top_diagnosis}` to a local SQLite database in the browser. Add a "Past patients" panel in the header that lists the last 20 saves.
   - Acceptance: can refresh the page and still see past patient list.
   - File: `demo/index.html`.
