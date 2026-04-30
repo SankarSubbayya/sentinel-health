@@ -63,7 +63,7 @@ Acceptance criteria are explicit per task. If you can't satisfy them, mark the t
 
 ### Polish
 
-- [ ] **W2-P1: Replace `demo/index.html` body fontset with a system stack guaranteed to work offline.**
+- [x] **W2-P1: Replace `demo/index.html` body fontset with a system stack guaranteed to work offline.**
   - Audit the current `--font` variable — make sure no remote fonts (`fonts.googleapis.com` etc.) are referenced anywhere in the app. The offline claim is load-bearing.
   - Acceptance: `grep -r 'fonts.googleapis\|cdn\|http' demo/` returns zero hits in `<link>` or `<script src>` tags.
   - File: `demo/index.html`.
