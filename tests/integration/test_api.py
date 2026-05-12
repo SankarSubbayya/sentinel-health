@@ -126,6 +126,98 @@ class TestDiagnoseEndpoint:
         assert body["triage_level"] == "RED"
         assert body["safety"]["escalation_required"] is True
 
+    def test_diagnose_red_attaches_whatsapp_escalation(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        """RED triage must produce an `escalation` block with a wa.me URL."""
+        from app.services import escalation as esc_mod
+
+        monkeypatch.setattr(esc_mod.settings, "hub_physician_phone", "+91 98765-43210")
+        monkeypatch.setattr(esc_mod.settings, "hub_physician_name", "Dr. Hub")
+        monkeypatch.setattr(esc_mod.settings, "facility_name", "Test Spoke")
+
+        patch_ollama_generate(
+            mock_llm_response_factory(
+                triage="RED",
+                primary_condition="Acute Coronary Syndrome",
+                primary_confidence=0.8,
+            )
+        )
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={
+                "symptoms": "55-year-old man with crushing chest pain, sweating, shortness of breath",
+                "patient_context": "Hypertension, smoker",
+            },
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["triage_level"] == "RED"
+
+        esc = body.get("escalation")
+        assert esc, "RED diagnose response must include `escalation`"
+        assert esc["recipient_name"] == "Dr. Hub"
+        assert esc["phone"] == "+91 98765-43210"
+        assert esc["wa_me_url"].startswith("https://wa.me/919876543210?text=")
+        assert "Acute Coronary Syndrome" in esc["text"]
+        assert "Test Spoke" in esc["text"]
+        assert "Decision support only" in esc["text"]
+
+    def test_diagnose_green_omits_escalation(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        patch_ollama_generate(
+            mock_llm_response_factory(
+                triage="GREEN",
+                primary_condition="Common Cold",
+                primary_confidence=0.6,
+            )
+        )
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={"symptoms": "mild runny nose and cough for two days"},
+        )
+        assert r.status_code == 200
+        assert "escalation" not in r.json()
+
+    def test_diagnose_safety_override_to_red_still_attaches_escalation(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        """Even when only the safety layer (not the LLM) escalates to RED,
+        the escalation block must still be present — that's the whole point
+        of the override path."""
+        from app.services import escalation as esc_mod
+
+        monkeypatch.setattr(esc_mod.settings, "hub_physician_phone", "")
+
+        patch_ollama_generate(mock_llm_response_factory(triage="YELLOW"))
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={
+                "symptoms": "snake bite on right ankle, fang marks visible",
+                "patient_context": "rural area",
+            },
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["triage_level"] == "RED"
+        esc = body.get("escalation")
+        assert esc, "Safety-override RED must still attach escalation"
+        # No phone configured → wa.me contact-picker fallback
+        assert esc["wa_me_url"].startswith("https://wa.me/?text=")
+        assert esc["phone"] is None
+
     def test_diagnose_rejects_too_short_symptoms(
         self,
         api_client,

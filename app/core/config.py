@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     ollama_timeout_seconds: float = 60.0
     ollama_temperature: float = 0.2
 
+    hub_physician_phone: str = ""
+    hub_physician_name: str = "Hub Physician"
+    facility_name: str = "Spoke clinic"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

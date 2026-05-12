@@ -6,6 +6,7 @@ from typing import Dict, Any
 from app.core.llm import ollama_client
 from app.knowledge.loader import kb
 from app.services.safety import safety_engine
+from app.services.escalation import build_whatsapp_escalation
 
 
 _FOLK_ERROR_PHRASES = (
@@ -69,6 +70,12 @@ class DiagnosisService:
                     if transport:
                         response["during_transport"] = transport
                         break
+
+                escalation = build_whatsapp_escalation(
+                    response, symptoms, patient_context or "", session_id
+                )
+                if escalation:
+                    response["escalation"] = escalation
 
             symptoms_lower = symptoms.lower()
             if any(p in symptoms_lower for p in _FOLK_ERROR_PHRASES):

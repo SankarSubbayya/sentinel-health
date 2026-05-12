@@ -245,6 +245,64 @@
       font-weight: 600;
     }
 
+    .wa-escalate {
+      margin: 16px 20px 0;
+      padding: 14px 16px;
+      background: #e7f7ee;
+      border: 1px solid #25d366;
+      border-left: 4px solid #25d366;
+      border-radius: var(--radius-sm);
+    }
+    .wa-escalate .label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #128c4a;
+      margin-bottom: 8px;
+    }
+    .wa-escalate .recipient {
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .wa-escalate details {
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .wa-escalate details summary {
+      cursor: pointer;
+      color: #128c4a;
+      font-weight: 600;
+    }
+    .wa-escalate pre.wa-preview {
+      margin: 8px 0 0;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    a.wa-send-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #25d366;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+    }
+    a.wa-send-btn:hover { background: #128c4a; }
+
     .differentials {
       padding: 18px 20px;
     }
@@ -901,6 +959,24 @@
         <div class="folk-error-banner">
           <div class="label">⚠ DO NOT — folk remedy correction</div>
           <div class="body">${escapeHtml(data.folk_error_correction)}</div>
+        </div>`;
+    }
+
+    if (data.escalation && triage === 'RED') {
+      const esc = data.escalation;
+      const recipient = esc.recipient_name || 'Hub physician';
+      const phoneLabel = esc.phone ? ` · ${escapeHtml(esc.phone)}` : ' · pick contact in WhatsApp';
+      html += `
+        <div class="wa-escalate">
+          <div class="label">Escalate to hub via WhatsApp</div>
+          <div class="recipient">${escapeHtml(recipient)}${phoneLabel}</div>
+          <details>
+            <summary>Preview message</summary>
+            <pre class="wa-preview">${escapeHtml(esc.text || '')}</pre>
+          </details>
+          <a class="wa-send-btn" href="${escapeHtml(esc.wa_me_url)}" target="_blank" rel="noopener noreferrer">
+            <span>Send via WhatsApp</span>
+          </a>
         </div>`;
     }
 
