@@ -59,7 +59,7 @@ FastAPI app (main.py → app/api/routes.py)
 | `app/knowledge/loader.py` | KB load + keyword matching |
 | `app/knowledge/data/*.json` | Conditions, red flags, triage rules |
 | `demo/index.html` | Single-file demo UI (voice in, past-patients panel) |
-| `tests/unit/`, `tests/integration/`, `tests/eval_cases.py` | Unit, API, and 20-vignette eval suite |
+| `tests/unit/`, `tests/integration/`, `tests/eval_cases.py` | Unit, API, and 31-vignette eval suite |
 
 ## Run
 
@@ -67,7 +67,7 @@ FastAPI app (main.py → app/api/routes.py)
 ollama pull gemma4:e4b-it-q4_K_M
 uv sync
 uv run uvicorn main:app --reload     # → http://localhost:8000/demo
-uv run python -m tests.eval_cases --save   # target: ≥ 18/20
+uv run python -m tests.eval_cases --save   # current: 30/31 (96.8%), sensitivity 100%
 ```
 
 ## Conventions when editing

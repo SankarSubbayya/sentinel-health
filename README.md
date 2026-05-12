@@ -47,8 +47,11 @@ This is deliberate. A tool for clinicians is **decision support**, not diagnosis
 ```
 Voice (browser)  →  FastAPI backend  →  Gemma 4 via Ollama  →  KB-grounded diagnosis
                           │                                          │
-                          └──────►  Rule-based safety engine  ◄──────┘
-                                   (red flags override LLM)
+                          ├──────►  Rule-based safety engine  ◄──────┘
+                          │        (red flags override LLM)
+                          │
+                          └──────►  WhatsApp escalation (RED only)
+                                   wa.me deep-link, CHW taps to send
 ```
 
 - **Frontend:** browser web app, Web Speech API for voice in
@@ -56,8 +59,9 @@ Voice (browser)  →  FastAPI backend  →  Gemma 4 via Ollama  →  KB-grounded
 - **Model:** `gemma4:e4b-it-q4_K_M` — instruction-tuned 4B-class, Q4 quantized, runs on CPU
 - **Knowledge base:** WHO / CDC / ACC guidelines as JSON; cardiology + diabetes + general acute
 - **Safety layer:** deterministic red-flag rules that escalate independently of LLM confidence
+- **Hub handoff:** on RED triage, the app prepares a structured WhatsApp message (reason, top differential, symptoms, during-transport protocol) and opens a `wa.me` link on the CHW's phone — the CHW reviews and sends. No third-party API, no auto-send.
 
-Every diagnosis comes back with: top-3 differentials, confidence (capped at 0.9), guideline citation, recommended next action, and a triage level (RED / YELLOW / GREEN).
+Every diagnosis comes back with: top-3 differentials, confidence (capped at 0.9), guideline citation, recommended next action, a triage level (RED / YELLOW / GREEN), and — on RED — a ready-to-send WhatsApp handoff for the hub physician.
 
 ---
 
@@ -78,10 +82,12 @@ Total prize upside: **$60,000.**
 | Milestone | Status |
 |---|---|
 | End-to-end backend (Gemma 4 + KB + safety) | ✅ Working |
-| Synthetic test suite, 20 vignettes | ✅ 18/20 passing (90%) |
-| Web frontend with voice | 🚧 Week 2 |
-| Demo video (≤ 3 min) | 🚧 Week 3 |
-| Kaggle writeup (≤ 1,500 words) | 🚧 Week 3 |
+| WhatsApp hub-physician escalation | ✅ Working |
+| Synthetic eval, 31 vignettes | ✅ 30/31 (96.8%), sensitivity 100% |
+| Web frontend with voice | ✅ Working |
+| Cloud Run deploy (bundled Ollama + Gemma 4) | 🚧 Scaffolding ready |
+| Demo video (≤ 3 min) | 🚧 Script ready, recording pending |
+| Kaggle writeup (≤ 1,500 words) | 🚧 Draft ready |
 | Submission deadline | 2026-05-18, 11:59 PM UTC |
 
 ---
@@ -110,7 +116,7 @@ open http://localhost:8000/demo
 uv run python -m tests.eval_cases --save
 ```
 
-This runs 20 synthetic clinical cases through the diagnosis service and reports the pass rate. Target: ≥ 18 / 20.
+This runs 31 synthetic clinical cases through the diagnosis service and reports the pass rate. Current: 30/31 (96.8%). Sensitivity is the load-bearing metric — we target 100% (every RED caught).
 
 ---
 
