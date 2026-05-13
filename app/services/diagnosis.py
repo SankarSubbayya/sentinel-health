@@ -23,7 +23,9 @@ class DiagnosisService:
     """Orchestrate clinical reasoning flow."""
 
     @staticmethod
-    async def diagnose(symptoms: str, patient_context: str = "") -> Dict[str, Any]:
+    async def diagnose(
+        symptoms: str, patient_context: str = "", language: str = "en"
+    ) -> Dict[str, Any]:
         """Main diagnosis flow."""
         session_id = str(uuid.uuid4())
 
@@ -33,10 +35,10 @@ class DiagnosisService:
             relevant_conditions = kb.get_relevant_conditions(symptoms)
 
             prompt = ollama_client.build_diagnosis_prompt(
-                symptoms, patient_context, relevant_conditions
+                symptoms, patient_context, relevant_conditions, language=language
             )
 
-            llm_response = await ollama_client.generate_diagnosis(prompt)
+            llm_response = await ollama_client.generate_diagnosis(prompt, language=language)
 
             parsed = DiagnosisService._parse_llm_response(llm_response)
 
@@ -107,16 +109,18 @@ class DiagnosisService:
             }
 
     @staticmethod
-    async def clarify(symptoms: str, patient_context: str = "") -> Dict[str, Any]:
+    async def clarify(
+        symptoms: str, patient_context: str = "", language: str = "en"
+    ) -> Dict[str, Any]:
         """Generate 1–2 high-yield clarifying questions for the most likely differential."""
         session_id = str(uuid.uuid4())
 
         try:
             relevant_conditions = kb.get_relevant_conditions(symptoms)
             prompt = ollama_client.build_clarify_prompt(
-                symptoms, patient_context, relevant_conditions
+                symptoms, patient_context, relevant_conditions, language=language
             )
-            llm_response = await ollama_client.generate_clarification(prompt)
+            llm_response = await ollama_client.generate_clarification(prompt, language=language)
             parsed = DiagnosisService._parse_llm_response(llm_response)
 
             questions = parsed.get("questions", [])[:2]

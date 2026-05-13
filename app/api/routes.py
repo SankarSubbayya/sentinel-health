@@ -14,6 +14,7 @@ class DiagnoseRequest(BaseModel):
     symptoms: str
     patient_context: Optional[str] = ""
     session_id: Optional[str] = None
+    language: Optional[str] = "en"
 
 
 class TriageRequest(BaseModel):
@@ -24,6 +25,7 @@ class ClarifyRequest(BaseModel):
     symptoms: str
     patient_context: Optional[str] = ""
     session_id: Optional[str] = None
+    language: Optional[str] = "en"
 
 
 @router.get("/healthz")
@@ -68,7 +70,9 @@ async def diagnose(request: DiagnoseRequest):
     if not request.symptoms or len(request.symptoms.strip()) < 5:
         raise HTTPException(status_code=400, detail="Symptoms must be at least 5 characters")
 
-    result = await diagnosis_service.diagnose(request.symptoms, request.patient_context)
+    result = await diagnosis_service.diagnose(
+        request.symptoms, request.patient_context, language=request.language or "en"
+    )
     return result
 
 
@@ -84,7 +88,9 @@ async def clarify(request: ClarifyRequest):
     if not request.symptoms or len(request.symptoms.strip()) < 5:
         raise HTTPException(status_code=400, detail="Symptoms must be at least 5 characters")
 
-    return await diagnosis_service.clarify(request.symptoms, request.patient_context)
+    return await diagnosis_service.clarify(
+        request.symptoms, request.patient_context, language=request.language or "en"
+    )
 
 
 @router.get("/api/v1/kb/conditions")

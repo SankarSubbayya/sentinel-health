@@ -67,6 +67,27 @@ CLARIFY_SCHEMA: dict[str, Any] = {
 }
 
 
+LANG_NAMES: dict[str, str] = {
+    "en": "English",
+    "hi": "Hindi (use Devanagari script)",
+    "ta": "Tamil (use Tamil script)",
+    "ml": "Malayalam (use Malayalam script)",
+}
+
+
+def _language_directive(language: str) -> str:
+    """One-line instruction appended to system prompts to control output language."""
+    label = LANG_NAMES.get(language, LANG_NAMES["en"])
+    if language == "en":
+        return ""
+    return (
+        f"\n\nUSER LANGUAGE: {label}. The user's symptoms may be in {label} or in English. "
+        f"Output `reasoning`, `recommendation`, and (where natural) `guideline_reference` in {label}. "
+        f"Keep the `condition` field in English (e.g., \"Acute Coronary Syndrome\") so it matches the candidate list. "
+        f"Translate medical terminology into plain {label} that a community health worker would understand."
+    )
+
+
 CLARIFY_SYSTEM_PROMPT = """You are Sentinel Health. The community health worker has described symptoms but the differential is uncertain. Produce 1–2 high-yield clarifying questions targeted at distinguishing the most likely differential from the next most likely. Each question must be brief, plain-language, and answerable by the patient or family. Output must conform exactly to the requested JSON schema. Never produce more than 2 questions."""
 
 
@@ -107,12 +128,12 @@ class OllamaClient:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    async def generate_diagnosis(self, prompt: str) -> str:
+    async def generate_diagnosis(self, prompt: str, language: str = "en") -> str:
         """Call Gemma 4 via Ollama with JSON Schema-enforced output."""
         payload = {
             "model": self.model,
             "prompt": prompt,
-            "system": SYSTEM_PROMPT,
+            "system": SYSTEM_PROMPT + _language_directive(language),
             "stream": False,
             "format": DIAGNOSIS_SCHEMA,
             "options": {"temperature": self.temperature},
@@ -129,12 +150,12 @@ class OllamaClient:
         except httpx.TimeoutException:
             raise Exception(f"Ollama timeout after {self.timeout}s — model may be cold-loading")
 
-    async def generate_clarification(self, prompt: str) -> str:
+    async def generate_clarification(self, prompt: str, language: str = "en") -> str:
         """Call Gemma 4 via Ollama for clarifying questions with JSON Schema-enforced output."""
         payload = {
             "model": self.model,
             "prompt": prompt,
-            "system": CLARIFY_SYSTEM_PROMPT,
+            "system": CLARIFY_SYSTEM_PROMPT + _language_directive(language),
             "stream": False,
             "format": CLARIFY_SCHEMA,
             "options": {"temperature": self.temperature},
@@ -153,7 +174,10 @@ class OllamaClient:
 
     @staticmethod
     def build_clarify_prompt(
-        symptoms: str, patient_context: str, relevant_conditions: list[dict]
+        symptoms: str,
+        patient_context: str,
+        relevant_conditions: list[dict],
+        language: str = "en",
     ) -> str:
         """Build user prompt for clarifying-question generation."""
         if relevant_conditions:
@@ -183,7 +207,10 @@ Produce 1–2 short clarifying questions. For each:
 
     @staticmethod
     def build_diagnosis_prompt(
-        symptoms: str, patient_context: str, relevant_conditions: list[dict]
+        symptoms: str,
+        patient_context: str,
+        relevant_conditions: list[dict],
+        language: str = "en",
     ) -> str:
         """Build user prompt with patient data + KB-grounded candidate conditions."""
         if relevant_conditions:

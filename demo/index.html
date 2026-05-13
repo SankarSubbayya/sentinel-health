@@ -68,6 +68,33 @@
     .brand-sub { color: var(--text-muted); font-size: 13px; margin-left: 6px; }
 
     .header-right { display: flex; gap: 8px; align-items: center; }
+
+    .lang-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+    .lang-switch button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .lang-switch button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .lang-switch button:not(.active):hover { color: var(--text); }
     .ollama-pill {
       font-family: var(--font-mono);
       font-size: 12px;
@@ -714,10 +741,16 @@
     </div>
   </div>
   <div class="header-right">
+    <div id="langSwitch" class="lang-switch" role="tablist" aria-label="Interface language">
+      <button type="button" data-lang="en" class="active" title="English">EN</button>
+      <button type="button" data-lang="hi" title="हिंदी">हि</button>
+      <button type="button" data-lang="ta" title="தமிழ்">த</button>
+      <button type="button" data-lang="ml" title="മലയാളം">മ</button>
+    </div>
     <span id="ollamaPill" class="ollama-pill"><span class="dot"></span><span id="ollamaText">checking…</span></span>
-    <button class="kb-link" onclick="openPastPatients()">Past patients</button>
-    <button class="kb-link" onclick="openKb()">Browse KB</button>
-    <button class="new-btn" onclick="newPatient()">+ New patient</button>
+    <button class="kb-link" onclick="openPastPatients()" data-i18n="past_patients">Past patients</button>
+    <button class="kb-link" onclick="openKb()" data-i18n="browse_kb">Browse KB</button>
+    <button class="new-btn" onclick="newPatient()" data-i18n="new_patient">+ New patient</button>
   </div>
 </header>
 
@@ -747,8 +780,8 @@
 <main id="main">
   <div class="container" id="conversation">
     <div class="empty-state" id="emptyState">
-      <h1>Triage a patient</h1>
-      <p>Describe the patient's symptoms by voice or text. The model runs entirely on this device — no internet required.</p>
+      <h1 data-i18n="empty_title">Triage a patient</h1>
+      <p data-i18n="empty_subtitle">Describe the patient's symptoms by voice or text. The model runs entirely on this device — no internet required.</p>
       <div class="examples">
         <button class="example" onclick="useExample(this)">
           <div class="label">Cardiac · RED</div>
@@ -778,13 +811,13 @@
 <div class="input-area">
   <div class="input-wrap">
     <div class="input-box">
-      <textarea id="symptoms" placeholder="Describe the patient's symptoms…" rows="1"></textarea>
-      <input id="context" type="text" class="context-input" placeholder="Patient context (age, history, medications) — optional" />
+      <textarea id="symptoms" data-i18n-attr="placeholder:symptoms_placeholder" placeholder="Describe the patient's symptoms…" rows="1"></textarea>
+      <input id="context" type="text" class="context-input" data-i18n-attr="placeholder:context_placeholder" placeholder="Patient context (age, history, medications) — optional" />
       <div class="input-row">
-        <span class="input-hint" id="inputHint">Enter to send · Shift+Enter for new line</span>
-        <button id="quickBtn" class="triage-quick-btn" onclick="quickTriage()" title="Rules-only triage (no LLM)">Quick triage</button>
+        <span class="input-hint" id="inputHint" data-i18n="input_hint">Enter to send · Shift+Enter for new line</span>
+        <button id="quickBtn" class="triage-quick-btn" onclick="quickTriage()" title="Rules-only triage (no LLM)" data-i18n="quick_triage">Quick triage</button>
         <button id="micBtn" class="icon-btn" onclick="toggleMic()" title="Voice input">🎤</button>
-        <button id="sendBtn" class="send-btn" onclick="sendDiagnose()">Diagnose</button>
+        <button id="sendBtn" class="send-btn" onclick="sendDiagnose()" data-i18n="diagnose">Diagnose</button>
       </div>
     </div>
     <p class="disclaimer">
@@ -795,6 +828,84 @@
 </div>
 
 <script>
+  // ─── i18n ─────────────────────────────────────────────────────────────
+  const SPEECH_LANG = { en: 'en-IN', hi: 'hi-IN', ta: 'ta-IN', ml: 'ml-IN' };
+  const I18N = {
+    en: {
+      past_patients: 'Past patients', browse_kb: 'Browse KB', new_patient: '+ New patient',
+      empty_title: 'Triage a patient',
+      empty_subtitle: "Describe the patient's symptoms by voice or text. The model runs entirely on this device — no internet required.",
+      symptoms_placeholder: "Describe the patient's symptoms…",
+      context_placeholder: 'Patient context (age, history, medications) — optional',
+      input_hint: 'Enter to send · Shift+Enter for new line',
+      quick_triage: 'Quick triage', diagnose: 'Diagnose',
+    },
+    hi: {
+      past_patients: 'पुराने मरीज़', browse_kb: 'KB देखें', new_patient: '+ नया मरीज़',
+      empty_title: 'मरीज़ की जाँच करें',
+      empty_subtitle: 'मरीज़ के लक्षण आवाज़ या लिखकर बताएं। मॉडल इसी डिवाइस पर चलता है — इंटरनेट की ज़रूरत नहीं।',
+      symptoms_placeholder: 'मरीज़ के लक्षण लिखें…',
+      context_placeholder: 'मरीज़ की जानकारी (उम्र, इतिहास, दवाइयाँ) — वैकल्पिक',
+      input_hint: 'Enter दबाएं · नई लाइन के लिए Shift+Enter',
+      quick_triage: 'त्वरित ट्राइएज', diagnose: 'जाँच करें',
+    },
+    ta: {
+      past_patients: 'பழைய நோயாளிகள்', browse_kb: 'KB பார்', new_patient: '+ புதிய நோயாளி',
+      empty_title: 'நோயாளியை மதிப்பீடு செய்க',
+      empty_subtitle: 'நோயாளியின் அறிகுறிகளைக் குரல் வழியாகவோ அல்லது தட்டச்சு செய்தோ விவரிக்கவும். மாதிரி இந்தச் சாதனத்தில் மட்டுமே இயங்குகிறது — இணையம் தேவையில்லை.',
+      symptoms_placeholder: 'நோயாளியின் அறிகுறிகளை விவரிக்கவும்…',
+      context_placeholder: 'நோயாளி தகவல் (வயது, வரலாறு, மருந்துகள்) — விருப்பத்திற்குரியது',
+      input_hint: 'Enter அழுத்தவும் · புதிய வரிக்கு Shift+Enter',
+      quick_triage: 'விரைவு மதிப்பீடு', diagnose: 'மதிப்பீடு',
+    },
+    ml: {
+      past_patients: 'പഴയ രോഗികൾ', browse_kb: 'KB കാണുക', new_patient: '+ പുതിയ രോഗി',
+      empty_title: 'രോഗിയെ വിലയിരുത്തുക',
+      empty_subtitle: 'രോഗിയുടെ ലക്ഷണങ്ങൾ ശബ്ദമായോ ടൈപ്പ് ചെയ്തോ വിവരിക്കുക. മോഡൽ ഈ ഉപകരണത്തിൽ മാത്രമേ പ്രവർത്തിക്കൂ — ഇന്റർനെറ്റ് ആവശ്യമില്ല.',
+      symptoms_placeholder: 'രോഗിയുടെ ലക്ഷണങ്ങൾ വിവരിക്കുക…',
+      context_placeholder: 'രോഗിയുടെ വിവരം (പ്രായം, ചരിത്രം, മരുന്നുകൾ) — ഐച്ഛികം',
+      input_hint: 'Enter അമർത്തുക · പുതിയ വരിക്ക് Shift+Enter',
+      quick_triage: 'വേഗ വിലയിരുത്തൽ', diagnose: 'വിലയിരുത്തുക',
+    },
+  };
+  let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('sentinel_lang')) || 'en';
+  if (!I18N[currentLang]) currentLang = 'en';
+
+  function applyI18n(lang) {
+    const dict = I18N[lang] || I18N.en;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+      el.getAttribute('data-i18n-attr').split(',').forEach(pair => {
+        const [attr, key] = pair.trim().split(':');
+        if (attr && key && dict[key] !== undefined) el.setAttribute(attr, dict[key]);
+      });
+    });
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('#langSwitch button').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+  }
+
+  function setLanguage(lang) {
+    if (!I18N[lang]) lang = 'en';
+    currentLang = lang;
+    try { localStorage.setItem('sentinel_lang', lang); } catch {}
+    applyI18n(lang);
+    if (typeof recognition !== 'undefined' && recognition) {
+      recognition.lang = SPEECH_LANG[lang] || 'en-IN';
+    }
+  }
+
+  document.getElementById('langSwitch').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-lang]');
+    if (btn) setLanguage(btn.dataset.lang);
+  });
+  applyI18n(currentLang);
+  // ─── end i18n ─────────────────────────────────────────────────────────
+
   const conversation = document.getElementById('conversation');
   const emptyState = document.getElementById('emptyState');
   const symptomsInput = document.getElementById('symptoms');
@@ -1077,7 +1188,7 @@
       const r = await fetch('/api/v1/diagnose', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ symptoms, patient_context: context })
+        body: JSON.stringify({ symptoms, patient_context: context, language: currentLang })
       });
       removeThinking();
       if (!r.ok) {
@@ -1115,7 +1226,7 @@
       const r = await fetch('/api/v1/clarify', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ symptoms, patient_context: context })
+        body: JSON.stringify({ symptoms, patient_context: context, language: currentLang })
       });
       if (!r.ok) return;
       const data = await r.json();
@@ -1206,7 +1317,7 @@
     recognition = new SR();
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    recognition.lang = SPEECH_LANG[currentLang] || 'en-IN';
 
     let baseText = '';
     recognition.onstart = () => {

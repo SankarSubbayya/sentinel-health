@@ -5,6 +5,11 @@
       "name": "Acute Coronary Syndrome",
       "category": "cardiology",
       "symptoms": ["chest pain", "chest discomfort", "chest pressure", "chest tightness", "tightness in chest", "tight chest", "chest squeezing", "chest heaviness", "exertional chest", "chest pain on exertion", "chest tightness on exertion", "chest pain with exertion", "shortness of breath", "dyspnea", "diaphoresis", "nausea", "jaw pain", "shoulder pain", "arm pain", "stable angina", "angina"],
+      "symptoms_local": {
+        "hi": ["सीने में दर्द", "छाती में दर्द", "सीने में दबाव", "पसीना", "सांस फूल रही", "जबड़े तक दर्द", "हाथ तक दर्द"],
+        "ta": ["மார்பு வலி", "நெஞ்சு வலி", "மார்பில் அழுத்தம்", "வியர்வை", "மூச்சு திணறல்", "தாடை வலி"],
+        "ml": ["നെഞ്ച് വേദന", "നെഞ്ചിൽ ഭാരം", "വിയര്‍പ്പ്", "ശ്വാസതടസ്സം", "താടി വേദന"]
+      },
       "high_risk_factors": ["age > 40", "hypertension", "diabetes", "smoking", "high cholesterol", "male"],
       "guideline": "2023 ACC/AHA Chest Pain Protocol",
       "urgency": "IMMEDIATE",
@@ -66,6 +71,11 @@
       "name": "Acute Ischemic Stroke",
       "category": "neurology",
       "symptoms": ["facial drooping", "arm weakness", "speech difficulty", "confusion", "severe headache", "vision loss", "dizziness"],
+      "symptoms_local": {
+        "hi": ["चेहरा लटक गया", "लकवा", "मुँह टेढ़ा", "बोलने में तकलीफ", "हाथ नहीं उठ रहा", "सिर में तेज़ दर्द"],
+        "ta": ["முகம் தொங்குகிறது", "பக்கவாதம்", "பேச முடியவில்லை", "கை தூக்க முடியவில்லை", "வாய் கோணல்"],
+        "ml": ["മുഖം കോടി", "പക്ഷാഘാതം", "സംസാരിക്കാൻ പറ്റുന്നില്ല", "കൈ ഉയർത്താൻ പറ്റുന്നില്ല"]
+      },
       "high_risk_factors": ["hypertension", "atrial fibrillation", "diabetes", "smoking"],
       "guideline": "AHA/ASA Stroke Guidelines 2023",
       "urgency": "IMMEDIATE",
@@ -112,6 +122,11 @@
       "name": "Acute Myocardial Infarction",
       "category": "cardiology",
       "symptoms": ["severe chest pain", "crushing sensation", "pressure", "sweating", "nausea", "shortness of breath"],
+      "symptoms_local": {
+        "hi": ["तेज़ सीने में दर्द", "कुचलने जैसा दर्द", "पसीना आ रहा", "उल्टी जैसा लग रहा", "सांस फूल रही"],
+        "ta": ["கடுமையான மார்பு வலி", "நசுக்கும் உணர்வு", "வியர்வை", "குமட்டல்", "மூச்சு திணறல்"],
+        "ml": ["കടുത്ത നെഞ്ച് വേദന", "ഞെരുങ്ങുന്ന വേദന", "വിയര്‍പ്പ്", "ഛർദ്ദിക്ക് തോന്നൽ"]
+      },
       "high_risk_factors": ["age", "smoking", "family history", "hypertension"],
       "guideline": "2023 ACC/AHA STEMI Protocol",
       "urgency": "IMMEDIATE",
@@ -180,6 +195,11 @@
       "name": "Major Trauma",
       "category": "trauma",
       "symptoms": ["road accident", "traffic accident", "motorbike accident", "fall from height", "fell from", "fell from height", "penetrating injury", "stab wound", "gunshot", "uncontrolled bleeding", "heavy bleeding", "unconscious after injury", "loss of consciousness after injury", "brief loss of consciousness", "open fracture", "deformity", "severe pain after injury", "blood loss", "back pain after fall", "cannot move leg", "cannot move arm", "head injury"],
+      "symptoms_local": {
+        "hi": ["दुर्घटना", "एक्सीडेंट", "ऊँचाई से गिरा", "बाइक एक्सीडेंट", "चाकू लगा", "हड्डी टूटी", "बहुत खून बह रहा", "सिर पर चोट"],
+        "ta": ["விபத்து", "சாலை விபத்து", "உயரத்திலிருந்து விழுந்தார்", "எலும்பு முறிவு", "தலையில் காயம்", "கத்தி குத்து"],
+        "ml": ["അപകടം", "റോഡ് അപകടം", "ഉയരത്തുനിന്ന് വീണു", "എല്ലൊടിഞ്ഞു", "തലയിൽ പരിക്ക്", "കത്തി കുത്ത്"]
+      },
       "high_risk_factors": ["high-velocity impact", "elderly", "anticoagulant use", "head injury", "chest injury", "abdominal injury"],
       "guideline": "ATLS 10th Edition + WHO Trauma Care Checklist",
       "urgency": "IMMEDIATE",
@@ -193,6 +213,11 @@
       "name": "Acute Poisoning",
       "category": "toxicology",
       "symptoms": ["ingested poison", "swallowed pesticide", "swallowed pills", "took tablets", "took pills", "took overdose", "took an overdose", "drank pesticide", "drank kerosene", "drank bleach", "ingested", "ingestion", "self-harm attempt", "intentional self-harm", "child swallowed", "accidental ingestion", "paracetamol overdose", "acetaminophen overdose", "vomiting", "drowsiness", "confusion", "seizures", "drooling", "small pupils", "large pupils", "difficulty breathing", "slow heart rate"],
+      "symptoms_local": {
+        "hi": ["ज़हर खा लिया", "ज़हर पी लिया", "कीटनाशक पी लिया", "गोलियाँ खा लीं", "मिट्टी का तेल पी लिया", "लार बह रही", "बच्चे ने निगल लिया", "उल्टी हो रही"],
+        "ta": ["விஷம் குடித்தார்", "விஷம் சாப்பிட்டார்", "பூச்சிக்கொல்லி குடித்தார்", "மண்ணெண்ணெய் குடித்தார்", "மாத்திரை அதிகம் சாப்பிட்டார்", "வாயில் நீர் வழிகிறது"],
+        "ml": ["വിഷം കുടിച്ചു", "വിഷം കഴിച്ചു", "കീടനാശിനി കുടിച്ചു", "ഗുളിക അധികം കഴിച്ചു", "വായിൽ നിന്ന് വെള്ളം ഒഴുകുന്നു"]
+      },
       "high_risk_factors": ["pesticide exposure (organophosphate)", "intentional self-harm", "child accidental ingestion", "alcohol/methanol", "paracetamol overdose", "drug overdose"],
       "guideline": "WHO Poisons Centres + AAPCC Guidelines",
       "urgency": "IMMEDIATE",
@@ -206,6 +231,11 @@
       "name": "Snake Bite Envenomation",
       "category": "envenomation",
       "symptoms": ["snake bite", "snake bit", "snakebite", "bitten by snake", "fang marks", "bite mark", "swelling around bite", "swelling at bite site", "pain at bite site", "bleeding from gums", "drooping eyelids", "difficulty swallowing", "muscle weakness", "blood in urine", "severe pain at bite site", "tied a rope", "tied a tourniquet", "applied tourniquet"],
+      "symptoms_local": {
+        "hi": ["साँप ने काटा", "साँप का काटना", "सर्पदंश", "नाग ने काटा", "दांत के निशान", "काटने पर सूजन", "मसूड़ों से खून", "पलकें झुक रहीं"],
+        "ta": ["பாம்பு கடித்தது", "பாம்பு கடி", "பல் தடம்", "நாகம் கடித்தது", "கடித்த இடத்தில் வீக்கம்", "ஈறுகளில் ரத்தம்"],
+        "ml": ["പാമ്പ് കടിച്ചു", "പാമ്പ് കടി", "പല്ലിന്റെ പാട്", "സർപ്പദംശം", "കടിച്ച സ്ഥലത്ത് വീക്കം", "മോണയിൽ നിന്ന് രക്തം"]
+      },
       "high_risk_factors": ["rural agricultural area", "monsoon season", "barefoot", "night-time exposure", "venomous species in region (cobra, krait, viper)"],
       "guideline": "WHO Snake Bite Management 2017 + ICMR India Snakebite Treatment Protocol",
       "urgency": "IMMEDIATE",

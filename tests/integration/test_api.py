@@ -218,6 +218,74 @@ class TestDiagnoseEndpoint:
         assert esc["wa_me_url"].startswith("https://wa.me/?text=")
         assert esc["phone"] is None
 
+    def test_diagnose_accepts_language_param_and_forwards_to_llm(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        """A non-English `language` param must (a) be accepted by the API,
+        (b) reach the Ollama call as a system-prompt directive, and (c)
+        not break safety-override RED on Hindi keyword input."""
+        from app.core import llm
+        from unittest.mock import AsyncMock
+
+        captured_payloads = []
+
+        async def _capture(prompt, language="en"):
+            captured_payloads.append({"prompt": prompt, "language": language})
+            return mock_llm_response_factory(
+                triage="RED",
+                primary_condition="Snake Bite Envenomation",
+                primary_confidence=0.85,
+            )
+
+        monkeypatch.setattr(
+            llm.ollama_client, "generate_diagnosis", AsyncMock(side_effect=_capture)
+        )
+
+        # Hindi: "snake bit child two hours ago, fang marks visible"
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={
+                "symptoms": "बच्चे को साँप ने काटा है दो घंटे पहले, दांत के निशान दिख रहे हैं",
+                "patient_context": "rural area",
+                "language": "hi",
+            },
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["triage_level"] == "RED"
+        assert captured_payloads, "Ollama call was not made"
+        assert captured_payloads[0]["language"] == "hi"
+
+    def test_diagnose_defaults_language_to_english(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        """Omitting `language` must default to 'en' (back-compat)."""
+        from app.core import llm
+        from unittest.mock import AsyncMock
+
+        captured = []
+
+        async def _capture(prompt, language="en"):
+            captured.append(language)
+            return mock_llm_response_factory(triage="GREEN", primary_condition="Common Cold")
+
+        monkeypatch.setattr(
+            llm.ollama_client, "generate_diagnosis", AsyncMock(side_effect=_capture)
+        )
+        r = api_client.post(
+            "/api/v1/diagnose", json={"symptoms": "mild runny nose and cough"}
+        )
+        assert r.status_code == 200
+        assert captured == ["en"]
+
     def test_diagnose_rejects_too_short_symptoms(
         self,
         api_client,

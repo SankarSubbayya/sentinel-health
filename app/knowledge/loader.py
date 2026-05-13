@@ -23,15 +23,15 @@ class KnowledgeBase:
             return {}
 
     def get_relevant_conditions(self, symptoms: str) -> List[Dict[str, Any]]:
-        """Find conditions matching the symptom keywords."""
+        """Find conditions matching the symptom keywords (English + hi/ta/ml)."""
         symptoms_lower = symptoms.lower()
         matched = []
 
         for condition in self.conditions:
-            score = sum(
-                symptoms_lower.count(sym.lower())
-                for sym in condition.get("symptoms", [])
-            )
+            keywords = list(condition.get("symptoms", []))
+            for variants in condition.get("symptoms_local", {}).values():
+                keywords.extend(variants)
+            score = sum(symptoms_lower.count(kw.lower()) for kw in keywords)
             if score > 0:
                 matched.append((condition, score))
 
@@ -39,14 +39,15 @@ class KnowledgeBase:
         return [c[0] for c in matched[:10]]
 
     def check_red_flags(self, symptoms: str) -> List[Dict[str, Any]]:
-        """Check symptoms against red flag patterns."""
+        """Check symptoms against red flag patterns (English + hi/ta/ml variants)."""
         symptoms_lower = symptoms.lower()
         detected_flags = []
 
         for flag in self.red_flags:
-            keywords_match = any(
-                kw.lower() in symptoms_lower for kw in flag.get("keywords", [])
-            )
+            keywords = list(flag.get("keywords", []))
+            for variants in flag.get("keywords_local", {}).values():
+                keywords.extend(variants)
+            keywords_match = any(kw.lower() in symptoms_lower for kw in keywords)
             if keywords_match:
                 detected_flags.append(flag)
 
