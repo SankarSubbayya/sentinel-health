@@ -301,6 +301,115 @@ class TestDiagnoseEndpoint:
         assert r.status_code == 422
 
 
+class TestReportsEndpoints:
+    @pytest.fixture(autouse=True)
+    def _isolate_reports(self, tmp_path, monkeypatch):
+        from app.services import reports as reports_module
+
+        p = tmp_path / "reports.jsonl"
+        monkeypatch.setattr(reports_module.settings, "reports_path", str(p))
+        monkeypatch.setattr(reports_module.settings, "reports_enabled", True)
+        yield
+
+    def test_diagnose_persists_a_report(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        patch_ollama_generate(
+            mock_llm_response_factory(
+                triage="RED",
+                primary_condition="Acute Coronary Syndrome",
+                primary_confidence=0.8,
+            )
+        )
+        diag = api_client.post(
+            "/api/v1/diagnose",
+            json={"symptoms": "55-year-old with crushing chest pain"},
+        )
+        assert diag.status_code == 200
+        session_id = diag.json()["session_id"]
+
+        listed = api_client.get("/api/v1/reports")
+        assert listed.status_code == 200
+        body = listed.json()
+        assert len(body["reports"]) == 1
+        rec = body["reports"][0]
+        assert rec["session_id"] == session_id
+        assert rec["triage_level"] == "RED"
+        assert rec["symptoms"] == "55-year-old with crushing chest pain"
+
+    def test_list_reports_newest_first(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        patch_ollama_generate(mock_llm_response_factory(triage="GREEN"))
+        ids = []
+        for sx in ["case one", "case two", "case three"]:
+            r = api_client.post("/api/v1/diagnose", json={"symptoms": sx})
+            ids.append(r.json()["session_id"])
+
+        body = api_client.get("/api/v1/reports").json()
+        assert [r["session_id"] for r in body["reports"]] == list(reversed(ids))
+
+    def test_list_respects_limit_query(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        patch_ollama_generate(mock_llm_response_factory(triage="GREEN"))
+        for _ in range(5):
+            api_client.post("/api/v1/diagnose", json={"symptoms": "mild cough"})
+        body = api_client.get("/api/v1/reports?limit=2").json()
+        assert len(body["reports"]) == 2
+
+    def test_get_by_session_id(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        patch_ollama_generate(mock_llm_response_factory(triage="GREEN"))
+        sid = api_client.post(
+            "/api/v1/diagnose", json={"symptoms": "mild cough"}
+        ).json()["session_id"]
+
+        r = api_client.get(f"/api/v1/reports/{sid}")
+        assert r.status_code == 200
+        assert r.json()["session_id"] == sid
+
+    def test_get_unknown_returns_404(self, api_client):
+        r = api_client.get("/api/v1/reports/no-such-session-id")
+        assert r.status_code == 404
+
+
+class TestReportsDisabled:
+    def test_diagnose_does_not_persist_when_disabled(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        tmp_path,
+        monkeypatch,
+    ):
+        from app.services import reports as reports_module
+
+        p = tmp_path / "reports.jsonl"
+        monkeypatch.setattr(reports_module.settings, "reports_path", str(p))
+        monkeypatch.setattr(reports_module.settings, "reports_enabled", False)
+
+        patch_ollama_generate(mock_llm_response_factory(triage="GREEN"))
+        r = api_client.post("/api/v1/diagnose", json={"symptoms": "mild cough"})
+        assert r.status_code == 200
+        assert not p.exists()
+        listed = api_client.get("/api/v1/reports").json()
+        assert listed["reports"] == []
+
+
 class TestClarifyEndpoint:
     def test_clarify_returns_one_or_two_nonempty_questions(
         self, api_client, monkeypatch

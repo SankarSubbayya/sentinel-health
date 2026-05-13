@@ -6,6 +6,7 @@ from typing import Optional
 from app.core.llm import ollama_client
 from app.knowledge.loader import kb
 from app.services.diagnosis import diagnosis_service
+from app.services import reports as reports_service
 
 router = APIRouter()
 
@@ -132,6 +133,22 @@ async def triage(request: TriageRequest):
     return result
 
 
+@router.get("/api/v1/reports")
+async def list_reports(limit: int = 50):
+    """Return the most recent N persisted diagnose reports (newest first)."""
+    limit = max(1, min(limit, 500))
+    return {"reports": reports_service.list_reports(limit=limit)}
+
+
+@router.get("/api/v1/reports/{session_id}")
+async def get_report(session_id: str):
+    """Return one persisted report by session_id, or 404."""
+    rec = reports_service.get_report(session_id)
+    if rec is None:
+        raise HTTPException(status_code=404, detail=f"No report with session_id {session_id!r}")
+    return rec
+
+
 @router.get("/")
 async def root():
     """API documentation."""
@@ -147,6 +164,8 @@ async def root():
             "POST /api/v1/triage": "Quick RED/YELLOW/GREEN triage",
             "GET /api/v1/kb/conditions": "List KB conditions (id, name, category, urgency)",
             "GET /api/v1/kb/conditions/{id}": "Full KB record for one condition",
+            "GET /api/v1/reports": "List persisted diagnose reports (newest first)",
+            "GET /api/v1/reports/{session_id}": "Fetch one report by session_id",
             "GET /demo": "Interactive demo interface",
         },
         "disclaimer": "This is a decision support tool, not a diagnostic system. Always consult licensed healthcare providers.",

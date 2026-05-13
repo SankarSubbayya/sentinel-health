@@ -7,6 +7,7 @@ from app.core.llm import ollama_client
 from app.knowledge.loader import kb
 from app.services.safety import safety_engine
 from app.services.escalation import build_whatsapp_escalation
+from app.services.reports import save_report
 
 
 _FOLK_ERROR_PHRASES = (
@@ -91,6 +92,11 @@ class DiagnosisService:
                         if correction:
                             response["folk_error_correction"] = correction
                             break
+
+            try:
+                save_report(response, symptoms, patient_context or "", language)
+            except Exception:
+                pass
 
             return response
 

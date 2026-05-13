@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     hub_physician_name: str = "Hub Physician"
     facility_name: str = "Spoke clinic"
 
+    reports_enabled: bool = True
+    reports_path: str = "data/reports/reports.jsonl"
+    reports_list_default_limit: int = 50
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
