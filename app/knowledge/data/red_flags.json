@@ -216,6 +216,21 @@
       "action": "Hospital transport, atropine if clinician trained, decontaminate skin if topical exposure"
     },
     {
+      "id": "rf_unconscious_no_history",
+      "name": "Unconscious Patient with No History",
+      "keywords": ["found down", "found unconscious", "no history available", "no witness", "found collapsed", "unresponsive on arrival", "brought in unconscious", "no one knows what happened", "cannot give history", "found by the road", "found in field", "alone when collapsed"],
+      "keywords_local": {
+        "hi": ["बेहोश मिला", "गिरा हुआ मिला", "इतिहास नहीं", "कोई गवाह नहीं", "खेत में बेहोश मिला"],
+        "ta": ["மயக்கமாக கண்டெடுக்கப்பட்டார்", "வரலாறு தெரியாது", "சாட்சி இல்லை", "வயலில் மயக்கமாக"],
+        "ml": ["ബോധരഹിതനായി കണ്ടെത്തി", "ചരിത്രം അറിയില്ല", "സാക്ഷിയില്ല", "വയലിൽ ബോധരഹിതനായി"]
+      },
+      "combined_symptoms": [],
+      "triage_level": "RED",
+      "escalation_reason": "Unconscious patient without history — broad differential (stroke, hypoglycaemia, poisoning, trauma, MI, sepsis); cannot exclude time-critical causes without workup",
+      "urgency": "IMMEDIATE",
+      "action": "ABC primary survey, capillary glucose if available (give 25% dextrose IV if low), recovery position if breathing, transport with continuous monitoring. Photograph any clue at the scene (bottles, blister packs, ID). The image-attached path matters most here — wound, rash, pupil size, container label may be the only history available."
+    },
+    {
       "id": "rf_snake_bite",
       "name": "Snake Bite",
       "keywords": ["snake bite", "snake bit", "bitten by snake", "fang marks", "bite mark from snake"],

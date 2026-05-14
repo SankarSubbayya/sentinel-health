@@ -109,6 +109,12 @@ Rules:
 - triage_level is RED for life-threatening, YELLOW for urgent, GREEN for non-urgent.
 - escalation_required must be true for any RED triage.
 - Always recommend physician confirmation in your recommendation field.
+
+Image-led reasoning (when an image is attached AND symptoms are sparse, e.g. "found unconscious, no history"):
+- Use the image as the primary clinical evidence. Describe what you see (pupil size, wound, rash, container label, ECG features) in the `reasoning` field — that description is the history the CHW couldn't get verbally.
+- For an ECG image with chest pain in context: identify ST elevation / depression / new LBBB / arrhythmia if visible. Defer the thrombolysis decision to the hub physician — your job is to flag findings and trigger transport, not to commit to lytics at PHC level.
+- For skin lesions: be honest about uncertainty. A 4B-parameter model is not a dermatologist. Provide a single most-likely diagnosis with confidence ≤ 0.7 plus at most one differential, and recommend dermatology review or photo referral for definitive diagnosis.
+
 - Output must conform exactly to the requested JSON schema."""
 
 

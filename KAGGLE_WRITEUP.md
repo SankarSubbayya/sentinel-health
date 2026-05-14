@@ -4,7 +4,7 @@
 
 **Tracks:** Main Track · Health & Sciences Impact · Ollama Special Technology
 
-**Code:** github.com/SankarSubbayya/sentinel-health · **Live demo:** `<cloud-run-url>/demo`
+**Code:** github.com/SankarSubbayya/sentinel-health · **Live demo:** https://triage.accurateai.org/demo
 
 ---
 
@@ -26,45 +26,55 @@ Browser (voice in) → FastAPI → DiagnosisService
                                   └─ Escalation (WhatsApp wa.me deep-link, RED only)
 ```
 
-A POST to `/api/v1/diagnose` executes five deterministic steps. **(1)** A keyword pre-check scans the symptom string for red-flag terms (Layer 1 safety, no LLM). **(2)** The knowledge base — JSON files of WHO/CDC/ACC-grounded conditions — ranks candidate conditions by symptom-keyword overlap. **(3)** A prompt is built that contains *only those candidates* and is sent to Gemma 4. **(4)** A post-check re-runs the red-flag scan and overrides triage to RED if any flag fired, regardless of LLM confidence (Layer 2 safety). **(5)** On RED, the service attaches the during-transport protocol from the KB and builds a structured WhatsApp message with a `wa.me` deep-link so the CHW can hand off to the hub physician with one tap.
+A POST to `/api/v1/diagnose` runs five deterministic steps: keyword pre-check for red flags (Layer 1, no LLM); KB ranks candidate conditions by symptom overlap; a prompt is built with *only those candidates* and sent to Gemma 4; a post-check re-runs the red-flag scan and overrides triage to RED if any flag fired regardless of LLM confidence (Layer 2); on RED, the during-transport protocol and a `wa.me` WhatsApp handoff are attached.
 
-The architecture has three load-bearing invariants. The LLM is *grounded*, never free — it must select from KB candidates or return "No acute condition identified"; it cannot invent. The safety engine can override the LLM but never the reverse — a keyword red flag forces RED even on LLM-GREEN. Confidence is **capped at 0.9** in the JSON Schema — the model can never claim certainty.
+Three load-bearing invariants: the LLM is *grounded* (must pick from candidates or return "No acute condition identified" — cannot invent); the safety engine can override the LLM but never the reverse; confidence is capped at 0.9 in the JSON Schema.
 
 ## How we used Gemma 4 specifically
 
-The model is `gemma4:e4b-it-q4_K_M` — the instruction-tuned 4B-parameter variant, Q4 quantized, served via Ollama. We made three Gemma-specific design choices:
+The model is `gemma4:e4b-it-q4_K_M` — instruction-tuned 4B-parameter, Q4 quantized, served via Ollama. Three Gemma-specific design choices:
 
-**JSON Schema enforcement.** Every diagnosis call passes a strict `DIAGNOSIS_SCHEMA` to Ollama's `format` parameter. The schema requires up to three differentials, each with a condition string, a confidence float (max 0.9), reasoning, guideline reference, and recommendation. The schema is the contract: structured output is not a parsing fallback, it is the integration boundary. We saw zero JSON-decoding failures across the eval suite using this approach — Gemma's structured output is the load-bearing feature that makes the safety layer composable.
+**JSON Schema enforcement.** Every diagnose call passes a strict `DIAGNOSIS_SCHEMA` to Ollama's `format` parameter — up to three differentials with confidence capped at 0.9, reasoning, guideline reference, recommendation. Structured output is the integration boundary, not a parsing fallback. Zero JSON-decoding failures across the eval suite.
 
-**System prompt that rules out hallucination.** The system prompt names the candidate-conditions list as the *only* source of valid diagnoses. If none plausibly fit, the model is instructed to return a specific "No acute condition identified" object with triage GREEN. We discovered early that a freely-prompted Gemma will helpfully invent an MI to fill a slot — grounding it with an explicit "do not invent, return the default" rule cut over-diagnosis dramatically.
+**System prompt that rules out hallucination.** The prompt names the candidate-conditions list as the only valid source. If none fit, the model returns a fixed "No acute condition identified" object with triage GREEN. A freely-prompted Gemma will invent an MI to fill a slot; grounding cuts over-diagnosis dramatically.
 
-**Local CPU inference.** Q4 quantization gives us ~5-second latency per diagnose call on a mid-range laptop CPU. That is well inside the clinical window for an unhurried CHW workflow. Running locally is not a workaround; it is the *product*. There is no cloud call, no API key, no rate limit, no downtime, no privacy compromise. The whole pitch falls apart if Gemma needs the internet.
+**Multimodal image input.** Gemma 4 IT accepts images via Ollama's `images` field. A photo of a snake, ECG, wound, or container label flows in as additional clinical evidence — particularly load-bearing when the patient is unconscious and no verbal history is available.
+
+**Local CPU inference.** Q4 gives ~5-second latency per call on a mid-range laptop CPU. Running locally is not a workaround; it is *the product*. The whole pitch falls apart if Gemma needs the internet.
 
 ## The safety layer and the WhatsApp handoff
 
-The hardest part of building a clinical AI is not making it smart; it is making it *safe in the failure mode where it is wrong*. A 4B-parameter model will misclassify cases; the design question is what happens when it does.
+The hardest part of building a clinical AI is not making it smart; it is making it *safe when it is wrong*. A 4B-parameter model will misclassify cases; the design question is what happens then.
 
-Our answer is a deterministic safety engine that runs independently of the model. A small set of keyword red-flag rules — "fang marks", "crushing chest pain", "facial droop", "pesticide", "unresponsive", etc. — fires before *and* after the LLM call. If a flag fires, the final triage is RED no matter what the LLM said. The model can be wrong about subtle differentials; it cannot be wrong about whether the patient gets escalated, because that decision is not actually made by the model.
+Our answer: a deterministic safety engine that runs independently of the model. Keyword red-flag rules — "fang marks", "crushing chest pain", "facial droop", "pesticide", "unresponsive" — fire before *and* after the LLM call. If a flag fires, final triage is RED regardless of what the LLM said. The model can be wrong about differentials; it cannot be wrong about whether the patient gets escalated, because that decision isn't actually made by the model.
 
-The hub handoff is the other half. On RED, we build a `wa.me` deep-link containing the safety reason, top differential with confidence, symptoms verbatim, patient context, the during-transport protocol from the KB, and a one-line disclaimer for the receiving doctor. The CHW taps once; WhatsApp opens with the message pre-filled on their own phone; they review and send. This preserves CHW-in-the-loop — the app prepares, the human commits — and it requires no Twilio, no Meta Business API, no auto-send liability. The same architecture that runs offline for diagnosis works for the handoff: the link is generated locally; delivery depends on the CHW's phone connectivity, which is the right place for that dependency to live.
+On RED, the system builds a `wa.me` deep-link with the safety reason, top differential, symptoms verbatim, patient context, during-transport protocol, and disclaimer for the receiving doctor. The CHW taps once; WhatsApp opens with the message pre-filled on their own phone; they review and send. App prepares, human commits. No Twilio, no Meta Business API, no auto-send liability. Delivery depends on the CHW's phone connectivity — the right place for that dependency to live.
 
 ## Evaluation
 
-We built a 31-vignette synthetic eval suite covering every TAI-VADE category plus the high-yield mimics (DKA, hypoglycemia, sepsis, anaphylaxis, severe dehydration). Each vignette has a ground-truth triage level and condition. **Current results: 30/31 pass (96.8%), with sensitivity 21/21 (100%) and specificity 8/10 (80%).** The one failure is *over-triage* of benign palpitations — the model flagged RED when GREEN would have been correct. We consider this the right error to make: 100% sensitivity means no time-critical case was missed; erring toward the hospital is what a careful CHW would do; and the cost of an unnecessary escalation is bounded while the cost of a missed RED is unbounded. We track sensitivity and specificity separately and deliberately do not tune toward 31/31 — the safety layer's job is to *fail loudly toward escalation*.
+A 31-vignette synthetic eval suite covers every TAI-VADE category plus the high-yield mimics (DKA, hypoglycemia, sepsis, anaphylaxis, severe dehydration). **Results: 30/31 pass (96.8%), sensitivity 21/21 (100%), specificity 8/10 (80%).** The one failure is over-triage of benign palpitations — the right error to make. We track sensitivity and specificity separately and deliberately do not tune toward 31/31; the safety layer's job is to *fail loudly toward escalation*.
+
+## Clinical advisor input
+
+The product was reviewed with a practising clinician (Hari Subscini) who routinely refers from primary health centres (PHCs) to tertiary care in India. Three "confusion zones" — points where the CHW gets stuck and decision support is most valuable — emerged from that conversation and shape the current scope:
+
+1. **ECG diagnosis and the thrombolysis decision.** "Should I thrombolyse?" is a clinician-level decision that requires monitor, ventilator, and defibrillator — equipment that won't be available at PHC level. Our response: the model identifies likely STEMI findings on an attached ECG photo and prepares the IV-cannula + loading-dose + ambulance protocol, but defers the lytics decision to the receiving hub physician. Thrombolysis eligibility and contraindications are written into the during-transport protocol as decision support for the hub, not a directive for the spoke.
+
+2. **Skin lesions.** *"Skin lesions need a definite diagnosis than a probable one. So credibility and accuracy of skin lesions diagnosis need to be improved. It should narrow down to single diagnosis and few differentials."* We added cellulitis, cutaneous abscess, eczema/contact dermatitis, tinea, and tetanus-prone wounds to the KB so the multimodal pipeline has real candidates to ground in. The system prompt explicitly instructs the model to acknowledge dermatology uncertainty when image-led, cap confidence at 0.7 for skin lesions, and recommend specialist photo-referral. A 4B-parameter quantised model is not a dermatologist; honesty about that is the load-bearing design choice.
+
+3. **The unconscious patient with no history.** *"This tool is not useful if we don't know what happened, the patient just fell down."* This is exactly the case where multimodal Gemma earns its keep — when the symptom narrative is empty, the image becomes the history. The `rf_unconscious_no_history` red flag forces RED triage and the system prompt routes the model into "image-led reasoning" mode: describe what you see (pupils, wound, container label, ECG features) as a substitute for the verbal history that isn't available.
+
+The advisor also validated the project scope — the five TAI-VADE emergencies plus the high-yield mimics — and explicitly named image attachment as the critical addition: *"I attach the image. Some of it missed it. I'll add that."* We shipped W3-F2 (camera capture + multimodal Gemma) directly in response.
+
+The conversation also surfaced the PHC workflow the tool should sit inside: ECG → preliminary treatment (venflon + loading doses) → ambulance with assigned number → intimate the tertiary centre via app → ambulance tracking from both ends → document what was done. We cover the *intimation* leg through the WhatsApp escalation and the *documentation* leg through the append-only audit log. Ambulance tracking and closed-loop follow-up are on the V2 roadmap, not in this submission.
 
 ## Challenges we hit
 
-**Hallucination under uncertainty.** Early Gemma runs would invent conditions to fill the differential slot when symptoms were ambiguous. Fixed by KB grounding and an explicit "return the default" rule.
-
-**Over-confidence.** Initial prompts produced confidence values of 0.95+ for ambiguous cases. Fixed by hard-capping at 0.9 in the JSON Schema — the model literally cannot output higher.
-
-**Folk-remedy harm.** In snake-bite cases, the worst outcomes come from a tourniquet applied by the family, not the envenomation. We added a `folk_error_correction` field that surfaces alongside the diagnosis whenever the symptom text contains tourniquet/cut-and-suck/induced-vomiting phrases — turning a misdiagnosis vector into a teaching moment.
-
-**Escalation without internet.** Standard "send a WhatsApp from the server" architectures require Twilio, an internet connection at the spoke, and uphold-able audit guarantees we cannot promise in a hackathon MVP. We replaced the entire problem with a `wa.me` deep-link: zero infrastructure, CHW-in-the-loop, fully offline-resilient.
+**Hallucination.** Early Gemma runs invented conditions to fill the slot — fixed by KB grounding and an explicit "return the default" rule. **Over-confidence** — fixed by hard-capping at 0.9 in the JSON Schema. **Folk-remedy harm** — snake-bite outcomes are often driven by tourniquets applied by family; a `folk_error_correction` field surfaces alongside the diagnosis whenever tourniquet/cut-and-suck/induced-vomiting phrases appear. **Escalation without internet** — replaced "Twilio + server + audit guarantees" with a `wa.me` deep-link: zero infrastructure, CHW-in-the-loop, offline-resilient.
 
 ## Why these choices
 
-The dominant alternative architecture is "send symptoms to a hosted Gemini/GPT endpoint and post-process." It is faster to build, but it fails the village clinic. Local Gemma 4 via Ollama is the only choice that survives no-internet, no-rate-limit, no-PHI-leaving-the-laptop constraints simultaneously. JSON-schema enforcement converts a chatty model into a programmable component. The deterministic safety layer is the architecture's load-bearing innovation: it is the answer to "what happens when the AI is wrong about a 60-year-old's chest pain?"
+The dominant alternative — "send symptoms to a hosted Gemini/GPT endpoint" — fails the village clinic. Local Gemma 4 is the only choice that survives no-internet, no-rate-limit, no-PHI-leaving-the-laptop simultaneously. JSON-schema enforcement converts a chatty model into a programmable component. The deterministic safety layer is the load-bearing innovation: it answers "what happens when the AI is wrong about a 60-year-old's chest pain?"
 
 ## Tracks
 

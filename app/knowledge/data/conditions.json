@@ -128,11 +128,12 @@
         "ml": ["കടുത്ത നെഞ്ച് വേദന", "ഞെരുങ്ങുന്ന വേദന", "വിയര്‍പ്പ്", "ഛർദ്ദിക്ക് തോന്നൽ"]
       },
       "high_risk_factors": ["age", "smoking", "family history", "hypertension"],
-      "guideline": "2023 ACC/AHA STEMI Protocol",
+      "guideline": "2023 ACC/AHA STEMI Protocol + WHO/Indian Society of Cardiology STEMI–India",
       "urgency": "IMMEDIATE",
-      "recommendation": "Arrange emergency PCI-capable hospital transport. Aspirin 325 mg chewed. Oxygen if SpO2 < 90%. Call ahead so cath lab is ready.",
-      "during_transport": "Cardiac monitoring. Second aspirin if pain persists. Nitrates only if SBP > 90. IV access. Defibrillator on standby.",
-      "differential_conditions": ["unstable angina", "aortic dissection"]
+      "recommendation": "Establish IV access (venflon), give Aspirin 325 mg chewed + Clopidogrel 300 mg loading + Atorvastatin 80 mg loading if no contraindication. Photograph the 12-lead ECG and send to the hub physician for thrombolysis decision. Call ahead so the cath lab / CCU is ready. Arrange emergency PCI-capable hospital transport.",
+      "during_transport": "Cardiac monitoring. Second aspirin if pain persists. Nitrates only if SBP > 90 (avoid in inferior MI / right-heart involvement). IV access. Defibrillator on standby. Document time of onset and time of every drug given — the receiving team needs door-to-balloon clock.",
+      "phc_thrombolysis_decision": "Thrombolysis at PHC level is a clinician-led decision. Eligibility (ALL must be true): STEMI on ECG (≥ 1 mm ST elevation in 2 contiguous leads, or new LBBB); symptom onset < 12 h (max benefit < 3 h); PCI not available within 120 min. Absolute contraindications: any prior intracranial haemorrhage, ischaemic stroke < 3 months, known intracranial neoplasm, active internal bleeding, suspected aortic dissection, closed-head trauma < 3 months. If equipment (monitor, defibrillator, ventilator) is not available at the PHC, DO NOT thrombolyse — stabilise and transport.",
+      "differential_conditions": ["unstable angina", "aortic dissection", "pulmonary embolism", "pericarditis"]
     },
     {
       "id": "htn_encephalopathy",
@@ -244,6 +245,96 @@
       "history_trigger": "Any reported snake bite in an endemic area is a potential emergency, even if patient looks well — neurotoxic envenomation can have a 30–60 minute lag before paralysis sets in.",
       "folk_error_correction": "DO NOT apply a tourniquet or tight tie — this concentrates venom and causes limb necrosis. DO NOT cut and suck the wound. DO NOT give alcohol or coffee. DO NOT wait to see if symptoms develop — transport now.",
       "differential_conditions": ["insect sting", "scorpion sting", "anaphylaxis", "panic attack"]
+    },
+    {
+      "id": "cellulitis",
+      "name": "Cellulitis",
+      "category": "dermatology",
+      "symptoms": ["red skin", "spreading redness", "warm to touch", "swollen skin", "painful skin", "fever with skin redness", "skin infection", "leg redness spreading", "arm redness spreading", "wound red around it", "infected wound", "erythema spreading", "tender skin"],
+      "symptoms_local": {
+        "hi": ["त्वचा लाल", "लाली फैल रही", "त्वचा गर्म", "त्वचा सूजी", "घाव में सूजन"],
+        "ta": ["தோல் சிவப்பு", "சிவப்பு பரவுகிறது", "தோல் சூடாக", "காயத்தில் வீக்கம்"],
+        "ml": ["തൊലി ചുവന്നു", "ചുവപ്പ് പടരുന്നു", "തൊലി ചൂട്", "മുറിവിന് വീക്കം"]
+      },
+      "high_risk_factors": ["diabetes", "broken skin / wound", "lymphedema", "immunocompromised", "tetanus-prone wound"],
+      "guideline": "IDSA Skin and Soft Tissue Infections 2014",
+      "urgency": "URGENT",
+      "recommendation": "Outline the leading edge of erythema with a pen + date — re-check in 24 h. Empiric oral antibiotic per PHC formulary (cephalexin or amoxicillin–clavulanate if available). Tetanus prophylaxis if wound is tetanus-prone. Refer urgently if fever, rapidly spreading, systemic signs, or no improvement in 48 h.",
+      "during_transport": "Elevate the limb. Mark the leading edge. Note temperature and pulse. If sepsis features (hypotension, altered mental status, rigors), escalate to RED — treat as bacteremia and transport now.",
+      "history_trigger": "Spreading erythema beyond the marked edge, fever, rigors, or systemic features → upgrade to RED and transport.",
+      "differential_conditions": ["abscess", "deep vein thrombosis", "necrotizing fasciitis", "contact dermatitis"]
+    },
+    {
+      "id": "cutaneous_abscess",
+      "name": "Cutaneous Abscess",
+      "category": "dermatology",
+      "symptoms": ["pus filled lump", "boil", "painful lump under skin", "fluctuant swelling", "skin abscess", "discharging pus", "yellow head on lump", "tender swelling", "warm tender lump"],
+      "symptoms_local": {
+        "hi": ["फोड़ा", "गाँठ में मवाद", "मवाद बहना", "त्वचा के नीचे गाँठ"],
+        "ta": ["சீழ் கட்டி", "கட்டியில் சீழ்", "சீழ் வடிகிறது", "தோலின் கீழ் கட்டி"],
+        "ml": ["കുരു", "പഴുപ്പ് കെട്ടി", "പഴുപ്പ് ഒഴുകുന്നു", "തൊലിക്കു താഴെ കെട്ടി"]
+      },
+      "high_risk_factors": ["diabetes", "IV drug use", "skin injury", "poor hygiene"],
+      "guideline": "IDSA Skin and Soft Tissue Infections 2014",
+      "urgency": "URGENT",
+      "recommendation": "Incision and drainage is the definitive treatment — refer to a clinician trained in I&D if the abscess is > 1 cm or in a difficult area (face, joint, hand). Warm compresses can help small lesions point and drain spontaneously. Antibiotics alone are usually insufficient.",
+      "during_transport": "Do NOT squeeze. Cover with a clean dressing. Note size, location, and whether fluctuant. Check for surrounding cellulitis or systemic features.",
+      "history_trigger": "Facial abscess (especially around eye/nose), abscess on hand or near a joint, recurrent abscess, or any systemic features → escalate.",
+      "differential_conditions": ["cellulitis", "infected sebaceous cyst", "hidradenitis suppurativa", "necrotizing fasciitis"]
+    },
+    {
+      "id": "eczema_dermatitis",
+      "name": "Eczema / Contact Dermatitis",
+      "category": "dermatology",
+      "symptoms": ["itchy rash", "dry scaly skin", "red itchy patches", "rash after contact", "rash from soap", "rash from plant", "weeping rash", "cracked skin", "scaly skin"],
+      "symptoms_local": {
+        "hi": ["खुजली वाली त्वचा", "सूखी त्वचा", "लाल खुजली", "त्वचा फटना"],
+        "ta": ["அரிப்பு உள்ள தோல்", "உலர்ந்த தோல்", "தோல் வெடிப்பு"],
+        "ml": ["ചൊറിച്ചിൽ", "വരണ്ട തൊലി", "തൊലി പൊട്ടൽ"]
+      },
+      "high_risk_factors": ["atopic background", "exposure to known allergen / irritant", "frequent water exposure"],
+      "guideline": "AAD Atopic Dermatitis Guidelines 2014; WHO Essential Medicines (topical steroids)",
+      "urgency": "NON_URGENT",
+      "recommendation": "Identify and remove the trigger if known (soap, plant, occupational exposure). Emollient liberally. Low-potency topical steroid (hydrocortisone 1%) for short courses on inflamed areas. Refer for dermatology opinion if widespread, infected, or not improving with first-line care.",
+      "during_transport": "Not typically transported. If infected or systemic features, treat as cellulitis pathway.",
+      "history_trigger": "If the rash is rapidly spreading, blistering, painful (not just itchy), or accompanied by fever, reconsider — could be cellulitis, drug eruption, or Stevens–Johnson.",
+      "differential_conditions": ["cellulitis", "fungal infection (tinea)", "scabies", "drug eruption", "psoriasis"]
+    },
+    {
+      "id": "tinea_fungal",
+      "name": "Tinea / Superficial Fungal Infection",
+      "category": "dermatology",
+      "symptoms": ["ring shaped rash", "ringworm", "itchy ring on skin", "scaly ring", "groin itch", "athlete's foot", "scalp scaling", "patchy hair loss"],
+      "symptoms_local": {
+        "hi": ["गोल चकत्ता", "दाद", "खुजलीदार रिंग"],
+        "ta": ["வட்டமான தடிப்பு", "வேப்பிலை வடிவ அரிப்பு"],
+        "ml": ["വൃത്താകൃതിയിലുള്ള ചൊറിച്ചിൽ", "ദാദ്"]
+      },
+      "high_risk_factors": ["humid climate", "shared towels", "tight clothing", "diabetes"],
+      "guideline": "AAFP Tinea Infections 2014",
+      "urgency": "NON_URGENT",
+      "recommendation": "Topical antifungal (clotrimazole or terbinafine) twice daily for 2–4 weeks. Keep area dry. Refer for oral antifungal if extensive, scalp involvement, or no response.",
+      "during_transport": "Not typically transported.",
+      "history_trigger": "If the rash is painful, blistering, or has central clearing inconsistent with tinea, reconsider — could be eczema, psoriasis, or impetigo.",
+      "differential_conditions": ["eczema", "psoriasis", "pityriasis rosea", "impetigo"]
+    },
+    {
+      "id": "wound_tetanus_prone",
+      "name": "Tetanus-Prone Wound",
+      "category": "trauma",
+      "symptoms": ["rusty nail", "puncture wound", "soil contaminated", "stepped on", "deep dirty wound", "agricultural injury", "wound from rust", "animal bite wound", "nail in foot", "barbed wire", "field injury", "dog bite", "cat scratch"],
+      "symptoms_local": {
+        "hi": ["जंग लगी कील से चोट", "गहरा गंदा घाव", "खेत में चोट"],
+        "ta": ["துருப்பிடித்த ஆணியால் காயம்", "ஆழமான அழுக்கான காயம்", "வயலில் காயம்"],
+        "ml": ["തുരുമ്പിച്ച ആണി കൊണ്ടുള്ള മുറിവ്", "ആഴമേറിയ വൃത്തിയില്ലാത്ത മുറിവ്"]
+      },
+      "high_risk_factors": ["unknown tetanus immunisation status", "agricultural injury", "soil-contaminated wound", "puncture wounds", "burns", "delayed presentation > 6 hours"],
+      "guideline": "CDC Tetanus Prophylaxis in Wound Management 2018",
+      "urgency": "URGENT",
+      "recommendation": "Thorough wound cleaning and debridement. Tetanus toxoid booster if last dose > 5 years ago; tetanus immunoglobulin (TIG) if unvaccinated or unknown status. Empiric antibiotics for grossly contaminated wounds. Refer for definitive surgical care if deep, devitalised tissue.",
+      "during_transport": "Cover the wound with a clean dressing. Note exact mechanism (object, depth, contamination, time elapsed) for the receiving team. Monitor for early tetanus signs (trismus, dysphagia) — these would convert this to RED.",
+      "history_trigger": "Onset of trismus, dysphagia, neck stiffness, or muscle spasms after a wound → RED, tetanus presumptively — transport to a facility with ventilator support immediately.",
+      "differential_conditions": ["cellulitis", "necrotizing fasciitis", "rabies (if animal bite)"]
     }
   ]
 }
