@@ -233,7 +233,7 @@ class TestDiagnoseEndpoint:
 
         captured_payloads = []
 
-        async def _capture(prompt, language="en"):
+        async def _capture(prompt, language="en", image=None):
             captured_payloads.append({"prompt": prompt, "language": language})
             return mock_llm_response_factory(
                 triage="RED",
@@ -260,6 +260,69 @@ class TestDiagnoseEndpoint:
         assert captured_payloads, "Ollama call was not made"
         assert captured_payloads[0]["language"] == "hi"
 
+    def test_diagnose_accepts_image_and_forwards_to_llm(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        """`image` field on the request must reach the Ollama call, and the
+        prompt must mention the attached image."""
+        from app.core import llm
+        from unittest.mock import AsyncMock
+
+        captured = []
+
+        async def _capture(prompt, language="en", image=None):
+            captured.append({"prompt": prompt, "language": language, "image": image})
+            return mock_llm_response_factory(
+                triage="RED",
+                primary_condition="Snake Bite Envenomation",
+                primary_confidence=0.85,
+            )
+
+        monkeypatch.setattr(
+            llm.ollama_client, "generate_diagnosis", AsyncMock(side_effect=_capture)
+        )
+
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={
+                "symptoms": "snake bit child on the ankle, fang marks visible",
+                "patient_context": "rural area",
+                "image": "data:image/jpeg;base64,FAKE_BASE64_PAYLOAD",
+            },
+        )
+        assert r.status_code == 200
+        assert captured, "Ollama call was not made"
+        assert captured[0]["image"] == "data:image/jpeg;base64,FAKE_BASE64_PAYLOAD"
+        assert "IMAGE IS ATTACHED" in captured[0]["prompt"]
+
+    def test_diagnose_without_image_does_not_mention_image_in_prompt(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        from app.core import llm
+        from unittest.mock import AsyncMock
+
+        captured = []
+
+        async def _capture(prompt, language="en", image=None):
+            captured.append({"prompt": prompt, "image": image})
+            return mock_llm_response_factory(triage="GREEN")
+
+        monkeypatch.setattr(
+            llm.ollama_client, "generate_diagnosis", AsyncMock(side_effect=_capture)
+        )
+        r = api_client.post("/api/v1/diagnose", json={"symptoms": "mild cough"})
+        assert r.status_code == 200
+        assert captured[0]["image"] is None
+        assert "IMAGE IS ATTACHED" not in captured[0]["prompt"]
+
     def test_diagnose_defaults_language_to_english(
         self,
         api_client,
@@ -273,7 +336,7 @@ class TestDiagnoseEndpoint:
 
         captured = []
 
-        async def _capture(prompt, language="en"):
+        async def _capture(prompt, language="en", image=None):
             captured.append(language)
             return mock_llm_response_factory(triage="GREEN", primary_condition="Common Cold")
 
@@ -385,6 +448,29 @@ class TestReportsEndpoints:
     def test_get_unknown_returns_404(self, api_client):
         r = api_client.get("/api/v1/reports/no-such-session-id")
         assert r.status_code == 404
+
+    def test_report_records_image_presence_without_bytes(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        """Image present must be flagged in the report; bytes must NOT be stored."""
+        patch_ollama_generate(mock_llm_response_factory(triage="RED", primary_condition="Snake Bite Envenomation"))
+        fake_image = "data:image/jpeg;base64," + ("A" * 1024)
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={"symptoms": "snake bite, fang marks visible", "image": fake_image},
+        )
+        assert r.status_code == 200
+        listed = api_client.get("/api/v1/reports").json()
+        rec = listed["reports"][0]
+        assert rec["image_present"] is True
+        assert rec["image_size_b64"] == len(fake_image)
+        # Bytes themselves must NOT appear in the persisted record:
+        for v in rec.values():
+            if isinstance(v, str):
+                assert "AAAAA" not in v[:100], "image bytes should not be persisted"
 
 
 class TestReportsDisabled:

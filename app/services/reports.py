@@ -35,9 +35,13 @@ def save_report(
     symptoms: str,
     patient_context: str = "",
     language: str = "en",
+    image: str | None = None,
 ) -> str | None:
     """Append one report to the JSONL log. Returns the file path written, or
-    None if persistence is disabled."""
+    None if persistence is disabled.
+
+    Image bytes are NOT stored — we only record presence + approximate size
+    to keep the audit log compact and avoid pinning PHI photos to disk."""
     if not settings.reports_enabled:
         return None
 
@@ -47,6 +51,8 @@ def save_report(
         "language": language,
         "symptoms": symptoms,
         "patient_context": patient_context,
+        "image_present": bool(image),
+        "image_size_b64": len(image) if image else 0,
         "triage_level": response.get("triage_level"),
         "differential_diagnosis": response.get("differential_diagnosis", []),
         "safety": response.get("safety", {}),

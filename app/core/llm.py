@@ -67,6 +67,13 @@ CLARIFY_SCHEMA: dict[str, Any] = {
 }
 
 
+def _strip_data_url(image: str) -> str:
+    """Accept either a raw base64 string or a data URL; return raw base64."""
+    if "," in image and image.startswith("data:"):
+        return image.split(",", 1)[1]
+    return image
+
+
 LANG_NAMES: dict[str, str] = {
     "en": "English",
     "hi": "Hindi (use Devanagari script)",
@@ -128,8 +135,15 @@ class OllamaClient:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    async def generate_diagnosis(self, prompt: str, language: str = "en") -> str:
-        """Call Gemma 4 via Ollama with JSON Schema-enforced output."""
+    async def generate_diagnosis(
+        self, prompt: str, language: str = "en", image: str | None = None
+    ) -> str:
+        """Call Gemma 4 via Ollama with JSON Schema-enforced output.
+
+        If `image` is provided (base64 JPEG/PNG, with or without data URL
+        prefix), it is passed in the Ollama `images` field — Gemma 4 IT
+        treats it as multimodal evidence alongside the prompt.
+        """
         payload = {
             "model": self.model,
             "prompt": prompt,
@@ -138,6 +152,8 @@ class OllamaClient:
             "format": DIAGNOSIS_SCHEMA,
             "options": {"temperature": self.temperature},
         }
+        if image:
+            payload["images"] = [_strip_data_url(image)]
 
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -211,6 +227,7 @@ Produce 1–2 short clarifying questions. For each:
         patient_context: str,
         relevant_conditions: list[dict],
         language: str = "en",
+        has_image: bool = False,
     ) -> str:
         """Build user prompt with patient data + KB-grounded candidate conditions."""
         if relevant_conditions:
@@ -229,6 +246,12 @@ Produce 1–2 short clarifying questions. For each:
             )
 
         context_block = patient_context.strip() if patient_context.strip() else "(none provided)"
+        image_block = (
+            "AN IMAGE IS ATTACHED (e.g., wound, rash, snake, ECG, container label). "
+            "Treat it as additional clinical evidence alongside the symptoms. "
+            "Reference what you see in your reasoning when relevant.\n\n"
+            if has_image else ""
+        )
 
         return f"""PATIENT SYMPTOMS:
 {symptoms}
@@ -236,7 +259,7 @@ Produce 1–2 short clarifying questions. For each:
 PATIENT CONTEXT:
 {context_block}
 
-CANDIDATE CONDITIONS (KB-grounded — choose differentials from these):
+{image_block}CANDIDATE CONDITIONS (KB-grounded — choose differentials from these):
 {conditions_block}
 
 Produce up to 3 differentials ranked by clinical likelihood. For each:

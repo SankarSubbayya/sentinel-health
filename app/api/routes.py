@@ -16,6 +16,7 @@ class DiagnoseRequest(BaseModel):
     patient_context: Optional[str] = ""
     session_id: Optional[str] = None
     language: Optional[str] = "en"
+    image: Optional[str] = None  # base64-encoded JPEG/PNG (data URL or raw)
 
 
 class TriageRequest(BaseModel):
@@ -72,7 +73,10 @@ async def diagnose(request: DiagnoseRequest):
         raise HTTPException(status_code=400, detail="Symptoms must be at least 5 characters")
 
     result = await diagnosis_service.diagnose(
-        request.symptoms, request.patient_context, language=request.language or "en"
+        request.symptoms,
+        request.patient_context,
+        language=request.language or "en",
+        image=request.image,
     )
     return result
 

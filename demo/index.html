@@ -463,6 +463,61 @@
       padding: 6px 8px 8px 12px;
     }
     .input-hint { flex: 1; font-size: 12px; color: var(--text-faint); }
+
+    .image-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 6px 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .image-preview img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .image-meta { font-size: 12px; color: var(--text-muted); flex: 1; }
+    .image-remove {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .image-remove:hover { color: var(--text); }
+
+    .cam-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px;
+    }
+    .cam-overlay video { max-width: 90vw; max-height: 70vh; border-radius: 8px; background: #000; }
+    .cam-actions { display: flex; gap: 12px; }
+    .cam-btn {
+      appearance: none;
+      border: 0;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cam-btn.primary { background: var(--accent); color: #fff; }
+    .cam-btn.secondary { background: var(--surface-2); color: var(--text); }
     .icon-btn {
       width: 36px; height: 36px;
       background: transparent;
@@ -817,7 +872,14 @@
         <span class="input-hint" id="inputHint" data-i18n="input_hint">Enter to send · Shift+Enter for new line</span>
         <button id="quickBtn" class="triage-quick-btn" onclick="quickTriage()" title="Rules-only triage (no LLM)" data-i18n="quick_triage">Quick triage</button>
         <button id="micBtn" class="icon-btn" onclick="toggleMic()" title="Voice input">🎤</button>
+        <button id="camBtn" class="icon-btn" onclick="openCamera()" title="Attach photo (camera or file)">📷</button>
+        <input id="fileInput" type="file" accept="image/*" capture="environment" style="display:none" />
         <button id="sendBtn" class="send-btn" onclick="sendDiagnose()" data-i18n="diagnose">Diagnose</button>
+      </div>
+      <div id="imagePreview" class="image-preview" style="display:none">
+        <img id="imageThumb" alt="attached" />
+        <span id="imageMeta" class="image-meta"></span>
+        <button type="button" class="image-remove" onclick="clearImage()" aria-label="Remove image">×</button>
       </div>
     </div>
     <p class="disclaimer">
@@ -976,6 +1038,7 @@
     symptomsInput.value = '';
     contextInput.value = '';
     symptomsInput.style.height = 'auto';
+    clearImage();
     clarifyRound = 0;
     cumulativeSymptoms = '';
     cumulativeContext = '';
@@ -1188,7 +1251,12 @@
       const r = await fetch('/api/v1/diagnose', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ symptoms, patient_context: context, language: currentLang })
+        body: JSON.stringify({
+          symptoms,
+          patient_context: context,
+          language: currentLang,
+          ...(attachedImageDataUrl ? { image: attachedImageDataUrl } : {})
+        })
       });
       removeThinking();
       if (!r.ok) {
@@ -1302,6 +1370,118 @@
       symptomsInput.focus();
     }
   }
+
+  // ─── Image capture (camera + file fallback) ────────────────────────
+  // Ported from amd_hackathon/frontend-next/src/components/CameraCapture.tsx
+  // and image-resize.ts: open camera via getUserMedia (rear-facing if
+  // available), snap a frame to canvas, resize to ≤1280px longer side at
+  // 0.85 JPEG quality, encode as data URL, send as `image` field in the
+  // diagnose payload. Files chosen via the hidden <input type="file">
+  // go through the same resize pipeline.
+  let attachedImageDataUrl = null;
+  let camStream = null;
+  const fileInput = document.getElementById('fileInput');
+  const camBtn = document.getElementById('camBtn');
+  const imagePreview = document.getElementById('imagePreview');
+  const imageThumb = document.getElementById('imageThumb');
+  const imageMeta = document.getElementById('imageMeta');
+
+  async function resizeToDataUrl(blobOrFile, maxDim = 1280, quality = 0.85) {
+    try {
+      const bitmap = await createImageBitmap(blobOrFile);
+      const longer = Math.max(bitmap.width, bitmap.height);
+      const scale = longer > maxDim ? maxDim / longer : 1;
+      const w = Math.round(bitmap.width * scale);
+      const h = Math.round(bitmap.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+      return canvas.toDataURL('image/jpeg', quality);
+    } catch (e) {
+      console.warn('resize fell back to FileReader:', e);
+      return await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(blobOrFile);
+      });
+    }
+  }
+
+  function setAttachedImage(dataUrl) {
+    attachedImageDataUrl = dataUrl;
+    imageThumb.src = dataUrl;
+    // approximate decoded byte size = base64 length * 0.75
+    const b64Len = dataUrl.split(',')[1]?.length || 0;
+    const kb = Math.round((b64Len * 0.75) / 1024);
+    imageMeta.textContent = `Photo attached · ~${kb} KB`;
+    imagePreview.style.display = 'flex';
+  }
+
+  function clearImage() {
+    attachedImageDataUrl = null;
+    imageThumb.src = '';
+    imagePreview.style.display = 'none';
+    if (fileInput) fileInput.value = '';
+  }
+
+  fileInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAttachedImage(await resizeToDataUrl(file));
+  });
+
+  async function openCamera() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      fileInput?.click();
+      return;
+    }
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+    } catch (err) {
+      // Permission denied or no camera — fall back to file picker.
+      fileInput?.click();
+      return;
+    }
+    const overlay = document.createElement('div');
+    overlay.className = 'cam-overlay';
+    overlay.innerHTML = `
+      <video id="camVideo" playsinline muted></video>
+      <div class="cam-actions">
+        <button type="button" class="cam-btn primary" id="camSnap">Snap</button>
+        <button type="button" class="cam-btn secondary" id="camCancel">Cancel</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    const video = overlay.querySelector('#camVideo');
+    video.srcObject = camStream;
+    video.play().catch(() => {});
+
+    const close = () => {
+      camStream?.getTracks().forEach(t => t.stop());
+      camStream = null;
+      overlay.remove();
+    };
+    overlay.querySelector('#camCancel').addEventListener('click', close);
+    overlay.querySelector('#camSnap').addEventListener('click', async () => {
+      const w = video.videoWidth || 1280;
+      const h = video.videoHeight || 720;
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      c.getContext('2d').drawImage(video, 0, 0, w, h);
+      const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.9));
+      close();
+      if (blob) setAttachedImage(await resizeToDataUrl(blob));
+    });
+  }
+  // ─── end image capture ──────────────────────────────────────────────
 
   // --- Voice input via Web Speech API ---
   let recognition = null;

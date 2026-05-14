@@ -25,7 +25,10 @@ class DiagnosisService:
 
     @staticmethod
     async def diagnose(
-        symptoms: str, patient_context: str = "", language: str = "en"
+        symptoms: str,
+        patient_context: str = "",
+        language: str = "en",
+        image: str | None = None,
     ) -> Dict[str, Any]:
         """Main diagnosis flow."""
         session_id = str(uuid.uuid4())
@@ -36,10 +39,16 @@ class DiagnosisService:
             relevant_conditions = kb.get_relevant_conditions(symptoms)
 
             prompt = ollama_client.build_diagnosis_prompt(
-                symptoms, patient_context, relevant_conditions, language=language
+                symptoms,
+                patient_context,
+                relevant_conditions,
+                language=language,
+                has_image=bool(image),
             )
 
-            llm_response = await ollama_client.generate_diagnosis(prompt, language=language)
+            llm_response = await ollama_client.generate_diagnosis(
+                prompt, language=language, image=image
+            )
 
             parsed = DiagnosisService._parse_llm_response(llm_response)
 
@@ -94,7 +103,13 @@ class DiagnosisService:
                             break
 
             try:
-                save_report(response, symptoms, patient_context or "", language)
+                save_report(
+                    response,
+                    symptoms,
+                    patient_context or "",
+                    language,
+                    image=image,
+                )
             except Exception:
                 pass
 
