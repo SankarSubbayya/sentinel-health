@@ -1155,7 +1155,10 @@
         <button id="micBtn" class="icon-btn" onclick="toggleMic()" title="Voice input" aria-label="Voice input">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><path d="M12 19v3"></path></svg>
         </button>
-        <button id="camBtn" class="icon-btn" onclick="openCamera()" title="Attach photo (camera or file)" aria-label="Attach photo">
+        <button id="attachBtn" class="icon-btn" onclick="fileInput?.click()" title="Attach photo from gallery or files" aria-label="Attach photo from gallery or files">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+        </button>
+        <button id="camBtn" class="icon-btn" onclick="openCameraOverlay()" title="Take photo with camera" aria-label="Take photo with camera">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 13 3H8L6.5 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-5.5Z"></path><circle cx="12" cy="12.5" r="3.5"></circle></svg>
         </button>
         <input id="fileInput" type="file" accept="image/*" style="display:none" />
@@ -1670,6 +1673,7 @@
   let camStream = null;
   const fileInput = document.getElementById('fileInput');
   const camBtn = document.getElementById('camBtn');
+  const attachBtn = document.getElementById('attachBtn');
   const imagePreview = document.getElementById('imagePreview');
   const imageThumb = document.getElementById('imageThumb');
   const imageMeta = document.getElementById('imageMeta');
@@ -1708,6 +1712,7 @@
     imageMeta.textContent = `Photo attached · ~${kb} KB`;
     imagePreview.style.display = 'flex';
     camBtn?.classList.add('armed');
+    attachBtn?.classList.add('armed');
   }
 
   function clearImage() {
@@ -1716,6 +1721,7 @@
     imagePreview.style.display = 'none';
     if (fileInput) fileInput.value = '';
     camBtn?.classList.remove('armed');
+    attachBtn?.classList.remove('armed');
   }
 
   fileInput?.addEventListener('change', async (e) => {
