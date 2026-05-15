@@ -1,5 +1,8 @@
 """Application settings (model name, Ollama URL, timeouts) loaded from env."""
 
+from typing import Any
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -10,8 +13,13 @@ class Settings(BaseSettings):
 
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "gemma4:e4b-it-q4_K_M"
-    ollama_timeout_seconds: float = 60.0
+    # 180s accommodates first-call vision-weight loading + multimodal inference.
+    # Subsequent calls with keep_alive should finish in ~5-15s on M-series GPU.
+    ollama_timeout_seconds: float = 180.0
     ollama_temperature: float = 0.2
+    # How long Ollama keeps the model resident in VRAM between requests.
+    # Set to a long value so the second image-call is fast (model already warm).
+    ollama_keep_alive: str = "30m"
 
     hub_physician_phone: str = ""
     hub_physician_name: str = "Hub Physician"
@@ -20,6 +28,17 @@ class Settings(BaseSettings):
     reports_enabled: bool = True
     reports_path: str = "data/reports/reports.jsonl"
     reports_list_default_limit: int = 50
+
+    @field_validator("debug", mode="before")
+    @classmethod
+    def parse_debug(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"release", "prod", "production"}:
+                return False
+            if normalized in {"dev", "development"}:
+                return True
+        return value
 
     class Config:
         env_file = ".env"

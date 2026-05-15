@@ -1355,11 +1355,14 @@
     scrollToBottom();
   }
 
-  function appendThinking() {
+  function appendThinking(withImage) {
     const t = document.createElement('div');
     t.className = 'thinking';
     t.id = 'thinking';
-    t.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div><span>Reasoning with Gemma 4 locally…</span>';
+    const label = withImage
+      ? 'Reading the image and reasoning… first multimodal call can take 30–60s while vision weights warm.'
+      : 'Reasoning with Gemma 4 locally…';
+    t.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div><span>${label}</span>`;
     conversation.appendChild(t);
     scrollToBottom();
   }
@@ -1536,7 +1539,7 @@
   async function runDiagnose(symptoms, context) {
     sendBtn.disabled = true;
     quickBtn.disabled = true;
-    appendThinking();
+    appendThinking(Boolean(attachedImageDataUrl));
 
     try {
       const r = await fetch('/api/v1/diagnose', {
@@ -1678,7 +1681,7 @@
   const imageThumb = document.getElementById('imageThumb');
   const imageMeta = document.getElementById('imageMeta');
 
-  async function resizeToDataUrl(blobOrFile, maxDim = 1280, quality = 0.85) {
+  async function resizeToDataUrl(blobOrFile, maxDim = 640, quality = 0.8) {
     try {
       const bitmap = await createImageBitmap(blobOrFile);
       const longer = Math.max(bitmap.width, bitmap.height);

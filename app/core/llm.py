@@ -157,6 +157,7 @@ class OllamaClient:
             "stream": False,
             "format": DIAGNOSIS_SCHEMA,
             "options": {"temperature": self.temperature},
+            "keep_alive": settings.ollama_keep_alive,
         }
         if image:
             payload["images"] = [_strip_data_url(image)]
@@ -181,6 +182,7 @@ class OllamaClient:
             "stream": False,
             "format": CLARIFY_SCHEMA,
             "options": {"temperature": self.temperature},
+            "keep_alive": settings.ollama_keep_alive,
         }
 
         try:
