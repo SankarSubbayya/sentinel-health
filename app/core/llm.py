@@ -238,14 +238,21 @@ Produce 1–2 short clarifying questions. For each:
         has_image: bool = False,
     ) -> str:
         """Build user prompt with patient data + KB-grounded candidate conditions."""
+        def _cond_line(c: dict) -> str:
+            parts = [
+                f"- {c['name']} ({c.get('category', 'general')})",
+                f"  key symptoms: {', '.join(c.get('symptoms', [])[:5])}",
+                f"  guideline: {c.get('guideline', 'N/A')}",
+                f"  urgency: {c.get('urgency', 'UNKNOWN')}",
+            ]
+            if c.get("recommendation"):
+                parts.append(f"  protocol: {c['recommendation']}")
+            if c.get("phc_thrombolysis_decision"):
+                parts.append(f"  thrombolysis decision: {c['phc_thrombolysis_decision']}")
+            return "\n".join(parts)
+
         if relevant_conditions:
-            conditions_block = "\n".join(
-                f"- {c['name']} ({c.get('category', 'general')}): "
-                f"key symptoms = {', '.join(c.get('symptoms', [])[:5])}; "
-                f"guideline = {c.get('guideline', 'N/A')}; "
-                f"urgency = {c.get('urgency', 'UNKNOWN')}"
-                for c in relevant_conditions[:6]
-            )
+            conditions_block = "\n".join(_cond_line(c) for c in relevant_conditions[:6])
         else:
             conditions_block = (
                 "(NONE — no candidate conditions matched the symptoms in our KB. "
@@ -275,7 +282,7 @@ Produce up to 3 differentials ranked by clinical likelihood. For each:
 - confidence: 0.0–0.9 (never claim certainty)
 - reasoning: 1–2 sentences citing specific symptoms
 - guideline_reference: use the guideline string from the candidate
-- recommendation: concrete next action (e.g., "Arrange immediate hospital transport")
+- recommendation: concrete next action. If the candidate provides a `protocol` line above, your recommendation MUST surface the named drugs and doses verbatim (e.g., "Establish IV access (venflon), give Aspirin 325 mg chewed + Clopidogrel 300 mg loading…"). Do not paraphrase away the loading-dose recipe — a community health worker at a PHC needs the exact instruction, not a summary. Add the transport instruction at the end.
 
 Then set triage_level (RED/YELLOW/GREEN), list any red_flags_detected, and set escalation_required (true if RED)."""
 

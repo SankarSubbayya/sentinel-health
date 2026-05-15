@@ -11,12 +11,13 @@
         "ml": ["നെഞ്ച് വേദന", "നെഞ്ചിൽ ഭാരം", "വിയര്‍പ്പ്", "ശ്വാസതടസ്സം", "താടി വേദന"]
       },
       "high_risk_factors": ["age > 40", "hypertension", "diabetes", "smoking", "high cholesterol", "male"],
-      "guideline": "2023 ACC/AHA Chest Pain Protocol",
+      "guideline": "2023 ACC/AHA Chest Pain Protocol + WHO/Indian Society of Cardiology STEMI–India",
       "urgency": "IMMEDIATE",
-      "recommendation": "Arrange immediate hospital transport. Aspirin 325 mg chewed if no allergy. ECG within 10 minutes if available. Document onset time.",
-      "during_transport": "Continuous vitals (BP, HR, SpO2). Second aspirin if ongoing pain. Avoid nitrates if SBP < 90. If cardiac arrest, start CPR.",
+      "recommendation": "Establish IV access (venflon), give Aspirin 325 mg chewed + Clopidogrel 300 mg loading + Atorvastatin 80 mg loading if no contraindication. ECG within 10 minutes if available. Photograph the 12-lead ECG and send to the hub physician for thrombolysis decision. Document onset time. Call ahead so the CCU / cath lab is ready. Arrange emergency PCI-capable hospital transport.",
+      "during_transport": "Cardiac monitoring (continuous BP, HR, SpO2). Second aspirin if ongoing pain. Nitrates only if SBP > 90 (avoid in inferior MI / right-heart involvement). IV access. Defibrillator on standby. Document time of onset and time of every drug given — the receiving team needs the door-to-balloon clock.",
+      "phc_thrombolysis_decision": "Thrombolysis at PHC level is a clinician-led decision. Eligibility (ALL must be true): STEMI on ECG (≥ 1 mm ST elevation in 2 contiguous leads, or new LBBB); symptom onset < 12 h (max benefit < 3 h); PCI not available within 120 min. Absolute contraindications: any prior intracranial haemorrhage, ischaemic stroke < 3 months, known intracranial neoplasm, active internal bleeding, suspected aortic dissection, closed-head trauma < 3 months. If equipment (monitor, defibrillator, ventilator) is not available at the PHC, DO NOT thrombolyse — stabilise and transport.",
       "history_trigger": "Typical anginal character (pressure/squeezing, exertional, radiating to jaw or left arm) escalates to RED even with normal ECG/Echo/troponin — this is unstable angina.",
-      "differential_conditions": ["pulmonary embolism", "aortic dissection", "pneumonia"]
+      "differential_conditions": ["unstable angina", "pulmonary embolism", "aortic dissection", "pericarditis", "pneumonia"]
     },
     {
       "id": "hypertensive_crisis",

@@ -77,11 +77,24 @@ class DiagnosisService:
             }
 
             if final_triage == "RED":
-                for cond in relevant_conditions:
-                    transport = cond.get("during_transport")
-                    if transport:
-                        response["during_transport"] = transport
-                        break
+                top_condition_name = (
+                    parsed.get("differential_diagnosis", [{}])[0].get("condition", "")
+                ).lower()
+                # Prefer the KB protocol of the condition the LLM actually picked;
+                # fall back to first relevant if no name match.
+                matched = next(
+                    (c for c in relevant_conditions
+                     if c.get("name", "").lower() in top_condition_name
+                     or top_condition_name in c.get("name", "").lower()),
+                    relevant_conditions[0] if relevant_conditions else None,
+                )
+                if matched:
+                    if matched.get("during_transport"):
+                        response["during_transport"] = matched["during_transport"]
+                    if matched.get("recommendation"):
+                        response["protocol"] = matched["recommendation"]
+                    if matched.get("phc_thrombolysis_decision"):
+                        response["phc_thrombolysis_decision"] = matched["phc_thrombolysis_decision"]
 
                 escalation = build_whatsapp_escalation(
                     response, symptoms, patient_context or "", session_id

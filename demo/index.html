@@ -1422,6 +1422,14 @@
         </div>`;
     }
 
+    if (data.phc_thrombolysis_decision && triage === 'RED') {
+      html += `
+        <div class="action-section transport">
+          <div class="label">Thrombolysis decision at PHC</div>
+          <div class="body">${escapeHtml(data.phc_thrombolysis_decision)}</div>
+        </div>`;
+    }
+
     if (data.folk_error_correction) {
       html += `
         <div class="folk-error-banner">
