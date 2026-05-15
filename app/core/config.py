@@ -23,7 +23,13 @@ class Settings(BaseSettings):
 
     hub_physician_phone: str = ""
     hub_physician_name: str = "Hub Physician"
+    # Optional: name of the WhatsApp group used as the actual hub (matches the
+    # real-world PHC workflow — escalation gets pasted into the group, not DM'd).
+    # If set, the demo UI surfaces a "Copy to <group>" button alongside the
+    # single-contact Send button. Example: "TVMCH Cardiology Hub and Spoke".
+    hub_group_name: str = ""
     facility_name: str = "Spoke clinic"
+    chw_name: str = ""
 
     reports_enabled: bool = True
     reports_path: str = "data/reports/reports.jsonl"

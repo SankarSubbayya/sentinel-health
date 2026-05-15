@@ -488,6 +488,12 @@
       max-height: 280px;
       overflow-y: auto;
     }
+    .wa-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
     a.wa-send-btn {
       display: inline-flex;
       align-items: center;
@@ -501,6 +507,24 @@
       border-radius: var(--radius-sm);
     }
     a.wa-send-btn:hover { background: #128c4a; }
+    button.wa-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #fff;
+      color: #128c4a;
+      font-weight: 600;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid #25d366;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    button.wa-copy-btn:hover { background: #e7f7ee; }
+    button.wa-copy-btn.copied { background: #25d366; color: #fff; }
+    .wa-copy-icon { font-size: 16px; line-height: 1; }
 
     .differentials {
       padding: 18px 20px 10px;
@@ -1322,6 +1346,36 @@
   let cumulativeContext = '';
 
   // --- New patient ---
+  async function copyEscalation(btn) {
+    const text = btn?.dataset?.text || '';
+    if (!text) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for non-secure contexts: select-and-copy via a temp textarea.
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const original = btn.querySelector('span:last-child')?.textContent;
+      btn.classList.add('copied');
+      const label = btn.querySelector('span:last-child');
+      if (label) label.textContent = 'Copied — open WhatsApp and paste';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        if (label && original) label.textContent = original;
+      }, 2500);
+    } catch (e) {
+      console.warn('clipboard copy failed', e);
+    }
+  }
+
   function newPatient() {
     document.querySelectorAll('.msg, .thinking, .error-msg, .clarify-card').forEach(el => el.remove());
     if (!emptyState.parentNode) conversation.appendChild(emptyState);
@@ -1440,19 +1494,29 @@
 
     if (data.escalation && triage === 'RED') {
       const esc = data.escalation;
-      const recipient = esc.recipient_name || 'Hub physician';
-      const phoneLabel = esc.phone ? ` · ${escapeHtml(esc.phone)}` : ' · pick contact in WhatsApp';
+      const recipient = esc.recipient_label || esc.recipient_name || 'Hub physician';
+      const phoneLabel = esc.phone
+        ? ` · ${escapeHtml(esc.phone)}`
+        : (esc.group_name ? ' · WhatsApp group' : ' · pick contact in WhatsApp');
+      const copyLabel = esc.group_name
+        ? `Copy to ${escapeHtml(esc.group_name)}`
+        : 'Copy message';
       html += `
         <div class="wa-escalate">
           <div class="label">Escalate to hub via WhatsApp</div>
           <div class="recipient">${escapeHtml(recipient)}${phoneLabel}</div>
           <details>
             <summary>Preview message</summary>
-            <pre class="wa-preview">${escapeHtml(esc.text || '')}</pre>
+            <pre class="wa-preview" id="waPreview-${escapeHtml(data.session_id || '')}">${escapeHtml(esc.text || '')}</pre>
           </details>
-          <a class="wa-send-btn" href="${escapeHtml(esc.wa_me_url)}" target="_blank" rel="noopener noreferrer">
-            <span>Send via WhatsApp</span>
-          </a>
+          <div class="wa-actions">
+            <button type="button" class="wa-copy-btn" data-text="${escapeHtml(esc.text || '')}" onclick="copyEscalation(this)">
+              <span class="wa-copy-icon">📋</span><span>${copyLabel}</span>
+            </button>
+            <a class="wa-send-btn" href="${escapeHtml(esc.wa_me_url)}" target="_blank" rel="noopener noreferrer">
+              <span>Send via WhatsApp</span>
+            </a>
+          </div>
         </div>`;
     }
 
