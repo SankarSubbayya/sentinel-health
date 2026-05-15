@@ -421,6 +421,53 @@
     .action-section.transport .body { color: var(--text); }
     .action-section.transport .label { color: var(--accent); }
 
+    /* === Tab bar inside the triage card === */
+    .tabs-bar {
+      display: flex;
+      gap: 2px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .tab-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      padding: 12px 14px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .triage-card.red .tab-btn.active { color: var(--red); border-bottom-color: var(--red); }
+    .triage-card.yellow .tab-btn.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+    .triage-card.green .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+    .tab-btn .tab-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 0 6px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 16px;
+      height: 16px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+    .tab-btn.active .tab-badge { background: rgba(0,0,0,0.06); color: inherit; }
+    .tab-content > .tab-panel { display: none; }
+    .tab-content > .tab-panel.active { display: block; }
+
     .folk-error-banner {
       margin: 16px 20px 0;
       padding: 14px 16px;
@@ -1532,43 +1579,35 @@
     const top = data.differential_diagnosis?.[0];
     const action = top?.recommendation || 'Refer to a clinician.';
     const transport = data.during_transport || top?.during_transport;
+    const isRed = triage === 'RED';
 
-    let html = `
-      <div class="triage-card">
-        <div class="triage-banner ${klass}">
-          <span class="icon">${icon}</span>
-          <span>${escapeHtml(banner)}</span>
-        </div>
-        <div class="action-section">
-          <div class="label">Action</div>
-          <div class="body">${escapeHtml(action)}</div>
-        </div>`;
+    // --- Build each tab's panel HTML ---
+    const actionPanel = `
+      <div class="action-section">
+        <div class="label">Action</div>
+        <div class="body">${escapeHtml(action)}</div>
+      </div>`;
 
-    if (transport && triage === 'RED') {
-      html += `
-        <div class="action-section transport">
-          <div class="label">During transport</div>
-          <div class="body">${escapeHtml(transport)}</div>
-        </div>`;
+    let transportPanel = '';
+    if (isRed && (transport || data.phc_thrombolysis_decision)) {
+      if (transport) {
+        transportPanel += `
+          <div class="action-section transport">
+            <div class="label">During transport</div>
+            <div class="body">${escapeHtml(transport)}</div>
+          </div>`;
+      }
+      if (data.phc_thrombolysis_decision) {
+        transportPanel += `
+          <div class="action-section transport">
+            <div class="label">Thrombolysis decision at PHC</div>
+            <div class="body">${escapeHtml(data.phc_thrombolysis_decision)}</div>
+          </div>`;
+      }
     }
 
-    if (data.phc_thrombolysis_decision && triage === 'RED') {
-      html += `
-        <div class="action-section transport">
-          <div class="label">Thrombolysis decision at PHC</div>
-          <div class="body">${escapeHtml(data.phc_thrombolysis_decision)}</div>
-        </div>`;
-    }
-
-    if (data.folk_error_correction) {
-      html += `
-        <div class="folk-error-banner">
-          <div class="label">Do not: folk remedy correction</div>
-          <div class="body">${escapeHtml(data.folk_error_correction)}</div>
-        </div>`;
-    }
-
-    if (data.escalation && triage === 'RED') {
+    let escalatePanel = '';
+    if (data.escalation && isRed) {
       const esc = data.escalation;
       const recipient = esc.recipient_label || esc.recipient_name || 'Hub physician';
       const phoneLabel = esc.phone
@@ -1583,7 +1622,7 @@
       const baseText = esc.text || '';
       const baseWaUrl = esc.wa_me_url || '';
       const sid = data.session_id || '';
-      html += `
+      escalatePanel = `
         <div class="wa-escalate" data-base-text="${escapeHtml(baseText)}" data-base-wa-url="${escapeHtml(baseWaUrl)}" data-sid="${escapeHtml(sid)}">
           <div class="label">Escalate to hub via WhatsApp</div>
           <div class="recipient">${escapeHtml(recipient)}${phoneLabel}</div>
@@ -1607,12 +1646,13 @@
         </div>`;
     }
 
+    let differentialPanel = '';
     if (data.differential_diagnosis?.length) {
-      html += `<div class="differentials">
+      differentialPanel = `<div class="differentials">
         <div class="label">Differential</div>`;
       data.differential_diagnosis.forEach(d => {
         const conf = ((d.confidence ?? 0) * 100).toFixed(0);
-        html += `
+        differentialPanel += `
           <div class="diff-item">
             <div class="diff-head">
               <div class="diff-name">${escapeHtml(d.condition)}</div>
@@ -1624,10 +1664,46 @@
             </div>
           </div>`;
       });
-      html += `</div>`;
+      differentialPanel += `</div>`;
     }
 
-    html += `
+    // --- Decide which tabs to show ---
+    const tabs = [{ id: 'action', label: 'Action', html: actionPanel }];
+    if (transportPanel) tabs.push({ id: 'transport', label: 'Transport', html: transportPanel });
+    if (escalatePanel) tabs.push({
+      id: 'escalate',
+      label: 'Escalate',
+      badge: data.escalation?.group_name ? 'group' : 'hub',
+      html: escalatePanel,
+    });
+    if (differentialPanel) {
+      const n = data.differential_diagnosis?.length || 0;
+      tabs.push({ id: 'differential', label: 'Differential', badge: String(n), html: differentialPanel });
+    }
+
+    const tabBar = tabs.map((t, i) => `
+      <button type="button" class="tab-btn ${i===0?'active':''}" data-tab="${t.id}" onclick="switchTab(this)">
+        ${escapeHtml(t.label)}${t.badge ? ` <span class="tab-badge">${escapeHtml(t.badge)}</span>` : ''}
+      </button>`).join('');
+    const panels = tabs.map((t, i) => `
+      <div class="tab-panel ${i===0?'active':''}" data-tab="${t.id}">${t.html}</div>`).join('');
+
+    const folkBanner = data.folk_error_correction
+      ? `<div class="folk-error-banner">
+           <div class="label">Do not: folk remedy correction</div>
+           <div class="body">${escapeHtml(data.folk_error_correction)}</div>
+         </div>`
+      : '';
+
+    const html = `
+      <div class="triage-card ${klass}">
+        <div class="triage-banner ${klass}">
+          <span class="icon">${icon}</span>
+          <span>${escapeHtml(banner)}</span>
+        </div>
+        ${folkBanner}
+        <div class="tabs-bar" role="tablist">${tabBar}</div>
+        <div class="tab-content">${panels}</div>
         <div class="session-footer">
           <span class="meta-mono">session ${escapeHtml((data.session_id || '').slice(0,8))}</span>
           <span>Gemma 4 · local · offline</span>
@@ -1639,6 +1715,18 @@
     msg.innerHTML = html;
     conversation.appendChild(msg);
     scrollToBottom();
+  }
+
+  // Tab switcher: toggles `.active` on the clicked button and its matching panel.
+  function switchTab(btn) {
+    const bar = btn.closest('.tabs-bar');
+    const card = btn.closest('.triage-card');
+    if (!bar || !card) return;
+    const targetId = btn.dataset.tab;
+    bar.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    card.querySelectorAll('.tab-content > .tab-panel').forEach(p =>
+      p.classList.toggle('active', p.dataset.tab === targetId)
+    );
   }
 
   function renderQuickTriage(data) {
