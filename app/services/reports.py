@@ -7,15 +7,25 @@ Why JSONL (not SQLite or a real DB):
   are well under that, so we don't need explicit locking for the
   single-process FastAPI server.
 
-PHI lives in `symptoms` and `patient_context` fields. For the local
-clinic-laptop deployment that's the right place for it; for the cloud
-demo, set `REPORTS_ENABLED=false` to keep PHI off the host.
+Attached images (ECG photos, wound photos, etc.) are persisted as
+side-files in data/reports/images/<session_id>.<ext> so the JSONL
+stays compact and human-scannable. The JSONL record carries a path
+reference; the file itself is what the receiving clinician needs for
+record-of-care (especially for ECGs that drive thrombolysis decisions).
+
+PHI lives in `symptoms`, `patient_context`, and the image side-files.
+For the local clinic-laptop deployment that's the right place for it;
+for the cloud demo, set `REPORTS_ENABLED=false` to keep PHI off the
+host entirely.
 """
 
 from __future__ import annotations
 
+import base64
 import json
 import os
+import re
+import uuid
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any
@@ -28,6 +38,67 @@ def _resolve_path() -> Path:
     if not p.is_absolute():
         p = Path(__file__).resolve().parents[2] / p
     return p
+
+
+def _images_dir() -> Path:
+    """Side-file image directory, sibling to reports.jsonl."""
+    return _resolve_path().parent / "images"
+
+
+# Whitelisted extensions we'll persist; anything else stored as `.bin`.
+_MIME_TO_EXT = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/heic": "heic",
+    "image/gif": "gif",
+}
+
+
+def _decode_image(image: str) -> tuple[bytes, str] | None:
+    """Parse a data-URL or raw-base64 image string. Returns (bytes, extension)
+    or None if the string can't be decoded."""
+    if not image:
+        return None
+    # Data URL: "data:image/jpeg;base64,XXXX..."
+    m = re.match(r"^data:([\w/+\-.]+);base64,(.*)$", image, flags=re.DOTALL)
+    if m:
+        mime = m.group(1).lower().strip()
+        b64 = m.group(2)
+        ext = _MIME_TO_EXT.get(mime, "bin")
+    else:
+        # Raw base64 with no header — assume JPEG (most common from camera).
+        b64 = image
+        ext = "jpg"
+    try:
+        return base64.b64decode(b64, validate=False), ext
+    except Exception:
+        return None
+
+
+def _write_image_side_file(session_id: str | None, image: str) -> tuple[str, int] | None:
+    """Write the image bytes to the side-file dir. Returns (relative_path, bytes_written)
+    or None if persistence is disabled, image is missing, or decode failed."""
+    if not image:
+        return None
+    decoded = _decode_image(image)
+    if not decoded:
+        return None
+    blob, ext = decoded
+    sid = session_id or str(uuid.uuid4())
+    sid_clean = re.sub(r"[^\w-]", "_", sid)
+    images_dir = _images_dir()
+    images_dir.mkdir(parents=True, exist_ok=True)
+    out_path = images_dir / f"{sid_clean}.{ext}"
+    out_path.write_bytes(blob)
+    # Return a path that's relative to the JSONL file so the record is portable
+    # if the data/ dir gets moved as a unit.
+    try:
+        rel = out_path.relative_to(_resolve_path().parent)
+        return str(rel), len(blob)
+    except ValueError:
+        return str(out_path), len(blob)
 
 
 def save_report(
@@ -45,6 +116,9 @@ def save_report(
     if not settings.reports_enabled:
         return None
 
+    side_file = _write_image_side_file(response.get("session_id"), image) if image else None
+    image_path, image_bytes = side_file if side_file else (None, 0)
+
     record = {
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "session_id": response.get("session_id"),
@@ -52,7 +126,10 @@ def save_report(
         "symptoms": symptoms,
         "patient_context": patient_context,
         "image_present": bool(image),
-        "image_size_b64": len(image) if image else 0,
+        # Side-file storage: path is relative to reports.jsonl's parent dir
+        # (data/reports/), so the audit trail can be relocated atomically.
+        "image_path": image_path,
+        "image_bytes": image_bytes,
         "triage_level": response.get("triage_level"),
         "differential_diagnosis": response.get("differential_diagnosis", []),
         "safety": response.get("safety", {}),
@@ -115,3 +192,28 @@ def get_report(session_id: str) -> dict[str, Any] | None:
             if rec.get("session_id") == session_id:
                 return rec
     return None
+
+
+_EXT_TO_MIME = {
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "webp": "image/webp",
+    "heic": "image/heic",
+    "gif": "image/gif",
+}
+
+
+def read_report_image(session_id: str) -> tuple[bytes, str] | None:
+    """Return (image_bytes, mime_type) for a session's persisted image,
+    or None if the report doesn't exist or has no image attached."""
+    rec = get_report(session_id)
+    if not rec or not rec.get("image_path"):
+        return None
+    rel = rec["image_path"]
+    full = _resolve_path().parent / rel
+    if not full.exists():
+        return None
+    ext = full.suffix.lstrip(".").lower()
+    mime = _EXT_TO_MIME.get(ext, "application/octet-stream")
+    return full.read_bytes(), mime

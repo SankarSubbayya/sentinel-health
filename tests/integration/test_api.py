@@ -449,28 +449,58 @@ class TestReportsEndpoints:
         r = api_client.get("/api/v1/reports/no-such-session-id")
         assert r.status_code == 404
 
-    def test_report_records_image_presence_without_bytes(
+    def test_report_records_image_presence_and_side_file(
         self,
         api_client,
         patch_ollama_generate,
         mock_llm_response_factory,
     ):
-        """Image present must be flagged in the report; bytes must NOT be stored."""
+        """W3-F9: image is persisted as a side-file (not inline in JSONL);
+        the report record carries the path + byte count; the
+        /reports/{sid}/image endpoint serves the bytes back."""
+        import base64
         patch_ollama_generate(mock_llm_response_factory(triage="RED", primary_condition="Snake Bite Envenomation"))
-        fake_image = "data:image/jpeg;base64," + ("A" * 1024)
+        raw_bytes = b"\xff\xd8\xff\xe0" + b"FAKEJPEG" * 16  # not a real JPEG, but valid base64 round-trip
+        fake_image = "data:image/jpeg;base64," + base64.b64encode(raw_bytes).decode()
         r = api_client.post(
             "/api/v1/diagnose",
             json={"symptoms": "snake bite, fang marks visible", "image": fake_image},
         )
         assert r.status_code == 200
+        sid = r.json()["session_id"]
+
         listed = api_client.get("/api/v1/reports").json()
         rec = listed["reports"][0]
         assert rec["image_present"] is True
-        assert rec["image_size_b64"] == len(fake_image)
-        # Bytes themselves must NOT appear in the persisted record:
+        assert rec["image_path"] is not None
+        assert rec["image_path"].startswith("images/")
+        assert rec["image_bytes"] == len(raw_bytes)
+        # Bytes themselves must NOT appear inline in the JSONL record:
         for v in rec.values():
             if isinstance(v, str):
-                assert "AAAAA" not in v[:100], "image bytes should not be persisted"
+                assert "FAKEJPEGFAKEJPEG" not in v, "image bytes should be in a side-file, not inline"
+
+        # Endpoint serves the persisted bytes with correct content-type.
+        img_resp = api_client.get(f"/api/v1/reports/{sid}/image")
+        assert img_resp.status_code == 200
+        assert img_resp.headers["content-type"] == "image/jpeg"
+        assert img_resp.content == raw_bytes
+
+    def test_image_endpoint_404_when_no_image(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+    ):
+        patch_ollama_generate(mock_llm_response_factory(triage="GREEN"))
+        r = api_client.post("/api/v1/diagnose", json={"symptoms": "mild cough"})
+        sid = r.json()["session_id"]
+        img_resp = api_client.get(f"/api/v1/reports/{sid}/image")
+        assert img_resp.status_code == 404
+
+    def test_image_endpoint_404_for_unknown_session(self, api_client):
+        r = api_client.get("/api/v1/reports/no-such-sid/image")
+        assert r.status_code == 404
 
 
 class TestReportsDisabled:

@@ -1,6 +1,6 @@
 """HTTP routes: diagnose, clarify, triage, KB browse, and health checks."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 from typing import Optional
 from app.core.llm import ollama_client
@@ -153,6 +153,23 @@ async def get_report(session_id: str):
     return rec
 
 
+@router.get("/api/v1/reports/{session_id}/image")
+async def get_report_image(session_id: str):
+    """Serve the persisted image (ECG / wound / etc.) for the report.
+
+    Returns 404 if the report has no image attached or the side-file is missing.
+    Content-type is derived from the stored file extension.
+    """
+    got = reports_service.read_report_image(session_id)
+    if got is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No image for session_id {session_id!r}",
+        )
+    image_bytes, mime = got
+    return Response(content=image_bytes, media_type=mime)
+
+
 @router.get("/")
 async def root():
     """API documentation."""
@@ -170,6 +187,7 @@ async def root():
             "GET /api/v1/kb/conditions/{id}": "Full KB record for one condition",
             "GET /api/v1/reports": "List persisted diagnose reports (newest first)",
             "GET /api/v1/reports/{session_id}": "Fetch one report by session_id",
+            "GET /api/v1/reports/{session_id}/image": "Serve the persisted ECG/wound photo for the report (404 if none)",
             "GET /demo": "Interactive demo interface",
         },
         "disclaimer": "This is a decision support tool, not a diagnostic system. Always consult licensed healthcare providers.",
