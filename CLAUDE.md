@@ -67,7 +67,7 @@ FastAPI app (main.py → app/api/routes.py)
 ollama pull gemma4:e4b-it-q4_K_M
 uv sync
 uv run uvicorn main:app --reload     # → http://localhost:8000/demo
-uv run python -m tests.eval_cases --save   # current: 30/31 (96.8%), sensitivity 100%
+uv run python -m tests.eval_cases --save   # current: 29/31 (93.5%), sensitivity 100% (gemma4 e4b-it-q4_K_M; model-independent per bake-off)
 ```
 
 ## Conventions when editing

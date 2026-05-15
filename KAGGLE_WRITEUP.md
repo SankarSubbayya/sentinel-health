@@ -52,7 +52,7 @@ On RED, the system builds a `wa.me` deep-link with the safety reason, top differ
 
 ## Evaluation
 
-A 31-vignette synthetic eval suite covers every TAI-VADE category plus the high-yield mimics (DKA, hypoglycemia, sepsis, anaphylaxis, severe dehydration). **Results: 30/31 pass (96.8%), sensitivity 21/21 (100%), specificity 8/10 (80%).** The one failure is over-triage of benign palpitations — the right error to make. We track sensitivity and specificity separately and deliberately do not tune toward 31/31; the safety layer's job is to *fail loudly toward escalation*.
+A 31-vignette synthetic eval suite covers every TAI-VADE category plus the high-yield mimics (DKA, hypoglycemia, sepsis, anaphylaxis, severe dehydration). **Results with `gemma4:e4b-it-q4_K_M`: 29/31 pass (93.5%), sensitivity 21/21 (100%), specificity 8/10 (80%).** All failures are over-triage — the right error to make. A model bake-off against MedGemma 4B Q8 and MedGemma 4B confirmed the LLM is the lowest-leverage piece: **all three models score 100% sensitivity and 80% specificity** — only the diagnosis-name match differs. The safety layer's job is independent of the model.
 
 ## Clinical advisor input
 
@@ -66,7 +66,7 @@ The product was reviewed with a practising clinician (Hari Subscini) who routine
 
 The advisor also validated the project scope — the five TAI-VADE emergencies plus the high-yield mimics — and explicitly named image attachment as the critical addition: *"I attach the image. Some of it missed it. I'll add that."* We shipped W3-F2 (camera capture + multimodal Gemma) directly in response.
 
-The conversation also surfaced the PHC workflow the tool should sit inside: ECG → preliminary treatment (venflon + loading doses) → ambulance with assigned number → intimate the tertiary centre via app → ambulance tracking from both ends → document what was done. We cover the *intimation* leg through the WhatsApp escalation and the *documentation* leg through the append-only audit log. Ambulance tracking and closed-loop follow-up are on the V2 roadmap, not in this submission.
+The conversation also surfaced the PHC workflow the tool sits inside: preliminary treatment (venflon + loading doses) → ambulance with assigned number → intimate the tertiary centre via app → tracking → documentation. We cover all but live ambulance tracking: the recommendation field includes the venflon + aspirin + clopidogrel protocol; the WhatsApp message is shaped like the real TVMCH Cardiology Hub-and-Spoke group format (From / To / H/o / Sentinel reading / Plan at spoke / Transport / Thrombolysis decision); a CHW-entered "Ambulance #" input live-injects into the message; transport ETA is computed from configured distance ÷ average speed; every diagnose call is persisted to an append-only audit log. Live GPS tracking is the one piece left for V2.
 
 ## Challenges we hit
 
@@ -74,10 +74,10 @@ The conversation also surfaced the PHC workflow the tool should sit inside: ECG 
 
 ## Why these choices
 
-The dominant alternative — "send symptoms to a hosted Gemini/GPT endpoint" — fails the village clinic. Local Gemma 4 is the only choice that survives no-internet, no-rate-limit, no-PHI-leaving-the-laptop simultaneously. JSON-schema enforcement converts a chatty model into a programmable component. The deterministic safety layer is the load-bearing innovation: it answers "what happens when the AI is wrong about a 60-year-old's chest pain?"
+The alternative — hosted Gemini/GPT — fails the village clinic. Local Gemma 4 is the only choice that survives no-internet, no-rate-limit, no-PHI-leaving-the-laptop simultaneously. The deterministic safety layer answers "what happens when the AI is wrong about a 60-year-old's chest pain?"
 
 ## Tracks
 
-We submit primarily to the **Main Track** (vision: democratizing decision support for the two billion people whose primary care is delivered by CHWs); to **Health & Sciences Impact** (direct clinical impact on time-critical conditions); and to **Ollama Special Technology** (a 100% local Gemma 4 deployment that is verifiable offline by disabling the laptop's network and re-running the suite). The video demo shows all three.
+**Main Track** (vision: decision support for the two billion people whose primary care is delivered by CHWs); **Health & Sciences Impact** (direct clinical impact); **Ollama Special Technology** (100% local Gemma 4, verifiable offline by disabling the laptop's network and re-running the suite).
 
 *Decision support tool. Not a diagnostic system. Always consult a qualified physician.*

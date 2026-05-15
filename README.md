@@ -83,7 +83,7 @@ Total prize upside: **$60,000.**
 |---|---|
 | End-to-end backend (Gemma 4 + KB + safety) | ✅ Working |
 | WhatsApp hub-physician escalation | ✅ Working |
-| Synthetic eval, 31 vignettes | ✅ 30/31 (96.8%), sensitivity 100% |
+| Synthetic eval, 31 vignettes | ✅ 29/31 (93.5%), sensitivity 100% |
 | Web frontend with voice | ✅ Working |
 | Cloud Run deploy (bundled Ollama + Gemma 4) | 🚧 Scaffolding ready |
 | Demo video (≤ 3 min) | 🚧 Script ready, recording pending |
@@ -116,7 +116,7 @@ open http://localhost:8000/demo
 uv run python -m tests.eval_cases --save
 ```
 
-This runs 31 synthetic clinical cases through the diagnosis service and reports the pass rate. Current: 30/31 (96.8%). Sensitivity is the load-bearing metric — we target 100% (every RED caught).
+This runs 31 synthetic clinical cases through the diagnosis service and reports the pass rate. Current: 29/31 (93.5%), sensitivity 21/21 (100%), specificity 8/10 (80%). Sensitivity is the load-bearing metric — we target 100% (every RED caught).
 
 ---
 
