@@ -24,6 +24,8 @@ def _reset_settings():
         s.hub_group_name,
         s.facility_name,
         s.chw_name,
+        s.nearest_hub_km,
+        s.avg_ambulance_kmh,
     )
     yield
     (
@@ -32,6 +34,8 @@ def _reset_settings():
         s.hub_group_name,
         s.facility_name,
         s.chw_name,
+        s.nearest_hub_km,
+        s.avg_ambulance_kmh,
     ) = saved
 
 
@@ -187,3 +191,60 @@ class TestGroupAndCHWIdentity:
         assert " · " not in [
             line for line in payload["text"].split("\n") if line.startswith("*From:*")
         ][0]
+
+
+class TestAmbulanceAndETA:
+    """W3-F8: ambulance number + transport ETA derived from nearest_hub_km."""
+
+    def test_eta_section_appears_when_km_configured(self):
+        escalation_module.settings.nearest_hub_km = 18
+        escalation_module.settings.avg_ambulance_kmh = 50
+        escalation_module.settings.hub_group_name = "TVMCH"
+        payload = build_whatsapp_escalation(_diag(), "chest pain")
+        # 18 km / 50 kmh * 60 = 21.6 min → rounds to 22
+        assert "ETA: ~22 min (18 km to TVMCH)" in payload["text"]
+        assert payload["transport_eta"] == "~22 min (18 km to TVMCH)"
+
+    def test_no_eta_when_km_zero(self):
+        escalation_module.settings.nearest_hub_km = 0
+        payload = build_whatsapp_escalation(_diag(), "chest pain")
+        assert "ETA:" not in payload["text"]
+        assert payload["transport_eta"] is None
+
+    def test_ambulance_number_surfaces_in_message(self):
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", ambulance_number="AMB-12"
+        )
+        assert "*Transport:*" in payload["text"]
+        assert "Ambulance: AMB-12" in payload["text"]
+        assert payload["ambulance_number"] == "AMB-12"
+
+    def test_ambulance_and_eta_compose(self):
+        escalation_module.settings.nearest_hub_km = 25
+        escalation_module.settings.avg_ambulance_kmh = 60
+        escalation_module.settings.hub_group_name = "Hub"
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", ambulance_number="AMB-7"
+        )
+        # 25/60 * 60 = 25 min
+        text = payload["text"]
+        amb_idx = text.find("Ambulance: AMB-7")
+        eta_idx = text.find("ETA: ~25 min (25 km to Hub)")
+        transport_idx = text.find("*Transport:*")
+        assert transport_idx >= 0
+        assert amb_idx > transport_idx
+        assert eta_idx > amb_idx, "Ambulance line should appear before ETA"
+
+    def test_no_transport_section_when_neither_ambulance_nor_eta(self):
+        escalation_module.settings.nearest_hub_km = 0
+        payload = build_whatsapp_escalation(_diag(), "chest pain")
+        assert "*Transport:*" not in payload["text"]
+
+    def test_km_with_decimal_renders_cleanly(self):
+        escalation_module.settings.nearest_hub_km = 18.0
+        escalation_module.settings.avg_ambulance_kmh = 50
+        escalation_module.settings.hub_group_name = "X"
+        payload = build_whatsapp_escalation(_diag(), "chest pain")
+        # 18.0 should render as "18", not "18.0"
+        assert "18 km" in payload["text"]
+        assert "18.0 km" not in payload["text"]

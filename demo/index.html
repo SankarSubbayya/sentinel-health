@@ -526,6 +526,33 @@
     button.wa-copy-btn.copied { background: #25d366; color: #fff; }
     .wa-copy-icon { font-size: 16px; line-height: 1; }
 
+    .wa-eta {
+      font-size: 13px;
+      color: #128c4a;
+      margin: 8px 0;
+      font-weight: 600;
+    }
+    .wa-ambulance-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .wa-ambulance-input {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .wa-ambulance-input:focus { border-color: #25d366; }
+
     .differentials {
       padding: 18px 20px 10px;
     }
@@ -1346,6 +1373,55 @@
   let cumulativeContext = '';
 
   // --- New patient ---
+  function injectAmbulance(baseText, ambulance) {
+    // Idempotently insert/update an "Ambulance: ..." line in the message.
+    // If a *Transport:* section exists, put Ambulance as the first line of it.
+    // Otherwise, create a new *Transport:* section between Plan/During and the disclaimer.
+    if (!ambulance) return baseText;
+    const lines = baseText.split('\n');
+    // Find an existing Ambulance line (from a prior keystroke) and replace it.
+    const ambIdx = lines.findIndex(l => l.startsWith('Ambulance:'));
+    if (ambIdx >= 0) {
+      lines[ambIdx] = `Ambulance: ${ambulance}`;
+      return lines.join('\n');
+    }
+    const transportIdx = lines.findIndex(l => l.trim() === '*Transport:*');
+    if (transportIdx >= 0) {
+      lines.splice(transportIdx + 1, 0, `Ambulance: ${ambulance}`);
+      return lines.join('\n');
+    }
+    // No Transport section — insert one before the italic disclaimer.
+    const discIdx = lines.findIndex(l => l.startsWith('_Decision support'));
+    const insertAt = discIdx >= 0 ? discIdx : lines.length;
+    lines.splice(insertAt, 0, '', '*Transport:*', `Ambulance: ${ambulance}`);
+    return lines.join('\n');
+  }
+
+  function updateAmbulance(inputEl) {
+    const card = inputEl.closest('.wa-escalate');
+    if (!card) return;
+    const baseText = card.dataset.baseText || '';
+    const baseWaUrl = card.dataset.baseWaUrl || '';
+    const ambulance = (inputEl.value || '').trim();
+    const newText = injectAmbulance(baseText, ambulance);
+
+    // Refresh preview.
+    const preview = card.querySelector('pre.wa-preview');
+    if (preview) preview.textContent = newText;
+
+    // Refresh copy button's data-text.
+    const copyBtn = card.querySelector('button.wa-copy-btn');
+    if (copyBtn) copyBtn.dataset.text = newText;
+
+    // Refresh wa.me href — preserve everything before `?text=` and replace the query.
+    const sendLink = card.querySelector('a.wa-send-btn');
+    if (sendLink && baseWaUrl) {
+      const qIdx = baseWaUrl.indexOf('?text=');
+      const prefix = qIdx >= 0 ? baseWaUrl.slice(0, qIdx + 6) : baseWaUrl + '?text=';
+      sendLink.href = prefix + encodeURIComponent(newText);
+    }
+  }
+
   async function copyEscalation(btn) {
     const text = btn?.dataset?.text || '';
     if (!text) return;
@@ -1501,19 +1577,30 @@
       const copyLabel = esc.group_name
         ? `Copy to ${escapeHtml(esc.group_name)}`
         : 'Copy message';
+      const etaLine = esc.transport_eta
+        ? `<div class="wa-eta">🚑 Transport ETA: ${escapeHtml(esc.transport_eta)}</div>`
+        : '';
+      const baseText = esc.text || '';
+      const baseWaUrl = esc.wa_me_url || '';
+      const sid = data.session_id || '';
       html += `
-        <div class="wa-escalate">
+        <div class="wa-escalate" data-base-text="${escapeHtml(baseText)}" data-base-wa-url="${escapeHtml(baseWaUrl)}" data-sid="${escapeHtml(sid)}">
           <div class="label">Escalate to hub via WhatsApp</div>
           <div class="recipient">${escapeHtml(recipient)}${phoneLabel}</div>
+          ${etaLine}
+          <label class="wa-ambulance-label">
+            <span>Ambulance # (optional)</span>
+            <input type="text" class="wa-ambulance-input" placeholder="e.g. AMB-12 or +91 98765 43210" oninput="updateAmbulance(this)" />
+          </label>
           <details>
             <summary>Preview message</summary>
-            <pre class="wa-preview" id="waPreview-${escapeHtml(data.session_id || '')}">${escapeHtml(esc.text || '')}</pre>
+            <pre class="wa-preview">${escapeHtml(baseText)}</pre>
           </details>
           <div class="wa-actions">
-            <button type="button" class="wa-copy-btn" data-text="${escapeHtml(esc.text || '')}" onclick="copyEscalation(this)">
+            <button type="button" class="wa-copy-btn" data-text="${escapeHtml(baseText)}" onclick="copyEscalation(this)">
               <span class="wa-copy-icon">📋</span><span>${copyLabel}</span>
             </button>
-            <a class="wa-send-btn" href="${escapeHtml(esc.wa_me_url)}" target="_blank" rel="noopener noreferrer">
+            <a class="wa-send-btn" href="${escapeHtml(baseWaUrl)}" target="_blank" rel="noopener noreferrer">
               <span>Send via WhatsApp</span>
             </a>
           </div>

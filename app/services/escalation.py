@@ -37,13 +37,35 @@ def _hub_label() -> str:
     return settings.hub_group_name or settings.hub_physician_name
 
 
+def _transport_eta_line() -> str | None:
+    """Compute the 'Transport ETA: ~N min (K km to <hub>)' string from config.
+
+    Returns None if no distance is configured — the section is omitted from
+    the escalation message rather than emitting a placeholder.
+    """
+    km = settings.nearest_hub_km
+    kmh = settings.avg_ambulance_kmh
+    if not km or km <= 0 or not kmh or kmh <= 0:
+        return None
+    eta_min = int(round((km / kmh) * 60))
+    hub = settings.hub_group_name or settings.hub_physician_name or "the hub"
+    km_str = f"{km:g}"  # drop trailing zeros: 18.0 → "18"
+    return f"~{eta_min} min ({km_str} km to {hub})"
+
+
 def build_whatsapp_escalation(
     diagnosis: dict[str, Any],
     symptoms: str,
     patient_context: str = "",
     session_id: str | None = None,
+    ambulance_number: str | None = None,
 ) -> dict[str, Any] | None:
-    """Return WhatsApp handoff payload, or None if not a RED case."""
+    """Return WhatsApp handoff payload, or None if not a RED case.
+
+    `ambulance_number` is an optional free-text label (e.g. "AMB-12" or
+    a phone number) that the CHW assigns at dispatch time; surfaces in
+    the Transport section so the hub can correlate ambulance arrival.
+    """
     if (diagnosis.get("triage_level") or "").upper() != "RED":
         return None
 
@@ -92,6 +114,15 @@ def build_whatsapp_escalation(
 
     if recommendation:
         lines += ["", "*Plan at spoke:*", recommendation]
+
+    eta_line = _transport_eta_line()
+    if ambulance_number or eta_line:
+        lines += ["", "*Transport:*"]
+        if ambulance_number:
+            lines.append(f"Ambulance: {ambulance_number}")
+        if eta_line:
+            lines.append(f"ETA: {eta_line}")
+
     if transport:
         lines += ["", "*During transport:*", transport]
     if thrombolysis:
@@ -116,6 +147,9 @@ def build_whatsapp_escalation(
         "recipient_name": settings.hub_physician_name,
         "group_name": settings.hub_group_name or None,
         "recipient_label": _hub_label(),
+        "ambulance_number": ambulance_number or None,
+        "transport_eta": _transport_eta_line(),
+        "nearest_hub_km": settings.nearest_hub_km if settings.nearest_hub_km > 0 else None,
         "text": text,
         "wa_me_url": wa_me_url,
     }

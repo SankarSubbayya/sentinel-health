@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     facility_name: str = "Spoke clinic"
     chw_name: str = ""
 
+    # Transport context for RED escalation: distance + average ambulance
+    # speed → ETA. The CHW also gets a small input to enter the assigned
+    # ambulance number, which gets embedded in the WhatsApp handoff text.
+    nearest_hub_km: float = 0.0
+    avg_ambulance_kmh: float = 50.0
+
     reports_enabled: bool = True
     reports_path: str = "data/reports/reports.jsonl"
     reports_list_default_limit: int = 50
