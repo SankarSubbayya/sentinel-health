@@ -123,8 +123,8 @@ This runs 31 synthetic clinical cases through the diagnosis service and reports 
 ## Project Documents
 
 - [PRD.md](PRD.md) — full product requirements
-- [SENTINEL_HEALTH.md](SENTINEL_HEALTH.md) — clinical / architectural design
-- [HACKATHON.md](HACKATHON.md) — Kaggle hackathon rules and tracks
+- [docs/SENTINEL_HEALTH.md](docs/SENTINEL_HEALTH.md) — clinical / architectural design
+- [docs/HACKATHON.md](docs/HACKATHON.md) — Kaggle hackathon rules and tracks
 
 ---
 

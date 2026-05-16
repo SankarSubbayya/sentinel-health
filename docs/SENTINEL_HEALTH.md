@@ -39,7 +39,7 @@ FastAPI (main.py → app/api/routes.py)
                │       └── red_flags.json (18 flags) + multilingual keywords
                │
                ├──► OllamaClient (app/core/llm.py)
-               │       └── gemma4:e4b-it-q4_K_M (4B IT Q4, vision-capable)
+               │       └── gemma4:e4b-it-q4_K_M (Gemma 4 e4b, 8B Q4_K_M, vision-capable)
                │       └── JSON Schema-enforced output
                │       └── System prompt: KB-grounded, image-led reasoning mode
                │
@@ -228,11 +228,14 @@ sentinel-health/
 │   ├── eval_bakeoff.sh                  # Multi-model eval comparison
 │   └── start.sh                         # Cloud Run container entrypoint
 ├── Dockerfile                           # Bundled Ollama + Gemma 4 + FastAPI
-├── KAGGLE_WRITEUP.md
-├── DEMO_SCRIPT.md
-├── README.md
+├── README.md                            # Repo front door — pitch, quickstart
+├── KAGGLE_WRITEUP.md                    # Judge-facing technical report
+├── DEMO_SCRIPT.md                       # 3-min video script + recording checklist
 ├── CLAUDE.md                            # Project guidance for agent runs
-└── SENTINEL_HEALTH.md                   # This file
+├── PRD.md                               # Product requirements
+└── docs/
+    ├── SENTINEL_HEALTH.md               # This file — clinical/architectural design
+    └── HACKATHON.md                     # Kaggle competition rules + tracks
 ```
 
 ---

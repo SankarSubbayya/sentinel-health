@@ -84,6 +84,6 @@ uv run python -m tests.eval_cases --save   # current: 29/31 (93.5%), sensitivity
 
 - `README.md` — pitch and quick start
 - `PRD.md` — full product requirements
-- `SENTINEL_HEALTH.md` — clinical / architectural design
-- `HACKATHON.md` — Kaggle hackathon rules
+- `docs/SENTINEL_HEALTH.md` — clinical / architectural design
+- `docs/HACKATHON.md` — Kaggle hackathon rules
 - `.rocketride/docs/` — RocketRide pipeline docs (read these before any RocketRide work, per `.claude/rules/rocketride.md`)
