@@ -211,6 +211,54 @@
       gap: 8px;
       margin-bottom: 24px;
     }
+    .how-to {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px 16px;
+      margin: 0 0 24px;
+      max-width: 680px;
+    }
+    .how-to-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .how-to-steps {
+      list-style: none;
+      counter-reset: how-to-step;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .how-to-steps li {
+      counter-increment: how-to-step;
+      position: relative;
+      padding-left: 30px;
+      color: var(--text);
+      font-size: 14.5px;
+      line-height: 1.5;
+    }
+    .how-to-steps li::before {
+      content: counter(how-to-step);
+      position: absolute;
+      left: 0;
+      top: 1px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
     .scope-chip {
       display: inline-flex;
       align-items: center;
@@ -1120,51 +1168,59 @@
   <div class="container" id="conversation">
     <div class="empty-state" id="emptyState">
       <section class="empty-copy" aria-labelledby="emptyTitle">
-        <div class="eyebrow">Offline emergency triage</div>
+        <div class="eyebrow" data-i18n="eyebrow">Offline emergency triage</div>
         <h1 id="emptyTitle" data-i18n="empty_title">Triage a patient</h1>
         <p data-i18n="empty_subtitle">Describe the patient's symptoms by voice or text. The model runs entirely on this device — no internet required.</p>
+        <div class="how-to" aria-label="How to use">
+          <div class="how-to-title" data-i18n="how_to_title">How to use</div>
+          <ol class="how-to-steps">
+            <li data-i18n="how_to_step1">Tap an example case below, or speak / type the patient's symptoms — voice works in all four languages.</li>
+            <li data-i18n="how_to_step2">Optionally tap 📷 to attach an ECG, wound, or patient photo.</li>
+            <li data-i18n="how_to_step3">Tap Diagnose. RED cases produce a ready-to-send WhatsApp handoff to the hub physician.</li>
+          </ol>
+        </div>
         <div class="scope-strip" aria-label="Supported emergency scope">
-          <span class="scope-chip">Trauma</span>
-          <span class="scope-chip">Poisoning</span>
-          <span class="scope-chip">Snake bite</span>
-          <span class="scope-chip">MI</span>
-          <span class="scope-chip">Stroke</span>
+          <span class="scope-chip" data-i18n="scope_trauma">Trauma</span>
+          <span class="scope-chip" data-i18n="scope_poisoning">Poisoning</span>
+          <span class="scope-chip" data-i18n="scope_snake">Snake bite</span>
+          <span class="scope-chip" data-i18n="scope_mi">MI</span>
+          <span class="scope-chip" data-i18n="scope_stroke">Stroke</span>
         </div>
         <div class="examples">
           <button class="example ex-red" onclick="useExample(this)">
-            <div class="label">Cardiac · RED</div>
-            <div class="text">60-year-old woman with jaw pain, nausea, fatigue for one hour</div>
-            <div class="text">Context: Type 2 diabetes, hypertension</div>
+            <div class="label" data-i18n="ex_cardiac_label">Cardiac · RED</div>
+            <div class="text" data-i18n="ex_cardiac_text">60-year-old woman with jaw pain, nausea, fatigue for one hour</div>
+            <div class="text" data-i18n="ex_cardiac_ctx">Context: Type 2 diabetes, hypertension</div>
           </button>
           <button class="example ex-red" onclick="useExample(this)">
-            <div class="label">Snake bite · RED</div>
-            <div class="text">Snake bit child two hours ago, family tied a rope, swelling at bite site</div>
-            <div class="text">Context: Rural India, monsoon season</div>
+            <div class="label" data-i18n="ex_snake_label">Snake bite · RED</div>
+            <div class="text" data-i18n="ex_snake_text">Snake bit child two hours ago, family tied a rope, swelling at bite site</div>
+            <div class="text" data-i18n="ex_snake_ctx">Context: Rural India, monsoon season</div>
           </button>
           <button class="example ex-red" onclick="useExample(this)">
-            <div class="label">Poisoning · RED</div>
-            <div class="text">Farmer ingested pesticide one hour ago, drooling, small pupils, slow heart rate</div>
-            <div class="text">Context: Suspected organophosphate</div>
+            <div class="label" data-i18n="ex_poison_label">Poisoning · RED</div>
+            <div class="text" data-i18n="ex_poison_text">Farmer ingested pesticide one hour ago, drooling, small pupils, slow heart rate</div>
+            <div class="text" data-i18n="ex_poison_ctx">Context: Suspected organophosphate</div>
           </button>
           <button class="example ex-green" onclick="useExample(this)">
-            <div class="label">Benign · GREEN</div>
-            <div class="text">Cut finger on a knife while cooking, bleeding controlled, no other injury</div>
-            <div class="text">Context: Otherwise well adult</div>
+            <div class="label" data-i18n="ex_benign_label">Benign · GREEN</div>
+            <div class="text" data-i18n="ex_benign_text">Cut finger on a knife while cooking, bleeding controlled, no other injury</div>
+            <div class="text" data-i18n="ex_benign_ctx">Context: Otherwise well adult</div>
           </button>
           <button class="example ex-red" onclick="useExample(this)">
-            <div class="label">ECG · attach photo · RED</div>
-            <div class="text">55-year-old with crushing chest pain and sweating for 30 minutes, ECG attached</div>
-            <div class="text">Context: Diabetic, smoker. Tap 📷 to attach the 12-lead ECG photo before Diagnose.</div>
+            <div class="label" data-i18n="ex_ecg_label">ECG · attach photo · RED</div>
+            <div class="text" data-i18n="ex_ecg_text">55-year-old with crushing chest pain and sweating for 30 minutes, ECG attached</div>
+            <div class="text" data-i18n="ex_ecg_ctx">Context: Diabetic, smoker. Tap 📷 to attach the 12-lead ECG photo before Diagnose.</div>
           </button>
           <button class="example ex-yellow" onclick="useExample(this)">
-            <div class="label">Skin lesion · attach photo · YELLOW</div>
-            <div class="text">Spreading redness around a cut on the lower leg, warm to touch, fever since last night</div>
-            <div class="text">Context: Rusty-nail injury 3 days ago. Attach photo of the lesion.</div>
+            <div class="label" data-i18n="ex_skin_label">Skin lesion · attach photo · YELLOW</div>
+            <div class="text" data-i18n="ex_skin_text">Spreading redness around a cut on the lower leg, warm to touch, fever since last night</div>
+            <div class="text" data-i18n="ex_skin_ctx">Context: Rusty-nail injury 3 days ago. Attach photo of the lesion.</div>
           </button>
           <button class="example ex-red" onclick="useExample(this)">
-            <div class="label">Found unconscious · no history · RED</div>
-            <div class="text">Adult man found unconscious by the roadside, no witness, no history available, breathing</div>
-            <div class="text">Context: Photograph any pills, bottles, or visible injuries and attach.</div>
+            <div class="label" data-i18n="ex_unconscious_label">Found unconscious · no history · RED</div>
+            <div class="text" data-i18n="ex_unconscious_text">Adult man found unconscious by the roadside, no witness, no history available, breathing</div>
+            <div class="text" data-i18n="ex_unconscious_ctx">Context: Photograph any pills, bottles, or visible injuries and attach.</div>
           </button>
         </div>
       </section>
@@ -1214,8 +1270,35 @@
   const I18N = {
     en: {
       past_patients: 'Past patients', browse_kb: 'Browse KB', new_patient: '+ New patient',
+      eyebrow: 'Sentinel Health · Offline clinical triage',
       empty_title: 'Triage a patient',
-      empty_subtitle: "Describe the patient's symptoms by voice or text. The model runs entirely on this device — no internet required.",
+      empty_subtitle: 'Decision support for community health workers in low-resource settings. Multimodal Gemma 4 + a deterministic safety net + a WhatsApp handoff to the hub physician — runs entirely on this device. Reviewed with Dr. P. Hari Subacini.',
+      how_to_title: 'How to use',
+      how_to_step1: "Tap an example case below, or speak / type the patient's symptoms — voice works in all four languages.",
+      how_to_step2: 'Optionally tap 📷 to attach an ECG, wound, or patient photo.',
+      how_to_step3: 'Tap Diagnose. RED cases produce a ready-to-send WhatsApp handoff to the hub physician.',
+      scope_trauma: 'Trauma', scope_poisoning: 'Poisoning', scope_snake: 'Snake bite', scope_mi: 'MI', scope_stroke: 'Stroke',
+      ex_cardiac_label: 'Cardiac · RED',
+      ex_cardiac_text: '60-year-old woman with jaw pain, nausea, fatigue for one hour',
+      ex_cardiac_ctx: 'Context: Type 2 diabetes, hypertension',
+      ex_snake_label: 'Snake bite · RED',
+      ex_snake_text: 'Snake bit child two hours ago, family tied a rope, swelling at bite site',
+      ex_snake_ctx: 'Context: Rural India, monsoon season',
+      ex_poison_label: 'Poisoning · RED',
+      ex_poison_text: 'Farmer ingested pesticide one hour ago, drooling, small pupils, slow heart rate',
+      ex_poison_ctx: 'Context: Suspected organophosphate',
+      ex_benign_label: 'Benign · GREEN',
+      ex_benign_text: 'Cut finger on a knife while cooking, bleeding controlled, no other injury',
+      ex_benign_ctx: 'Context: Otherwise well adult',
+      ex_ecg_label: 'ECG · attach photo · RED',
+      ex_ecg_text: '55-year-old with crushing chest pain and sweating for 30 minutes, ECG attached',
+      ex_ecg_ctx: 'Context: Diabetic, smoker. Tap 📷 to attach the 12-lead ECG photo before Diagnose.',
+      ex_skin_label: 'Skin lesion · attach photo · YELLOW',
+      ex_skin_text: 'Spreading redness around a cut on the lower leg, warm to touch, fever since last night',
+      ex_skin_ctx: 'Context: Rusty-nail injury 3 days ago. Attach photo of the lesion.',
+      ex_unconscious_label: 'Found unconscious · no history · RED',
+      ex_unconscious_text: 'Adult man found unconscious by the roadside, no witness, no history available, breathing',
+      ex_unconscious_ctx: 'Context: Photograph any pills, bottles, or visible injuries and attach.',
       symptoms_placeholder: "Describe the patient's symptoms…",
       context_placeholder: 'Patient context (age, history, medications) — optional',
       input_hint: 'Enter to send · Shift+Enter for new line',
@@ -1223,8 +1306,35 @@
     },
     hi: {
       past_patients: 'पुराने मरीज़', browse_kb: 'KB देखें', new_patient: '+ नया मरीज़',
+      eyebrow: 'सेंटिनेल हेल्थ · ऑफ़लाइन क्लिनिकल ट्राइएज',
       empty_title: 'मरीज़ की जाँच करें',
-      empty_subtitle: 'मरीज़ के लक्षण आवाज़ या लिखकर बताएं। मॉडल इसी डिवाइस पर चलता है — इंटरनेट की ज़रूरत नहीं।',
+      empty_subtitle: 'कम संसाधन वाले क्षेत्रों में सामुदायिक स्वास्थ्य कार्यकर्ताओं के लिए निर्णय समर्थन। मल्टीमॉडल जेम्मा 4 + निर्धारिणी सुरक्षा परत + अस्पताल को व्हाट्सऐप हैंडऑफ — पूरी तरह से इस डिवाइस पर चलता है। डॉ. पी. हरि सुबाचिनी द्वारा समीक्षा की गई।',
+      how_to_title: 'कैसे उपयोग करें',
+      how_to_step1: 'नीचे दिए उदाहरण पर टैप करें, या मरीज़ के लक्षण बोलें / लिखें — आवाज़ चारों भाषाओं में काम करती है।',
+      how_to_step2: 'वैकल्पिक: ECG, घाव या मरीज़ की फोटो लगाने के लिए 📷 दबाएँ।',
+      how_to_step3: 'Diagnose दबाएँ। RED केसों के लिए अस्पताल को भेजने के लिए तैयार व्हाट्सऐप संदेश बनेगा।',
+      scope_trauma: 'चोट', scope_poisoning: 'विषाक्तता', scope_snake: 'साँप का काटना', scope_mi: 'हृदयाघात', scope_stroke: 'पक्षाघात',
+      ex_cardiac_label: 'हृदय · RED',
+      ex_cardiac_text: '60 वर्षीय महिला, एक घंटे से जबड़े में दर्द, मतली, थकान',
+      ex_cardiac_ctx: 'Context: टाइप 2 मधुमेह, उच्च रक्तचाप',
+      ex_snake_label: 'साँप का काटना · RED',
+      ex_snake_text: 'बच्चे को दो घंटे पहले साँप ने काटा, परिवार ने रस्सी बाँधी, काटे स्थान पर सूजन',
+      ex_snake_ctx: 'Context: ग्रामीण भारत, मानसून का मौसम',
+      ex_poison_label: 'विषाक्तता · RED',
+      ex_poison_text: 'किसान ने एक घंटे पहले कीटनाशक खाया, लार बह रही, छोटी पुतलियाँ, धीमी धड़कन',
+      ex_poison_ctx: 'Context: ऑर्गनोफॉस्फेट का संदेह',
+      ex_benign_label: 'साधारण · GREEN',
+      ex_benign_text: 'खाना बनाते समय चाकू से उँगली कटी, खून नियंत्रित, कोई और चोट नहीं',
+      ex_benign_ctx: 'Context: सेहतमंद वयस्क',
+      ex_ecg_label: 'ECG · फोटो लगाएँ · RED',
+      ex_ecg_text: '55 वर्षीय व्यक्ति, 30 मिनट से सीने में तेज़ दर्द और पसीना, ECG साथ है',
+      ex_ecg_ctx: 'Context: मधुमेह, धूम्रपान करता है। Diagnose से पहले 📷 दबाकर 12-लीड ECG की फोटो लगाएँ।',
+      ex_skin_label: 'त्वचा घाव · फोटो लगाएँ · YELLOW',
+      ex_skin_text: 'पैर के निचले हिस्से में कटे स्थान के चारों ओर लाली फैल रही, गरम, कल रात से बुखार',
+      ex_skin_ctx: 'Context: 3 दिन पहले जंग लगी कील से चोट। घाव की फोटो लगाएँ।',
+      ex_unconscious_label: 'बेहोश मिला · इतिहास नहीं · RED',
+      ex_unconscious_text: 'वयस्क पुरुष सड़क किनारे बेहोश मिला, कोई गवाह नहीं, इतिहास उपलब्ध नहीं, साँस चल रही है',
+      ex_unconscious_ctx: 'Context: कोई गोलियाँ, बोतलें, या दिख रही चोटों की फोटो लें।',
       symptoms_placeholder: 'मरीज़ के लक्षण लिखें…',
       context_placeholder: 'मरीज़ की जानकारी (उम्र, इतिहास, दवाइयाँ) — वैकल्पिक',
       input_hint: 'Enter दबाएं · नई लाइन के लिए Shift+Enter',
@@ -1232,8 +1342,35 @@
     },
     ta: {
       past_patients: 'பழைய நோயாளிகள்', browse_kb: 'KB பார்', new_patient: '+ புதிய நோயாளி',
+      eyebrow: 'செண்டினல் ஹெல்த் · ஆஃப்லைன் கிளினிக்கல் ட்ரையேஜ்',
       empty_title: 'நோயாளியை மதிப்பீடு செய்க',
-      empty_subtitle: 'நோயாளியின் அறிகுறிகளைக் குரல் வழியாகவோ அல்லது தட்டச்சு செய்தோ விவரிக்கவும். மாதிரி இந்தச் சாதனத்தில் மட்டுமே இயங்குகிறது — இணையம் தேவையில்லை.',
+      empty_subtitle: 'குறைந்த வளமுள்ள இடங்களில் சமூக சுகாதார பணியாளர்களுக்கான முடிவெடுக்கும் ஆதரவு. மல்டிமோடல் ஜெம்மா 4 + உறுதியான பாதுகாப்பு அடுக்கு + மருத்துவமனைக்கு WhatsApp கையெடுப்பு — முழுவதும் இந்த சாதனத்தில் இயங்குகிறது. டாக்டர் பி. ஹரி சுபசினி மதிப்பாய்வு செய்தார்.',
+      how_to_title: 'எப்படிப் பயன்படுத்துவது',
+      how_to_step1: 'கீழே உள்ள உதாரண வழக்கைத் தட்டவும், அல்லது நோயாளியின் அறிகுறிகளைப் பேசவும் / தட்டச்சு செய்யவும் — குரல் நான்கு மொழிகளிலும் வேலை செய்யும்.',
+      how_to_step2: 'விருப்பத்திற்காக ECG, காயம் அல்லது நோயாளியின் படத்தை இணைக்க 📷 அழுத்தவும்.',
+      how_to_step3: 'Diagnose-ஐ அழுத்தவும். RED வழக்குகளுக்கு மருத்துவமனைக்கு அனுப்பத் தயாரான WhatsApp செய்தி உருவாக்கப்படும்.',
+      scope_trauma: 'காயம்', scope_poisoning: 'விஷம்', scope_snake: 'பாம்பு கடி', scope_mi: 'மாரடைப்பு', scope_stroke: 'பக்கவாதம்',
+      ex_cardiac_label: 'இதயம் · RED',
+      ex_cardiac_text: '60 வயது பெண், ஒரு மணி நேரமாக தாடை வலி, குமட்டல், சோர்வு',
+      ex_cardiac_ctx: 'Context: வகை 2 நீரிழிவு, உயர் இரத்த அழுத்தம்',
+      ex_snake_label: 'பாம்பு கடி · RED',
+      ex_snake_text: 'இரண்டு மணி நேரத்துக்கு முன்பு பாம்பு கடித்தது, குடும்பத்தினர் கயிறு கட்டினர், கடியின் இடத்தில் வீக்கம்',
+      ex_snake_ctx: 'Context: கிராமப்புற இந்தியா, பருவமழை',
+      ex_poison_label: 'விஷம் · RED',
+      ex_poison_text: 'விவசாயி ஒரு மணி நேரத்துக்கு முன்பு பூச்சிக்கொல்லி குடித்தார், வாயில் நீர், சிறிய கண்மணி, மெதுவான இதயத்துடிப்பு',
+      ex_poison_ctx: 'Context: ஆர்கனோபாஸ்பேட் சந்தேகம்',
+      ex_benign_label: 'சாதாரண · GREEN',
+      ex_benign_text: 'சமைக்கும்போது கத்தியால் விரல் வெட்டியது, ரத்தம் கட்டுப்படுத்தப்பட்டது, வேறு காயம் இல்லை',
+      ex_benign_ctx: 'Context: ஆரோக்கியமான வயது வந்தவர்',
+      ex_ecg_label: 'ECG · படம் இணை · RED',
+      ex_ecg_text: '55 வயது நபர், 30 நிமிடமாக கடுமையான மார்பு வலி மற்றும் வியர்வை, ECG இணைக்கப்பட்டுள்ளது',
+      ex_ecg_ctx: 'Context: நீரிழிவு, புகைப்பழக்கம். Diagnose-க்கு முன் 📷 அழுத்தி 12-lead ECG படத்தை இணைக்கவும்.',
+      ex_skin_label: 'தோல் காயம் · படம் இணை · YELLOW',
+      ex_skin_text: 'காலின் கீழ்ப்பகுதியில் வெட்டுக் காயத்தைச் சுற்றி சிவப்பு பரவுகிறது, சூடாக உள்ளது, நேற்றிரவு முதல் காய்ச்சல்',
+      ex_skin_ctx: 'Context: 3 நாட்களுக்கு முன் துருப்பிடித்த ஆணியால் காயம். காயத்தின் படத்தை இணைக்கவும்.',
+      ex_unconscious_label: 'மயக்கமாக கண்டெடுக்கப்பட்டார் · வரலாறு இல்லை · RED',
+      ex_unconscious_text: 'வயது வந்த ஆண் சாலையோரத்தில் மயக்கமாக கண்டெடுக்கப்பட்டார், சாட்சி இல்லை, வரலாறு கிடைக்கவில்லை, மூச்சு உள்ளது',
+      ex_unconscious_ctx: 'Context: மாத்திரைகள், பாட்டில்கள், அல்லது தெரியும் காயங்களின் படத்தை எடுக்கவும்.',
       symptoms_placeholder: 'நோயாளியின் அறிகுறிகளை விவரிக்கவும்…',
       context_placeholder: 'நோயாளி தகவல் (வயது, வரலாறு, மருந்துகள்) — விருப்பத்திற்குரியது',
       input_hint: 'Enter அழுத்தவும் · புதிய வரிக்கு Shift+Enter',
@@ -1241,8 +1378,35 @@
     },
     ml: {
       past_patients: 'പഴയ രോഗികൾ', browse_kb: 'KB കാണുക', new_patient: '+ പുതിയ രോഗി',
+      eyebrow: 'സെന്റിനൽ ഹെൽത്ത് · ഓഫ്‌ലൈൻ ക്ലിനിക്കൽ ട്രയേജ്',
       empty_title: 'രോഗിയെ വിലയിരുത്തുക',
-      empty_subtitle: 'രോഗിയുടെ ലക്ഷണങ്ങൾ ശബ്ദമായോ ടൈപ്പ് ചെയ്തോ വിവരിക്കുക. മോഡൽ ഈ ഉപകരണത്തിൽ മാത്രമേ പ്രവർത്തിക്കൂ — ഇന്റർനെറ്റ് ആവശ്യമില്ല.',
+      empty_subtitle: 'സമ്പത്ത് കുറവുള്ള മേഖലയിലെ സമൂഹ ആരോഗ്യ പ്രവർത്തകർക്കായി തീരുമാന പിന്തുണ. മൾട്ടിമോഡൽ ജെമ്മ 4 + ഉറപ്പിച്ച സുരക്ഷാ പാളി + ആശുപത്രിയിലേക്ക് WhatsApp കൈമാറ്റം — പൂർണ്ണമായും ഈ ഉപകരണത്തിൽ പ്രവർത്തിക്കുന്നു. ഡോ. പി. ഹരി സുബാചിനി അവലോകനം ചെയ്തു.',
+      how_to_title: 'എങ്ങനെ ഉപയോഗിക്കാം',
+      how_to_step1: 'താഴെയുള്ള ഉദാഹരണത്തിൽ ടാപ്പ് ചെയ്യുക, അല്ലെങ്കിൽ രോഗിയുടെ ലക്ഷണങ്ങൾ പറയുക / ടൈപ്പ് ചെയ്യുക — ശബ്ദം നാല് ഭാഷകളിലും പ്രവർത്തിക്കും.',
+      how_to_step2: 'ഇഷ്ടാനുസരണം ECG, മുറിവ്, അല്ലെങ്കിൽ രോഗിയുടെ ഫോട്ടോ ഇടാൻ 📷 അമർത്തുക.',
+      how_to_step3: 'Diagnose അമർത്തുക. RED കേസുകൾക്കായി ആശുപത്രിയിലേക്ക് അയക്കാൻ തയ്യാറായ WhatsApp സന്ദേശം ഉണ്ടാക്കും.',
+      scope_trauma: 'മുറിവ്', scope_poisoning: 'വിഷം', scope_snake: 'പാമ്പ് കടി', scope_mi: 'ഹൃദയാഘാതം', scope_stroke: 'പക്ഷാഘാതം',
+      ex_cardiac_label: 'ഹൃദയം · RED',
+      ex_cardiac_text: '60 വയസ്സുള്ള സ്ത്രീ, ഒരു മണിക്കൂറായി താടി വേദന, ഛർദ്ദിക്കാൻ തോന്നൽ, ക്ഷീണം',
+      ex_cardiac_ctx: 'Context: ടൈപ്പ് 2 പ്രമേഹം, ഉയർന്ന രക്തസമ്മർദ്ദം',
+      ex_snake_label: 'പാമ്പ് കടി · RED',
+      ex_snake_text: 'രണ്ട് മണിക്കൂർ മുമ്പ് കുട്ടിയെ പാമ്പ് കടിച്ചു, കുടുംബം കയറ് കെട്ടി, കടിച്ച സ്ഥലത്ത് വീക്കം',
+      ex_snake_ctx: 'Context: ഗ്രാമീണ ഇന്ത്യ, മൺസൂൺ കാലം',
+      ex_poison_label: 'വിഷം · RED',
+      ex_poison_text: 'കർഷകൻ ഒരു മണിക്കൂർ മുമ്പ് കീടനാശിനി കുടിച്ചു, വായിൽ നിന്ന് വെള്ളം, ചെറിയ കണ്മണി, പതുക്കെ ഹൃദയമിടിപ്പ്',
+      ex_poison_ctx: 'Context: ഓർഗാനോഫോസ്ഫേറ്റ് സംശയം',
+      ex_benign_label: 'സാധാരണ · GREEN',
+      ex_benign_text: 'ഭക്ഷണം ഉണ്ടാക്കുമ്പോൾ കത്തി കൊണ്ട് വിരൽ മുറിഞ്ഞു, രക്തം നിയന്ത്രണത്തിലാണ്, വേറെ പരിക്കില്ല',
+      ex_benign_ctx: 'Context: ആരോഗ്യമുള്ള മുതിർന്നയാൾ',
+      ex_ecg_label: 'ECG · ഫോട്ടോ ഇടുക · RED',
+      ex_ecg_text: '55 വയസ്സുള്ളയാൾ, 30 മിനിറ്റായി കടുത്ത നെഞ്ച് വേദനയും വിയർപ്പും, ECG അറ്റാച്ച് ചെയ്തു',
+      ex_ecg_ctx: 'Context: പ്രമേഹം, പുകവലിക്കാരൻ. Diagnose ചെയ്യുന്നതിന് മുമ്പ് 📷 അമർത്തി 12-lead ECG ഫോട്ടോ അറ്റാച്ച് ചെയ്യുക.',
+      ex_skin_label: 'തൊലി മുറിവ് · ഫോട്ടോ ഇടുക · YELLOW',
+      ex_skin_text: 'കാലിന്റെ താഴത്തെ ഭാഗത്ത് മുറിവിന് ചുറ്റും ചുവപ്പ് പടരുന്നു, ചൂട്, ഇന്നലെ രാത്രി മുതൽ പനി',
+      ex_skin_ctx: 'Context: 3 ദിവസം മുമ്പ് തുരുമ്പിച്ച ആണി കൊണ്ടുള്ള മുറിവ്. മുറിവിന്റെ ഫോട്ടോ ഇടുക.',
+      ex_unconscious_label: 'ബോധരഹിതനായി കണ്ടെത്തി · ചരിത്രമില്ല · RED',
+      ex_unconscious_text: 'മുതിർന്ന പുരുഷൻ റോഡരികിൽ ബോധരഹിതനായി കണ്ടെത്തപ്പെട്ടു, സാക്ഷിയില്ല, ചരിത്രമില്ല, ശ്വാസമെടുക്കുന്നു',
+      ex_unconscious_ctx: 'Context: എന്തെങ്കിലും ഗുളിക, കുപ്പി, അല്ലെങ്കിൽ കാണുന്ന മുറിവുകൾ ഫോട്ടോ എടുക്കുക.',
       symptoms_placeholder: 'രോഗിയുടെ ലക്ഷണങ്ങൾ വിവരിക്കുക…',
       context_placeholder: 'രോഗിയുടെ വിവരം (പ്രായം, ചരിത്രം, മരുന്നുകൾ) — ഐച്ഛികം',
       input_hint: 'Enter അമർത്തുക · പുതിയ വരിക്ക് Shift+Enter',
