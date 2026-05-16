@@ -1,6 +1,6 @@
-# Sentinel Health
+# Sentinel Health: Offline Triage for the Two Billion Patients Without a Doctor
 
-### An offline triage net for the five grassroots emergencies — built on Gemma 4 and Ollama
+### Multimodal Gemma 4 + a deterministic safety layer + a WhatsApp handoff to the hub physician. Runs entirely on a clinic laptop, no internet.
 
 **Tracks:** Main Track · Health & Sciences Impact · Ollama Special Technology
 
@@ -40,7 +40,7 @@ The model is `gemma4:e4b-it-q4_K_M` — Google's compressed Gemma 4 "e4b" varian
 
 **Multimodal image input.** Gemma 4 IT accepts images via Ollama's `images` field. A photo of a snake, ECG, wound, or container label flows in as additional clinical evidence — particularly load-bearing when the patient is unconscious and no verbal history is available.
 
-**Local CPU inference.** Q4 gives ~5-second latency per call on a mid-range laptop CPU. Running locally is not a workaround; it is *the product*. The whole pitch falls apart if Gemma needs the internet.
+**Local CPU inference.** ~5s latency on a mid-range laptop. Running locally is *the product*, not a workaround — the pitch falls apart if Gemma needs the internet.
 
 ## The safety layer and the WhatsApp handoff
 
@@ -48,7 +48,7 @@ The hardest part of building a clinical AI is not making it smart; it is making 
 
 Our answer: a deterministic safety engine that runs independently of the model. Keyword red-flag rules — "fang marks", "crushing chest pain", "facial droop", "pesticide", "unresponsive" — fire before *and* after the LLM call. If a flag fires, final triage is RED regardless of what the LLM said. The model can be wrong about differentials; it cannot be wrong about whether the patient gets escalated, because that decision isn't actually made by the model.
 
-On RED, the system builds a `wa.me` deep-link with the safety reason, top differential, symptoms verbatim, patient context, during-transport protocol, and disclaimer for the receiving doctor. The CHW taps once; WhatsApp opens with the message pre-filled on their own phone; they review and send. App prepares, human commits. No Twilio, no Meta Business API, no auto-send liability. Delivery depends on the CHW's phone connectivity — the right place for that dependency to live.
+On RED, the system builds a `wa.me` deep-link with the safety reason, top differential, symptoms verbatim, patient context, during-transport protocol, and disclaimer for the receiving doctor. **If an image was attached, the message includes a tappable URL to the persisted ECG/wound photo — the hub sees the image inline in WhatsApp.** CHW reviews, sends. App prepares, human commits. No Twilio, no Meta Business API, no auto-send liability.
 
 ## Evaluation
 
@@ -74,7 +74,7 @@ The conversation also surfaced the PHC workflow the tool sits inside: preliminar
 
 ## Why these choices
 
-The alternative — hosted Gemini/GPT — fails the village clinic. Local Gemma 4 is the only choice that survives no-internet, no-rate-limit, no-PHI-leaving-the-laptop simultaneously. The deterministic safety layer answers "what happens when the AI is wrong about a 60-year-old's chest pain?"
+The alternative — hosted Gemini/GPT — fails the village clinic. Local Gemma 4 survives no-internet, no-rate-limit, no-PHI-out-of-the-laptop simultaneously. The safety layer answers "what if the AI is wrong about a 60-year-old's chest pain?"
 
 ## Tracks
 
