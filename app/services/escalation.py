@@ -53,18 +53,32 @@ def _transport_eta_line() -> str | None:
     return f"~{eta_min} min ({km_str} km to {hub})"
 
 
+def _image_url(session_id: str | None) -> str | None:
+    """Public URL where the persisted image can be viewed, if both a base
+    URL is configured AND we have a session id to look up."""
+    base = (settings.public_base_url or "").rstrip("/")
+    if not base or not session_id:
+        return None
+    return f"{base}/api/v1/reports/{session_id}/image"
+
+
 def build_whatsapp_escalation(
     diagnosis: dict[str, Any],
     symptoms: str,
     patient_context: str = "",
     session_id: str | None = None,
     ambulance_number: str | None = None,
+    image_present: bool = False,
 ) -> dict[str, Any] | None:
     """Return WhatsApp handoff payload, or None if not a RED case.
 
     `ambulance_number` is an optional free-text label (e.g. "AMB-12" or
     a phone number) that the CHW assigns at dispatch time; surfaces in
     the Transport section so the hub can correlate ambulance arrival.
+
+    `image_present` + a configured PUBLIC_BASE_URL → the message body
+    includes a tappable URL the hub physician can click to view the
+    attached ECG/wound photo straight from WhatsApp.
     """
     if (diagnosis.get("triage_level") or "").upper() != "RED":
         return None
@@ -123,6 +137,10 @@ def build_whatsapp_escalation(
         if eta_line:
             lines.append(f"ETA: {eta_line}")
 
+    ecg_url = _image_url(session_id) if image_present else None
+    if ecg_url:
+        lines += ["", f"*Photo / ECG:* {ecg_url}"]
+
     if transport:
         lines += ["", "*During transport:*", transport]
     if thrombolysis:
@@ -150,6 +168,7 @@ def build_whatsapp_escalation(
         "ambulance_number": ambulance_number or None,
         "transport_eta": _transport_eta_line(),
         "nearest_hub_km": settings.nearest_hub_km if settings.nearest_hub_km > 0 else None,
+        "image_url": ecg_url,
         "text": text,
         "wa_me_url": wa_me_url,
     }

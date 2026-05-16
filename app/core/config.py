@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     reports_enabled: bool = True
     reports_path: str = "data/reports/reports.jsonl"
     reports_list_default_limit: int = 50
+    # Public base URL where the demo is reachable from the hub physician's
+    # phone (no trailing slash). If set AND an image is attached to a RED
+    # case, the WhatsApp escalation message includes
+    # `<base>/api/v1/reports/<sid>/image` so the hub can tap to view the ECG.
+    # Leave empty when running offline-only on a clinic laptop.
+    public_base_url: str = ""
 
     @field_validator("debug", mode="before")
     @classmethod

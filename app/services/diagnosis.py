@@ -97,7 +97,11 @@ class DiagnosisService:
                         response["phc_thrombolysis_decision"] = matched["phc_thrombolysis_decision"]
 
                 escalation = build_whatsapp_escalation(
-                    response, symptoms, patient_context or "", session_id
+                    response,
+                    symptoms,
+                    patient_context or "",
+                    session_id,
+                    image_present=bool(image),
                 )
                 if escalation:
                     response["escalation"] = escalation

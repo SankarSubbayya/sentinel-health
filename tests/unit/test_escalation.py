@@ -26,6 +26,7 @@ def _reset_settings():
         s.chw_name,
         s.nearest_hub_km,
         s.avg_ambulance_kmh,
+        s.public_base_url,
     )
     yield
     (
@@ -36,6 +37,7 @@ def _reset_settings():
         s.chw_name,
         s.nearest_hub_km,
         s.avg_ambulance_kmh,
+        s.public_base_url,
     ) = saved
 
 
@@ -248,3 +250,52 @@ class TestAmbulanceAndETA:
         # 18.0 should render as "18", not "18.0"
         assert "18 km" in payload["text"]
         assert "18.0 km" not in payload["text"]
+
+
+class TestImageUrlInEscalation:
+    """W3-F9a: if PUBLIC_BASE_URL is configured and the diagnose call had
+    an image attached, the escalation message body includes a tappable
+    URL so the hub physician can view the ECG straight from WhatsApp."""
+
+    def test_image_url_appears_when_base_url_set_and_image_present(self):
+        escalation_module.settings.public_base_url = "https://triage.accurateai.org"
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", session_id="abc12345", image_present=True
+        )
+        expected_url = "https://triage.accurateai.org/api/v1/reports/abc12345/image"
+        assert expected_url in payload["text"]
+        assert "*Photo / ECG:*" in payload["text"]
+        assert payload["image_url"] == expected_url
+
+    def test_no_image_url_when_image_absent(self):
+        escalation_module.settings.public_base_url = "https://triage.accurateai.org"
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", session_id="abc12345", image_present=False
+        )
+        assert "*Photo / ECG:*" not in payload["text"]
+        assert payload["image_url"] is None
+
+    def test_no_image_url_when_base_url_blank(self):
+        escalation_module.settings.public_base_url = ""
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", session_id="abc12345", image_present=True
+        )
+        assert "*Photo / ECG:*" not in payload["text"]
+        assert payload["image_url"] is None
+
+    def test_trailing_slash_on_base_url_is_stripped(self):
+        escalation_module.settings.public_base_url = "https://triage.accurateai.org/"
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", session_id="sid01234", image_present=True
+        )
+        # No double slash before /api/
+        assert "https://triage.accurateai.org/api/v1/reports/sid01234/image" in payload["text"]
+        assert "//api/" not in payload["text"]
+
+    def test_no_image_url_when_session_id_missing(self):
+        escalation_module.settings.public_base_url = "https://triage.accurateai.org"
+        payload = build_whatsapp_escalation(
+            _diag(), "chest pain", session_id=None, image_present=True
+        )
+        assert "*Photo / ECG:*" not in payload["text"]
+        assert payload["image_url"] is None

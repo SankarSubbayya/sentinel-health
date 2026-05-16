@@ -1087,6 +1087,23 @@
       padding: 32px 0;
     }
 
+    .past-thumb {
+      max-width: 84px;
+      max-height: 84px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      cursor: zoom-in;
+    }
+    .past-row {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      align-items: flex-start;
+    }
+    .past-row .past-text { flex: 1; min-width: 0; }
+
     @media (max-width: 600px) {
       .header { padding: 12px 16px; align-items: flex-start; }
       .header-left { min-width: 0; }
@@ -2296,14 +2313,26 @@
       const dt = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
       const triage = (r.triage_level || '').toUpperCase();
       const u = URGENCY_LABELS[triageToUrgency[triage]] || { cls: '', text: triage || '—' };
+      // Server may have persisted an attached image (W3-F9). Try to render
+      // a thumbnail; onerror hides it cleanly when the report has no image
+      // or the server isn't reachable.
+      const sid = r.session_id || '';
+      const thumbHtml = sid
+        ? `<img class="past-thumb" src="/api/v1/reports/${encodeURIComponent(sid)}/image" alt="" loading="lazy" onerror="this.style.display='none'" onclick="window.open(this.src, '_blank')" />`
+        : '';
       html += `
         <div class="kb-item" style="cursor:default; flex-direction:column; align-items:flex-start; gap:6px;">
-          <div style="display:flex; justify-content:space-between; width:100%; gap:12px; align-items:center;">
-            <span class="kb-name">${escapeHtml(r.top_diagnosis || '—')}</span>
-            <span class="kb-urgency ${u.cls}">${escapeHtml(triage || '—')}</span>
+          <div class="past-row">
+            ${thumbHtml}
+            <div class="past-text">
+              <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom: 4px;">
+                <span class="kb-name">${escapeHtml(r.top_diagnosis || '—')}</span>
+                <span class="kb-urgency ${u.cls}">${escapeHtml(triage || '—')}</span>
+              </div>
+              <div style="font-size:13px; color: var(--text-muted); line-height:1.4;">${escapeHtml(r.symptoms || '')}</div>
+              <div style="font-size:11px; color: var(--text-faint); font-family: var(--font-mono); margin-top: 4px;">${escapeHtml(dt)} · ${escapeHtml(sid.slice(0,8))}</div>
+            </div>
           </div>
-          <div style="font-size:13px; color: var(--text-muted); line-height:1.4;">${escapeHtml(r.symptoms || '')}</div>
-          <div style="font-size:11px; color: var(--text-faint); font-family: var(--font-mono);">${escapeHtml(dt)} · ${escapeHtml((r.session_id || '').slice(0,8))}</div>
         </div>`;
     }
     pastBody.innerHTML = html;
