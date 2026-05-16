@@ -98,7 +98,7 @@ FastAPI (main.py → app/api/routes.py)
 
 ## Clinical advisor input
 
-The product was reviewed in two sessions with **Hari Subscini**, a practising clinician who routinely refers from PHCs to tertiary care in India. Three "confusion zones" — where the CHW gets stuck and decision support is most valuable — shaped the W3-F5 scope:
+The product was reviewed in two sessions with **Dr. P. Hari Subacini**, a practising clinician who routinely refers from PHCs to tertiary care in India. Three "confusion zones" — where the CHW gets stuck and decision support is most valuable — shaped the W3-F5 scope:
 
 1. **ECG / thrombolysis decision.** Thrombolysis at PHC level requires monitor + ventilator + defibrillator that won't be available — so the system identifies likely STEMI findings on an attached ECG photo, prepares the preliminary protocol (venflon + aspirin 325 + clopidogrel 300 + atorvastatin 80), and defers the lytics decision to the hub physician with the eligibility + contraindications written into the during-transport block.
 2. **Skin lesions.** *"Skin lesions need a definite diagnosis than a probable one. Should narrow down to single diagnosis and few differentials."* Added cellulitis, cutaneous abscess, eczema/contact dermatitis, tinea, and tetanus-prone wounds to the KB. The system prompt instructs the model to cap dermatology confidence at 0.7 and recommend specialist photo-referral. A compressed 8B Q4 model is not a dermatologist.
@@ -276,7 +276,7 @@ sentinel-health/
 - ✅ Tabbed RED card (Action / Transport / Escalate / Differential)
 - ✅ Ambulance # input + transport ETA
 - ✅ Append-only audit log
-- ✅ Clinical advisor review (Hari Subscini)
+- ✅ Clinical advisor review (Dr. P. Hari Subacini)
 - ✅ 31-vignette eval — 100% sensitivity, 80% specificity
 - ✅ Live demo URL (Cloudflare named tunnel)
 - ⏳ Demo video (3 min) — script ready
@@ -305,7 +305,7 @@ sentinel-health/
 
 **Lead:** Sankar
 **Email:** sankara68@gmail.com
-**Clinical advisor:** Hari Subscini
+**Clinical advisor:** Dr. P. Hari Subacini
 
 ---
 

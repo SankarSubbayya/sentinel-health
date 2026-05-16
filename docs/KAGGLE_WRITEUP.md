@@ -56,7 +56,7 @@ A 31-vignette synthetic eval suite covers every TAI-VADE category plus the high-
 
 ## Clinical advisor input
 
-The product was reviewed with a practising clinician (Hari Subscini) who routinely refers from primary health centres (PHCs) to tertiary care in India. Three "confusion zones" — points where the CHW gets stuck and decision support is most valuable — emerged from that conversation and shape the current scope:
+The product was reviewed with a practising clinician (Dr. P. Hari Subacini) who routinely refers from primary health centres (PHCs) to tertiary care in India. Three "confusion zones" — points where the CHW gets stuck and decision support is most valuable — emerged from that conversation and shape the current scope:
 
 1. **ECG diagnosis and the thrombolysis decision.** "Should I thrombolyse?" is a clinician-level decision that requires monitor, ventilator, and defibrillator — equipment that won't be available at PHC level. Our response: the model identifies likely STEMI findings on an attached ECG photo and prepares the IV-cannula + loading-dose + ambulance protocol, but defers the lytics decision to the receiving hub physician. Thrombolysis eligibility and contraindications are written into the during-transport protocol as decision support for the hub, not a directive for the spoke.
 
