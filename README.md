@@ -122,9 +122,14 @@ This runs 31 synthetic clinical cases through the diagnosis service and reports 
 
 ## Project Documents
 
-- [PRD.md](PRD.md) — full product requirements
-- [docs/SENTINEL_HEALTH.md](docs/SENTINEL_HEALTH.md) — clinical / architectural design
+Everything beyond this README lives in [docs/](docs/):
+
+- [docs/KAGGLE_WRITEUP.md](docs/KAGGLE_WRITEUP.md) — judge-facing technical report (~1500 words)
+- [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) — 3-minute video script + shot list + recording checklist
+- [docs/SENTINEL_HEALTH.md](docs/SENTINEL_HEALTH.md) — long-form clinical / architectural design
 - [docs/HACKATHON.md](docs/HACKATHON.md) — Kaggle hackathon rules and tracks
+- [docs/CLAUDE.md](docs/CLAUDE.md) — project guidance for agent runs (Claude Code conventions)
+- [PRD.md](PRD.md) — product requirements (kept at root; living document)
 
 ---
 

@@ -82,8 +82,12 @@ uv run python -m tests.eval_cases --save   # current: 29/31 (93.5%), sensitivity
 
 ## Hackathon docs
 
-- `README.md` — pitch and quick start
-- `PRD.md` — full product requirements
-- `docs/SENTINEL_HEALTH.md` — clinical / architectural design
-- `docs/HACKATHON.md` — Kaggle hackathon rules
-- `.rocketride/docs/` — RocketRide pipeline docs (read these before any RocketRide work, per `.claude/rules/rocketride.md`)
+All docs except the README and PRD live in [docs/](.):
+
+- `../README.md` — pitch + Quick Start (the repo front door)
+- `../PRD.md` — full product requirements (kept at root; living document)
+- `KAGGLE_WRITEUP.md` — judge-facing technical report (≤1500 words)
+- `DEMO_SCRIPT.md` — 3-minute video script + recording checklist
+- `SENTINEL_HEALTH.md` — long-form clinical / architectural design
+- `HACKATHON.md` — Kaggle competition rules + tracks
+- `../.rocketride/docs/` — RocketRide pipeline docs (read these before any RocketRide work, per `../.claude/rules/rocketride.md`)

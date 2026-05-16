@@ -228,12 +228,12 @@ sentinel-health/
 │   ├── eval_bakeoff.sh                  # Multi-model eval comparison
 │   └── start.sh                         # Cloud Run container entrypoint
 ├── Dockerfile                           # Bundled Ollama + Gemma 4 + FastAPI
-├── README.md                            # Repo front door — pitch, quickstart
-├── KAGGLE_WRITEUP.md                    # Judge-facing technical report
-├── DEMO_SCRIPT.md                       # 3-min video script + recording checklist
-├── CLAUDE.md                            # Project guidance for agent runs
-├── PRD.md                               # Product requirements
+├── README.md                            # Repo front door — pitch + quickstart
+├── PRD.md                               # Product requirements (living document)
 └── docs/
+    ├── KAGGLE_WRITEUP.md                # Judge-facing technical report
+    ├── DEMO_SCRIPT.md                   # 3-min video script + recording checklist
+    ├── CLAUDE.md                        # Project guidance for agent runs
     ├── SENTINEL_HEALTH.md               # This file — clinical/architectural design
     └── HACKATHON.md                     # Kaggle competition rules + tracks
 ```
