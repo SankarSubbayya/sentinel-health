@@ -101,7 +101,7 @@ FastAPI (main.py → app/api/routes.py)
 The product was reviewed in two sessions with **Hari Subscini**, a practising clinician who routinely refers from PHCs to tertiary care in India. Three "confusion zones" — where the CHW gets stuck and decision support is most valuable — shaped the W3-F5 scope:
 
 1. **ECG / thrombolysis decision.** Thrombolysis at PHC level requires monitor + ventilator + defibrillator that won't be available — so the system identifies likely STEMI findings on an attached ECG photo, prepares the preliminary protocol (venflon + aspirin 325 + clopidogrel 300 + atorvastatin 80), and defers the lytics decision to the hub physician with the eligibility + contraindications written into the during-transport block.
-2. **Skin lesions.** *"Skin lesions need a definite diagnosis than a probable one. Should narrow down to single diagnosis and few differentials."* Added cellulitis, cutaneous abscess, eczema/contact dermatitis, tinea, and tetanus-prone wounds to the KB. The system prompt instructs the model to cap dermatology confidence at 0.7 and recommend specialist photo-referral. A 4B Q4 model is not a dermatologist.
+2. **Skin lesions.** *"Skin lesions need a definite diagnosis than a probable one. Should narrow down to single diagnosis and few differentials."* Added cellulitis, cutaneous abscess, eczema/contact dermatitis, tinea, and tetanus-prone wounds to the KB. The system prompt instructs the model to cap dermatology confidence at 0.7 and recommend specialist photo-referral. A compressed 8B Q4 model is not a dermatologist.
 3. **Unconscious patient, no history.** *"This tool is not useful if we don't know what happened, the patient just fell down."* The `rf_unconscious_no_history` red flag forces RED, and the prompt routes the model into image-led reasoning mode — describe pupils / wound / container label / ECG features as a substitute for the verbal history that isn't available.
 
 The advisor also validated the project scope and explicitly named image attachment as the critical addition: *"I attach the image. Some of it missed it. I'll add that."* That single line drove W3-F2 (multimodal image input).
@@ -136,7 +136,7 @@ All three score **100% sensitivity** — every RED case is caught regardless of 
 | Voice in | Web Speech API | Built into Chrome/Safari. Supports en-IN, hi-IN, ta-IN, ml-IN out of the box. |
 | Backend | Python 3.12 + FastAPI + uvicorn | Async; trivial to mock for tests; common in clinical-research stacks. |
 | LLM runtime | Ollama 2026.5 | Single-binary, runs offline, supports multimodal models, simple HTTP API. |
-| Model | `gemma4:e4b-it-q4_K_M` | 4B-class IT variant, Q4 (~3 GB), vision-capable, runs on CPU at ~5s/call. |
+| Model | `gemma4:e4b-it-q4_K_M` | Google's compressed Gemma 4 "e4b" — 8B weights, sub-4B inference footprint, Q4_K_M (~9.6 GB on disk), vision-capable, ~5-9s/call on M-series GPU. |
 | KB | JSON files in `app/knowledge/data/` | Editable by hand, version-controlled, no DB. |
 | Safety | Deterministic Python rule engine | Independent of the model; auditable. |
 | Audit log | Append-only JSONL (`data/reports/reports.jsonl`) | POSIX atomic-append; no DB; PHI stays on the same device that delivers care. |
@@ -156,7 +156,7 @@ All three score **100% sensitivity** — every RED case is caught regardless of 
 ### Run locally
 
 ```bash
-ollama pull gemma4:e4b-it-q4_K_M           # ~3 GB, one-time
+ollama pull gemma4:e4b-it-q4_K_M           # ~9.6 GB, one-time
 git clone https://github.com/SankarSubbayya/sentinel-health.git
 cd sentinel-health
 uv sync

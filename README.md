@@ -56,7 +56,7 @@ Voice (browser)  →  FastAPI backend  →  Gemma 4 via Ollama  →  KB-grounded
 
 - **Frontend:** browser web app, Web Speech API for voice in
 - **Backend:** Python / FastAPI
-- **Model:** `gemma4:e4b-it-q4_K_M` — instruction-tuned 4B-class, Q4 quantized, runs on CPU
+- **Model:** `gemma4:e4b-it-q4_K_M` — Google's compressed Gemma 4 variant ("e4b"): 8B weights with sub-4B inference footprint, Q4_K_M quantized, vision-capable, runs on CPU
 - **Knowledge base:** WHO / CDC / ACC guidelines as JSON; cardiology + diabetes + general acute
 - **Safety layer:** deterministic red-flag rules that escalate independently of LLM confidence
 - **Hub handoff:** on RED triage, the app prepares a structured WhatsApp message (reason, top differential, symptoms, during-transport protocol) and opens a `wa.me` link on the CHW's phone — the CHW reviews and sends. No third-party API, no auto-send.
@@ -97,7 +97,7 @@ Total prize upside: **$60,000.**
 Requires Python 3.12+, [uv](https://github.com/astral-sh/uv), and [Ollama](https://ollama.com).
 
 ```bash
-# 1. Pull the model (~3 GB, one time)
+# 1. Pull the model (~9.6 GB, one time)
 ollama pull gemma4:e4b-it-q4_K_M
 
 # 2. Install Python dependencies

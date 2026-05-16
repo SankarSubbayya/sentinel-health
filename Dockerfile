@@ -19,7 +19,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
-# Bake the model into the image so Cloud Run cold starts don't pay a 3 GB pull.
+# Bake the model into the image so Cloud Run cold starts don't pay a ~10 GB pull.
 # Ollama needs the daemon up to pull; start it, pull, then stop.
 RUN ollama serve & \
     OLLAMA_PID=$! && \

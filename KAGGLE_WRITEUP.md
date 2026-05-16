@@ -32,7 +32,7 @@ Three load-bearing invariants: the LLM is *grounded* (must pick from candidates 
 
 ## How we used Gemma 4 specifically
 
-The model is `gemma4:e4b-it-q4_K_M` — instruction-tuned 4B-parameter, Q4 quantized, served via Ollama. Three Gemma-specific design choices:
+The model is `gemma4:e4b-it-q4_K_M` — Google's compressed Gemma 4 "e4b" variant (8B total weights with sub-4B inference footprint), instruction-tuned, Q4_K_M quantized, served via Ollama. Three Gemma-specific design choices:
 
 **JSON Schema enforcement.** Every diagnose call passes a strict `DIAGNOSIS_SCHEMA` to Ollama's `format` parameter — up to three differentials with confidence capped at 0.9, reasoning, guideline reference, recommendation. Structured output is the integration boundary, not a parsing fallback. Zero JSON-decoding failures across the eval suite.
 
@@ -44,7 +44,7 @@ The model is `gemma4:e4b-it-q4_K_M` — instruction-tuned 4B-parameter, Q4 quant
 
 ## The safety layer and the WhatsApp handoff
 
-The hardest part of building a clinical AI is not making it smart; it is making it *safe when it is wrong*. A 4B-parameter model will misclassify cases; the design question is what happens then.
+The hardest part of building a clinical AI is not making it smart; it is making it *safe when it is wrong*. A compressed 8B model will misclassify cases; the design question is what happens then.
 
 Our answer: a deterministic safety engine that runs independently of the model. Keyword red-flag rules — "fang marks", "crushing chest pain", "facial droop", "pesticide", "unresponsive" — fire before *and* after the LLM call. If a flag fires, final triage is RED regardless of what the LLM said. The model can be wrong about differentials; it cannot be wrong about whether the patient gets escalated, because that decision isn't actually made by the model.
 
@@ -60,7 +60,7 @@ The product was reviewed with a practising clinician (Hari Subscini) who routine
 
 1. **ECG diagnosis and the thrombolysis decision.** "Should I thrombolyse?" is a clinician-level decision that requires monitor, ventilator, and defibrillator — equipment that won't be available at PHC level. Our response: the model identifies likely STEMI findings on an attached ECG photo and prepares the IV-cannula + loading-dose + ambulance protocol, but defers the lytics decision to the receiving hub physician. Thrombolysis eligibility and contraindications are written into the during-transport protocol as decision support for the hub, not a directive for the spoke.
 
-2. **Skin lesions.** *"Skin lesions need a definite diagnosis than a probable one. So credibility and accuracy of skin lesions diagnosis need to be improved. It should narrow down to single diagnosis and few differentials."* We added cellulitis, cutaneous abscess, eczema/contact dermatitis, tinea, and tetanus-prone wounds to the KB so the multimodal pipeline has real candidates to ground in. The system prompt explicitly instructs the model to acknowledge dermatology uncertainty when image-led, cap confidence at 0.7 for skin lesions, and recommend specialist photo-referral. A 4B-parameter quantised model is not a dermatologist; honesty about that is the load-bearing design choice.
+2. **Skin lesions.** *"Skin lesions need a definite diagnosis than a probable one. So credibility and accuracy of skin lesions diagnosis need to be improved. It should narrow down to single diagnosis and few differentials."* We added cellulitis, cutaneous abscess, eczema/contact dermatitis, tinea, and tetanus-prone wounds to the KB so the multimodal pipeline has real candidates to ground in. The system prompt explicitly instructs the model to acknowledge dermatology uncertainty when image-led, cap confidence at 0.7 for skin lesions, and recommend specialist photo-referral. An 8B compressed quantised model is not a dermatologist; honesty about that is the load-bearing design choice.
 
 3. **The unconscious patient with no history.** *"This tool is not useful if we don't know what happened, the patient just fell down."* This is exactly the case where multimodal Gemma earns its keep — when the symptom narrative is empty, the image becomes the history. The `rf_unconscious_no_history` red flag forces RED triage and the system prompt routes the model into "image-led reasoning" mode: describe what you see (pupils, wound, container label, ECG features) as a substitute for the verbal history that isn't available.
 
