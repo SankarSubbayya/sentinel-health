@@ -158,14 +158,18 @@
     /* === Empty state === */
     .empty-state {
       text-align: left;
-      padding: 18px 0 28px;
+      padding: 24px 0 32px;
       min-height: calc(100vh - 245px);
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
-      gap: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
     }
-    .empty-copy { min-width: 0; }
+    .empty-copy {
+      width: 100%;
+      max-width: 720px;
+      min-width: 0;
+    }
     .eyebrow {
       display: inline-flex;
       align-items: center;
@@ -270,67 +274,6 @@
     .example.ex-green .label { color: var(--green); }
     .example .text { font-size: 14px; line-height: 1.45; color: var(--text); }
     .example .text + .text { color: var(--text-muted); margin-top: 6px; font-size: 12.5px; }
-
-    .field-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .field-panel-head {
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--border);
-    }
-    .field-panel-title {
-      font-size: 15px;
-      font-weight: 750;
-      margin-bottom: 4px;
-    }
-    .field-panel-sub {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.45;
-    }
-    .workflow {
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-    .workflow-step {
-      display: grid;
-      grid-template-columns: 36px 1fr;
-      gap: 12px;
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--border);
-      align-items: start;
-    }
-    .workflow-step:last-child { border-bottom: none; }
-    .workflow-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface-2);
-      color: var(--accent);
-      font-weight: 800;
-      font-size: 13px;
-      font-family: var(--font-mono);
-    }
-    .workflow-step.red .workflow-mark { background: var(--red-bg); color: var(--red); }
-    .workflow-step.yellow .workflow-mark { background: var(--yellow-bg); color: var(--yellow); }
-    .workflow-step.green .workflow-mark { background: var(--green-bg); color: var(--green); }
-    .workflow-title {
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 3px;
-    }
-    .workflow-body {
-      color: var(--text-muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
 
     /* === Messages === */
     .msg {
@@ -1114,11 +1057,10 @@
       main { padding: 18px 16px 230px; }
       .input-area { padding: 16px; }
       .empty-state {
-        grid-template-columns: 1fr;
-        align-items: start;
+        align-items: stretch;
         min-height: auto;
+        padding-top: 8px;
       }
-      .field-panel { display: none; }
       .empty-state h1 { font-size: 34px; }
       .msg-user .bubble { max-width: 92%; }
       .input-row { flex-wrap: wrap; }
@@ -1226,35 +1168,6 @@
           </button>
         </div>
       </section>
-      <aside class="field-panel" aria-label="Triage workflow">
-        <div class="field-panel-head">
-          <div class="field-panel-title">Field workflow</div>
-          <div class="field-panel-sub">Designed for a community health worker to decide treat-here vs. escalate-to-hub.</div>
-        </div>
-        <div class="workflow">
-          <div class="workflow-step red">
-            <div class="workflow-mark">01</div>
-            <div>
-              <div class="workflow-title">Catch red flags</div>
-              <div class="workflow-body">Rules override the model when symptoms match a high-risk emergency.</div>
-            </div>
-          </div>
-          <div class="workflow-step yellow">
-            <div class="workflow-mark">02</div>
-            <div>
-              <div class="workflow-title">Lead with action</div>
-              <div class="workflow-body">The result starts with what to do next, then shows the differential.</div>
-            </div>
-          </div>
-          <div class="workflow-step green">
-            <div class="workflow-mark">03</div>
-            <div>
-              <div class="workflow-title">Bridge referral</div>
-              <div class="workflow-body">RED cases prepare a transport protocol and WhatsApp handoff.</div>
-            </div>
-          </div>
-        </div>
-      </aside>
     </div>
   </div>
 </main>
