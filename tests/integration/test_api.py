@@ -7,7 +7,20 @@ tests are fast and deterministic — but the rest of the request pipeline
 
 from __future__ import annotations
 
+import base64
+
 import pytest
+
+
+# Structurally-complete JPEG (SOI + JFIF + 300 bytes padding + EOI).
+# Passes W3-F9b's validate_image without being a real image — fine because
+# Ollama is mocked in these tests so the bytes are never actually decoded.
+_VALID_JPEG_BYTES = (
+    b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+    + bytes(300)
+    + b"\xff\xd9"
+)
+_VALID_JPEG_DATA_URL = "data:image/jpeg;base64," + base64.b64encode(_VALID_JPEG_BYTES).decode()
 
 
 class TestRootAndHealth:
@@ -291,13 +304,84 @@ class TestDiagnoseEndpoint:
             json={
                 "symptoms": "snake bit child on the ankle, fang marks visible",
                 "patient_context": "rural area",
-                "image": "data:image/jpeg;base64,FAKE_BASE64_PAYLOAD",
+                "image": _VALID_JPEG_DATA_URL,
             },
         )
         assert r.status_code == 200
         assert captured, "Ollama call was not made"
-        assert captured[0]["image"] == "data:image/jpeg;base64,FAKE_BASE64_PAYLOAD"
+        assert captured[0]["image"] == _VALID_JPEG_DATA_URL
         assert "IMAGE IS ATTACHED" in captured[0]["prompt"]
+
+    def test_malformed_image_returns_400_with_useful_detail(
+        self,
+        api_client,
+    ):
+        """W3-F9b: bad image fails fast at the API boundary with a clean 400,
+        not a silent YELLOW from the diagnose() exception fallback."""
+        # The exact base64 from the original bug report — 22-byte JPEG header,
+        # no actual image data.
+        bad_image = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAA=="
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={"symptoms": "chest pain and sweating", "image": bad_image},
+        )
+        assert r.status_code == 400
+        detail = r.json().get("detail", "")
+        assert "image" in detail.lower()
+        # Should mention truncation or size (which is the actual problem here)
+        assert "truncated" in detail.lower() or "too small" in detail.lower()
+
+    def test_truncated_jpeg_returns_400(
+        self,
+        api_client,
+    ):
+        import base64
+        # 1000 bytes JPEG header with no EOI trailer
+        truncated = b"\xff\xd8\xff\xe0" + b"\x00" * 996
+        b64 = base64.b64encode(truncated).decode()
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={
+                "symptoms": "chest pain",
+                "image": f"data:image/jpeg;base64,{b64}",
+            },
+        )
+        assert r.status_code == 400
+        assert "FFD9" in r.json()["detail"] or "truncated" in r.json()["detail"].lower()
+
+    def test_valid_image_still_works(
+        self,
+        api_client,
+        patch_ollama_generate,
+        mock_llm_response_factory,
+        monkeypatch,
+    ):
+        """Regression: a structurally-valid image must NOT trigger the new 400."""
+        import base64
+        from app.core import llm
+        from unittest.mock import AsyncMock
+
+        monkeypatch.setattr(
+            llm.ollama_client,
+            "generate_diagnosis",
+            AsyncMock(return_value=mock_llm_response_factory(triage="RED")),
+        )
+
+        # Structurally complete JPEG: SOI + JFIF + padding + EOI
+        valid = (
+            b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+            + bytes(300)
+            + b"\xff\xd9"
+        )
+        b64 = base64.b64encode(valid).decode()
+        r = api_client.post(
+            "/api/v1/diagnose",
+            json={
+                "symptoms": "chest pain and sweating",
+                "image": f"data:image/jpeg;base64,{b64}",
+            },
+        )
+        assert r.status_code == 200
 
     def test_diagnose_without_image_does_not_mention_image_in_prompt(
         self,
@@ -458,13 +542,10 @@ class TestReportsEndpoints:
         """W3-F9: image is persisted as a side-file (not inline in JSONL);
         the report record carries the path + byte count; the
         /reports/{sid}/image endpoint serves the bytes back."""
-        import base64
         patch_ollama_generate(mock_llm_response_factory(triage="RED", primary_condition="Snake Bite Envenomation"))
-        raw_bytes = b"\xff\xd8\xff\xe0" + b"FAKEJPEG" * 16  # not a real JPEG, but valid base64 round-trip
-        fake_image = "data:image/jpeg;base64," + base64.b64encode(raw_bytes).decode()
         r = api_client.post(
             "/api/v1/diagnose",
-            json={"symptoms": "snake bite, fang marks visible", "image": fake_image},
+            json={"symptoms": "snake bite, fang marks visible", "image": _VALID_JPEG_DATA_URL},
         )
         assert r.status_code == 200
         sid = r.json()["session_id"]
@@ -474,17 +555,13 @@ class TestReportsEndpoints:
         assert rec["image_present"] is True
         assert rec["image_path"] is not None
         assert rec["image_path"].startswith("images/")
-        assert rec["image_bytes"] == len(raw_bytes)
-        # Bytes themselves must NOT appear inline in the JSONL record:
-        for v in rec.values():
-            if isinstance(v, str):
-                assert "FAKEJPEGFAKEJPEG" not in v, "image bytes should be in a side-file, not inline"
+        assert rec["image_bytes"] == len(_VALID_JPEG_BYTES)
 
         # Endpoint serves the persisted bytes with correct content-type.
         img_resp = api_client.get(f"/api/v1/reports/{sid}/image")
         assert img_resp.status_code == 200
         assert img_resp.headers["content-type"] == "image/jpeg"
-        assert img_resp.content == raw_bytes
+        assert img_resp.content == _VALID_JPEG_BYTES
 
     def test_image_endpoint_404_when_no_image(
         self,

@@ -1818,8 +1818,20 @@
       });
       removeThinking();
       if (!r.ok) {
-        const errText = await r.text();
-        appendError(`Server error (${r.status}): ${errText.slice(0,200)}`);
+        // Try to extract the FastAPI `detail` field for a friendlier message.
+        let detail = '';
+        try {
+          const errJson = await r.json();
+          detail = errJson?.detail || '';
+        } catch {
+          detail = (await r.text()).slice(0, 200);
+        }
+        // 400 with an "image" word in the detail = our W3-F9b validation rejection.
+        if (r.status === 400 && /image/i.test(detail)) {
+          appendError(`Image error: ${detail}. Try attaching a different photo or skip the image.`);
+        } else {
+          appendError(`Server error (${r.status}): ${detail}`);
+        }
         return;
       }
       const data = await r.json();

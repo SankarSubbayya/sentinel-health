@@ -7,6 +7,7 @@ from app.core.llm import ollama_client
 from app.knowledge.loader import kb
 from app.services.diagnosis import diagnosis_service
 from app.services import reports as reports_service
+from app.services.images import validate_image
 
 router = APIRouter()
 
@@ -71,6 +72,13 @@ async def diagnose(request: DiagnoseRequest):
     """
     if not request.symptoms or len(request.symptoms.strip()) < 5:
         raise HTTPException(status_code=400, detail="Symptoms must be at least 5 characters")
+
+    # Fail fast on a malformed image so the CHW sees "Image is truncated"
+    # instead of a silent YELLOW from the diagnose() exception fallback.
+    if request.image:
+        _, _, err = validate_image(request.image)
+        if err:
+            raise HTTPException(status_code=400, detail=err)
 
     result = await diagnosis_service.diagnose(
         request.symptoms,
