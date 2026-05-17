@@ -1236,7 +1236,7 @@
       <div class="input-row">
         <span class="input-hint" id="inputHint" data-i18n="input_hint">Enter to send · Shift+Enter for new line</span>
         <button id="quickBtn" class="triage-quick-btn" onclick="quickTriage()" title="Rules-only triage (no LLM)" data-i18n="quick_triage">Quick triage</button>
-        <button id="micBtn" class="icon-btn" onclick="toggleMic()" title="Voice input" aria-label="Voice input">
+        <button id="micBtn" class="icon-btn" onclick="toggleMic()" title="Voice input — uses cloud STT on Chrome (needs internet); on-device on Safari/iOS" aria-label="Voice input">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><path d="M12 19v3"></path></svg>
         </button>
         <button id="attachBtn" class="icon-btn" onclick="fileInput?.click()" title="Attach photo from gallery or files" aria-label="Attach photo from gallery or files">
@@ -1246,6 +1246,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 13 3H8L6.5 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-5.5Z"></path><circle cx="12" cy="12.5" r="3.5"></circle></svg>
         </button>
         <input id="fileInput" type="file" accept="image/*" style="display:none" />
+        <input id="cameraInput" type="file" accept="image/*" capture="environment" style="display:none" />
         <button id="sendBtn" class="send-btn" onclick="sendDiagnose()">
           <span data-i18n="diagnose">Diagnose</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
@@ -1301,7 +1302,8 @@
       ex_unconscious_ctx: 'Context: Photograph any pills, bottles, or visible injuries and attach.',
       symptoms_placeholder: "Describe the patient's symptoms…",
       context_placeholder: 'Patient context (age, history, medications) — optional',
-      input_hint: 'Enter to send · Shift+Enter for new line',
+      input_hint: 'Voice needs internet on Chrome · Diagnose runs offline',
+      mic_listening: 'Listening… tap the mic again to stop.',
       quick_triage: 'Quick triage', diagnose: 'Diagnose',
     },
     hi: {
@@ -1337,7 +1339,8 @@
       ex_unconscious_ctx: 'Context: कोई गोलियाँ, बोतलें, या दिख रही चोटों की फोटो लें।',
       symptoms_placeholder: 'मरीज़ के लक्षण लिखें…',
       context_placeholder: 'मरीज़ की जानकारी (उम्र, इतिहास, दवाइयाँ) — वैकल्पिक',
-      input_hint: 'Enter दबाएं · नई लाइन के लिए Shift+Enter',
+      input_hint: 'वॉइस के लिए Chrome पर इंटरनेट जरूरी · Diagnose ऑफ़लाइन चलता है',
+      mic_listening: 'सुन रहा हूँ… रोकने के लिए माइक फिर से दबाएँ।',
       quick_triage: 'त्वरित ट्राइएज', diagnose: 'जाँच करें',
     },
     ta: {
@@ -1373,7 +1376,8 @@
       ex_unconscious_ctx: 'Context: மாத்திரைகள், பாட்டில்கள், அல்லது தெரியும் காயங்களின் படத்தை எடுக்கவும்.',
       symptoms_placeholder: 'நோயாளியின் அறிகுறிகளை விவரிக்கவும்…',
       context_placeholder: 'நோயாளி தகவல் (வயது, வரலாறு, மருந்துகள்) — விருப்பத்திற்குரியது',
-      input_hint: 'Enter அழுத்தவும் · புதிய வரிக்கு Shift+Enter',
+      input_hint: 'Chrome-ல் குரலுக்கு இணையம் தேவை · Diagnose ஆஃப்லைனில் இயங்கும்',
+      mic_listening: 'கேட்கிறேன்… நிறுத்த மீண்டும் மைக்கைத் தட்டவும்.',
       quick_triage: 'விரைவு மதிப்பீடு', diagnose: 'மதிப்பீடு',
     },
     ml: {
@@ -1409,7 +1413,8 @@
       ex_unconscious_ctx: 'Context: എന്തെങ്കിലും ഗുളിക, കുപ്പി, അല്ലെങ്കിൽ കാണുന്ന മുറിവുകൾ ഫോട്ടോ എടുക്കുക.',
       symptoms_placeholder: 'രോഗിയുടെ ലക്ഷണങ്ങൾ വിവരിക്കുക…',
       context_placeholder: 'രോഗിയുടെ വിവരം (പ്രായം, ചരിത്രം, മരുന്നുകൾ) — ഐച്ഛികം',
-      input_hint: 'Enter അമർത്തുക · പുതിയ വരിക്ക് Shift+Enter',
+      input_hint: 'Chrome-ൽ വോയ്സിന് ഇന്റർനെറ്റ് വേണം · Diagnose ഓഫ്‌ലൈൻ പ്രവർത്തിക്കും',
+      mic_listening: 'കേൾക്കുന്നു… നിർത്താൻ വീണ്ടും മൈക്ക് ടാപ്പുചെയ്യുക.',
       quick_triage: 'വേഗ വിലയിരുത്തൽ', diagnose: 'വിലയിരുത്തുക',
     },
   };
@@ -2028,6 +2033,7 @@
   let attachedImageDataUrl = null;
   let camStream = null;
   const fileInput = document.getElementById('fileInput');
+  const cameraInput = document.getElementById('cameraInput');
   const camBtn = document.getElementById('camBtn');
   const attachBtn = document.getElementById('attachBtn');
   const imagePreview = document.getElementById('imagePreview');
@@ -2085,21 +2091,24 @@
     if (!file) return;
     setAttachedImage(await resizeToDataUrl(file));
   });
+  cameraInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAttachedImage(await resizeToDataUrl(file));
+  });
 
-  async function openCamera() {
-    // Use the OS-native file picker — on mobile this shows
-    // "Photo Library / Take Photo or Video / Choose Files",
-    // giving the user both gallery and camera in one tap.
-    // On desktop it opens a file browser. Either way, the
-    // selected/captured image flows through fileInput's change
-    // handler → resizeToDataUrl → setAttachedImage.
-    fileInput?.click();
-  }
-
-  // ─── Legacy in-browser live-camera overlay (unused, kept for reference) ─
+  // Camera button flow:
+  //   Desktop browsers with a webcam → live in-browser overlay (getUserMedia +
+  //     snap-to-canvas). Lets the CHW frame an ECG/wound shot from a laptop.
+  //   Mobile / no webcam / permission denied → cameraInput.click(), a hidden
+  //     <input type="file" capture="environment"> which opens the native
+  //     camera app on iOS/Android (or, on desktop, the OS file picker as a
+  //     last-resort fallback). Surfaces a clear reason via appendError so the
+  //     user knows why the live overlay isn't available.
   async function openCameraOverlay() {
     if (!navigator.mediaDevices?.getUserMedia) {
-      fileInput?.click();
+      appendError('Live camera needs HTTPS or localhost — opening photo picker instead.');
+      cameraInput?.click();
       return;
     }
     try {
@@ -2108,7 +2117,19 @@
         audio: false,
       });
     } catch (err) {
-      fileInput?.click();
+      const name = err?.name || 'CameraError';
+      let msg;
+      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        msg = 'Camera permission denied. Grant access in browser settings, or opening photo picker instead.';
+      } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+        msg = 'No camera detected — opening photo picker instead.';
+      } else if (name === 'NotReadableError') {
+        msg = 'Camera is in use by another app (Zoom/FaceTime/Photo Booth) — close it, or opening photo picker instead.';
+      } else {
+        msg = `Camera unavailable (${name}) — opening photo picker instead.`;
+      }
+      appendError(msg);
+      cameraInput?.click();
       return;
     }
     const overlay = document.createElement('div');
@@ -2146,8 +2167,16 @@
   // ─── end image capture ──────────────────────────────────────────────
 
   // --- Voice input via Web Speech API ---
+  // Chrome/Edge stream audio to Google's cloud STT (needs internet, but
+  // dramatically better on Indian-language scripts than offline alternatives
+  // we evaluated). Safari uses Apple's on-device STT. continuous=true keeps
+  // the session alive through pauses; we auto-restart in onend because both
+  // browsers still cap a single session at ~30-60s.
   let recognition = null;
   let isRecording = false;
+  let userStoppedMic = false;
+  let micBaseText = '';
+  let micFinalText = '';
   function initSpeech() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
@@ -2157,31 +2186,45 @@
       return;
     }
     recognition = new SR();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = SPEECH_LANG[currentLang] || 'en-IN';
 
-    let baseText = '';
     recognition.onstart = () => {
       isRecording = true;
       micBtn.classList.add('recording');
-      inputHint.textContent = 'Listening... click the mic again to stop';
-      baseText = symptomsInput.value;
-      if (baseText && !baseText.endsWith(' ')) baseText += ' ';
+      inputHint.textContent = (I18N[currentLang] || I18N.en).mic_listening || 'Listening… tap the mic again to stop.';
     };
     recognition.onresult = (e) => {
-      let transcript = '';
+      let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        transcript += e.results[i][0].transcript;
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) micFinalText += t;
+        else interim += t;
       }
-      symptomsInput.value = baseText + transcript;
+      symptomsInput.value = micBaseText + micFinalText + interim;
       symptomsInput.dispatchEvent(new Event('input'));
     };
     recognition.onerror = (e) => {
+      // no-speech and aborted are followed by onend, where we auto-restart
+      // (no-speech) or clean up (aborted = our own stop call). network fires
+      // when Google's STT endpoint is unreachable — surface it loudly so the
+      // CHW knows voice needs connectivity.
+      if (e.error === 'no-speech' || e.error === 'aborted') return;
+      if (e.error === 'network') {
+        userStoppedMic = true;
+        appendError('Voice input needs internet (Chrome streams audio to Google). Type the symptoms, or reconnect and try again.');
+        return;
+      }
       appendError('Voice input error: ' + e.error);
     };
     recognition.onend = () => {
+      if (!userStoppedMic) {
+        try { recognition.start(); return; } catch {}
+      }
       isRecording = false;
+      userStoppedMic = false;
+      micFinalText = '';
       micBtn.classList.remove('recording');
       inputHint.textContent = (I18N[currentLang] || I18N.en).input_hint;
     };
@@ -2190,8 +2233,15 @@
 
   function toggleMic() {
     if (!recognition) return;
-    if (isRecording) recognition.stop();
-    else recognition.start();
+    if (isRecording) {
+      userStoppedMic = true;
+      recognition.stop();
+    } else {
+      micFinalText = '';
+      micBaseText = symptomsInput.value;
+      if (micBaseText && !micBaseText.endsWith(' ')) micBaseText += ' ';
+      try { recognition.start(); } catch {}
+    }
   }
 
   // --- KB browser modal ---
