@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sentinel Health — Offline Gemma 4 Triage for Community Health Workers</title>
+  <meta name="description" content="Offline-first AI triage for community health workers in low-resource settings. Multimodal Gemma 4 + a deterministic safety layer + WhatsApp handoff to the hub physician. Runs entirely on a clinic laptop, no internet." />
+
+  <meta property="og:title" content="Sentinel Health — Offline Gemma 4 Triage for Community Health Workers" />
+  <meta property="og:description" content="Multimodal Gemma 4 + a deterministic safety layer + WhatsApp handoff to the hub physician. Runs entirely on a clinic laptop, no internet." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sentinel.accurateai.org/" />
+  <meta property="og:image" content="https://img.youtube.com/vi/vQ-ansEd8dY/maxresdefault.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <style>
+    :root {
+      --bg: #fafaf7;
+      --surface: #ffffff;
+      --text: #18181b;
+      --text-muted: #71717a;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --accent: #0f766e;
+      --accent-hover: #115e59;
+      --red: #dc2626;
+      --yellow: #ca8a04;
+      --green: #16a34a;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    header.hero {
+      text-align: left;
+      margin-bottom: 40px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    }
+    h1 {
+      font-size: 40px;
+      line-height: 1.08;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      margin: 0 0 14px;
+    }
+    .lede {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 0 28px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: var(--accent-hover); color: #fff; border-color: var(--accent-hover); }
+
+    section { margin-top: 48px; }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.005em;
+      margin: 0 0 14px;
+    }
+    p { margin: 0 0 14px; }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+    .video-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .scope-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 0;
+    }
+    .scope-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .arch-list {
+      padding-left: 22px;
+      color: var(--text);
+    }
+    .arch-list li { margin-bottom: 8px; }
+    .arch-list li::marker { color: var(--accent); }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .link-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+      color: var(--text);
+      display: block;
+    }
+    .link-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 6px 18px rgba(15, 118, 110, 0.08);
+      transform: translateY(-1px);
+      text-decoration: none;
+    }
+    .link-card-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .link-card-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .credit-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px 18px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+    }
+    .credit-label { color: var(--text-muted); font-weight: 600; }
+    .credit-value { color: var(--text); font-weight: 600; }
+
+    .disclaimer {
+      margin-top: 32px;
+      padding: 14px 18px;
+      background: rgba(220, 38, 38, 0.04);
+      border-left: 3px solid var(--red);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+
+    footer {
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    @media (max-width: 560px) {
+      h1 { font-size: 32px; }
+      .lede { font-size: 16px; }
+      .wrap { padding: 32px 18px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Gemma 4 Good Hackathon · Kaggle 2026</div>
+      <h1>Sentinel Health</h1>
+      <p class="lede">
+        Offline triage for community health workers in low-resource settings.
+        Multimodal Gemma 4 + a deterministic safety layer + a WhatsApp handoff
+        to the hub physician — runs entirely on a clinic laptop, no internet.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://triage.accurateai.org/demo">Live demo</a>
+        <a class="btn" href="https://huggingface.co/spaces/sankara68/sentinel-health">Hugging Face Space</a>
+        <a class="btn" href="https://github.com/SankarSubbayya/sentinel-health">GitHub</a>
+        <a class="btn" href="https://youtu.be/vQ-ansEd8dY">Watch the demo</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Demo video</h2>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube.com/embed/vQ-ansEd8dY"
+          title="Sentinel Health — Offline Gemma 4 Medical Triage Demo"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
+      </div>
+    </section>
+
+    <section>
+      <h2>What it does</h2>
+      <p>
+        Scoped to the five grassroots emergencies where minutes matter — Trauma,
+        Poisoning, Snake Bite, MI, and Stroke — Sentinel Health takes a CHW's
+        natural-language description (voice or text), optionally an ECG or wound
+        photo, and produces a triage decision (RED / YELLOW / GREEN), a top-3
+        differential grounded in a curated knowledge base, a during-transport
+        protocol, and a ready-to-send WhatsApp handoff message to the hub
+        physician.
+      </p>
+      <p>
+        The whole diagnostic pipeline — multimodal reasoning, safety override,
+        KB grounding, audit log, and escalation message generation — runs on a
+        single clinic laptop. No PHI leaves the device.
+      </p>
+      <div class="scope-strip">
+        <span class="scope-chip">Trauma</span>
+        <span class="scope-chip">Poisoning</span>
+        <span class="scope-chip">Snake bite</span>
+        <span class="scope-chip">MI</span>
+        <span class="scope-chip">Stroke</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Architecture</h2>
+      <ul class="arch-list">
+        <li>
+          Multimodal Gemma 4 (<code>gemma4:e4b-it-q4_K_M</code>, 8B weights with
+          sub-4B inference footprint) via Ollama — accepts symptoms plus an
+          optional ECG / wound / scene photo.
+        </li>
+        <li>
+          Deterministic keyword red-flag safety layer that overrides LLM triage
+          on missed red flags.
+        </li>
+        <li>
+          JSON-Schema-enforced output grounded in a curated knowledge base —
+          the model picks from candidates, it cannot invent.
+        </li>
+        <li>
+          WhatsApp <code>wa.me</code> deep-link handoff to the hub physician in
+          real PHC group format, with ambulance number and ETA.
+        </li>
+        <li>
+          Append-only JSONL audit log with side-file image storage — record of
+          care for the village.
+        </li>
+        <li>
+          Multilingual UI and voice input: English, Hindi, Tamil, Malayalam.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Try it</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://triage.accurateai.org/demo">
+          <div class="link-card-title">Live demo (full features)</div>
+          <div class="link-card-desc">
+            The real product running on the clinic laptop via Cloudflare tunnel.
+            Full PHI persistence, audit log, image storage.
+          </div>
+        </a>
+        <a class="link-card" href="https://huggingface.co/spaces/sankara68/sentinel-health">
+          <div class="link-card-title">Hugging Face Space</div>
+          <div class="link-card-desc">
+            Always-on public demo. CPU-only (~30-40s/call). PHI persistence
+            disabled — shared infrastructure must not land patient data.
+          </div>
+        </a>
+        <a class="link-card" href="https://github.com/SankarSubbayya/sentinel-health">
+          <div class="link-card-title">Source on GitHub</div>
+          <div class="link-card-desc">
+            FastAPI + Ollama + Gemma 4. 197/197 test suite. Apache-2.0.
+          </div>
+        </a>
+        <a class="link-card" href="https://youtu.be/vQ-ansEd8dY">
+          <div class="link-card-title">Demo video</div>
+          <div class="link-card-desc">
+            5:50 walkthrough — voice input, RED triage, ECG photo attach,
+            WhatsApp handoff.
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Credits</h2>
+      <div class="credit-row">
+        <span class="credit-label">Clinical advisor</span>
+        <span class="credit-value">Dr. P. Hari Subacini</span>
+      </div>
+      <div class="disclaimer">
+        Decision support tool. Not a diagnostic system. Always consult a
+        qualified physician.
+      </div>
+    </section>
+
+    <footer>
+      <span>Sentinel Health · Built for the Gemma 4 Good Hackathon</span>
+      <span><a href="https://github.com/SankarSubbayya/sentinel-health">github.com/SankarSubbayya/sentinel-health</a></span>
+    </footer>
+  </div>
+</body>
+</html>

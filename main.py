@@ -22,6 +22,15 @@ async def demo():
         return {"error": "Demo page not found"}
 
 
+@app.get("/home")
+async def home():
+    """Serve the project homepage (same file deployed to Cloudflare Pages)."""
+    home_path = Path(__file__).parent / "docs" / "index.html"
+    if home_path.exists():
+        return FileResponse(home_path, media_type="text/html")
+    return {"error": "Homepage not found"}
+
+
 if __name__ == "__main__":
     import uvicorn
 
