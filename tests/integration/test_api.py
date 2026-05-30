@@ -24,8 +24,13 @@ _VALID_JPEG_DATA_URL = "data:image/jpeg;base64," + base64.b64encode(_VALID_JPEG_
 
 
 class TestRootAndHealth:
-    def test_root_returns_api_info(self, api_client):
-        r = api_client.get("/")
+    def test_root_redirects_to_demo(self, api_client):
+        r = api_client.get("/", follow_redirects=False)
+        assert r.status_code == 307
+        assert r.headers["location"] == "/demo"
+
+    def test_api_index_returns_endpoint_list(self, api_client):
+        r = api_client.get("/api")
         assert r.status_code == 200
         body = r.json()
         assert body["name"] == "Sentinel Health API"

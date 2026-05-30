@@ -1,6 +1,7 @@
 """HTTP routes: diagnose, clarify, triage, KB browse, and health checks."""
 
 from fastapi import APIRouter, HTTPException, Response
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import Optional
 from app.core.llm import ollama_client
@@ -180,7 +181,19 @@ async def get_report_image(session_id: str):
 
 @router.get("/")
 async def root():
-    """API documentation."""
+    """Send the bare domain to the demo UI.
+
+    The triage.accurateai.org tunnel is mainly hit by clinicians and
+    judges, not by API consumers — serving the API discovery JSON at
+    the root was confusing them. The structured endpoint list is now
+    available at /api (and FastAPI's auto-generated docs are at /docs).
+    """
+    return RedirectResponse(url="/demo", status_code=307)
+
+
+@router.get("/api")
+async def api_index():
+    """API discovery — list of endpoints with descriptions."""
     return {
         "name": "Sentinel Health API",
         "version": "0.1.0",
