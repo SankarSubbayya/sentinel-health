@@ -181,24 +181,35 @@ Research Plan</h1>
 SupportVectors.ai · asif@supportvectors.ai ³ Independent Clinical
 Reviewer, Tamil Nadu, India</p>
 <p><em>Preprint · June 2026 · Corresponding author: ¹</em></p>
-<p><em>Revision history. The v1 draft of 2026-06-01 contained four
-substantive issues identified in internal review and corrected here: (a)
-inconsistent model count across sections (the panel is twelve models,
-not eleven; the eight-SLM + four-frontier framing is now consistent
-throughout); (b) the abstract’s specificity number conflated three-class
-accuracy (93.5%) with RED-vs-not-RED specificity (which on n=2 GREEN
-cases is uninformative) — the metrics section now separates the two; (c)
-Gemini-version drift across sections — the v1 draft referenced a
-non-existent “Gemini 2.7” in places where the actual pilot used
-<code>gemini-2.5-flash</code>; all references now use Gemini 2.5
+<p><em>Revision history. The v1 draft of 2026-06-01 had four substantive
+issues identified in internal review (Codex) and corrected in the v1.1
+revision: (a) inconsistent model count across sections (the panel is
+twelve models, not eleven; eight-SLM + four-frontier framing is now
+consistent throughout); (b) the abstract’s specificity number conflated
+three-class accuracy (93.5%) with RED-vs-not-RED specificity (which on
+n=2 GREEN cases is uninformative) — the metrics section now separates
+the two; (c) Gemini-version drift across sections — the v1 draft
+referenced a non-existent “Gemini 2.7” in places where the actual pilot
+used <code>gemini-2.5-flash</code>; all references now use Gemini 2.5
 Pro/Flash and the pre-registration commits to explicit checkpoint
 pinning at evaluation time; (d) the cost argument was sharper than
-Appendix D supports — the §9.2 economic-implications section is
-rewritten to acknowledge that at low CHW query volumes the frontier-API
-path is cheaper per query, and that the SLM argument is therefore
-</em>structural* (it unlocks deployment surfaces the frontier path
-cannot reach), not a per-query cost argument. Smaller cross-reference
-errors and a duplicate §7.4 heading have also been fixed.*</p>
+Appendix D supports — §9.2 is rewritten to acknowledge that at low CHW
+query volumes the frontier-API path is cheaper per query, and that the
+SLM argument is therefore </em>structural<em>, not a per-query cost
+argument. The v1.2 revision (this version) addresses three further
+methodological critiques raised by an independent reviewer (Google
+Gemini): (e) the over-reliance-on-DSN critique now has a dedicated §9.5
+articulating what the SLM contributes beyond JSON-schema population
+(unstructured-input parsing, narrative generation, calibrated
+confidence, cultural register), and §10 limitation 4 acknowledges that
+the SLM’s contributions are not formally evaluated against a non-LLM
+templated-baseline in this work; (f) §10 limitation 3 flags the two-pass
+vision-as-sensor pattern (H4) as the </em>critical-path validation
+question* for the whole architectural argument; (g) a new §9.7 directly
+addresses the cloud-STT / offline-claim tension, qualifying the offline
+claim to the diagnostic pipeline rather than the entire user workflow.
+Smaller cross-reference errors and a duplicate §7.4 heading have also
+been fixed.*</p>
 <p><em>Framing note. This paper is structured as a <strong>case study
 plus a pre-registered research plan</strong>, not as a completed
 empirical study. All numbers reported in §7 are exploratory pilots, not
@@ -1933,7 +1944,73 @@ of language-specific open-weight models (Sarvam-1 for Indian languages
 <span class="citation" data-cites="sarvam2024">[@sarvam2024]</span>,
 various community-driven multilingual variants) and to fine-tuning as a
 productization step.</p>
-<h3 id="failure-mode-taxonomy">9.5 Failure-mode taxonomy</h3>
+<h3 id="what-does-the-slm-actually-contribute-if-the-safety-net-carries-the-triage-decision">9.5
+What does the SLM actually contribute, if the safety net carries the
+triage decision?</h3>
+<p>A sharp critique of the Sentinel architecture, raised in external
+review of this draft, runs as follows: <em>if a deterministic keyword
+rule can override the LLM’s triage class, and if the bake-off across
+three SLMs showed identical RED-tier sensitivity, then the SLM is by
+construction not the decision-maker; it is a sophisticated
+JSON-schema-populator that could in principle be replaced by a simpler
+template engine, undermining the case for using an LLM at all.</em></p>
+<p>The critique is correct as stated but incomplete as a
+characterization of what the model does. The DSN is the decision-maker
+for the <strong>triage class</strong>, which is one field of the
+structured output. The SLM contributes four other components that a
+non-LLM template engine cannot:</p>
+<ol type="1">
+<li><p><strong>Unstructured-input parsing in four languages.</strong>
+The CHW enters symptoms as free text or transcribed speech in English,
+Hindi, Tamil, or Malayalam. A template engine that requires structured
+input (which symptom from a dropdown, which onset time from a picker) is
+not the product. The CHW types “60yo woman with jaw pain, nausea,
+fatigue for 1 hour, diabetic and HTN”; the SLM parses that into the
+structured representation that downstream components use. Replacing this
+with a template-driven UI doubles the data-entry burden and is exactly
+the wrong trade for a workflow where the CHW is mid-encounter with a
+sick patient.</p></li>
+<li><p><strong>Grounded narrative generation.</strong> The
+differential’s <code>reasoning</code> field, the during-transport
+protocol’s adapted phrasing for the specific patient, and the WhatsApp
+escalation message in the appropriate language for the hub physician are
+not lookup-table outputs. They are generated narratives that adapt to
+the case’s specifics (e.g., a 60-year-old diabetic with jaw pain gets a
+different rationale paragraph than a 25-year-old non-diabetic with the
+same complaint, even though both route to ACS-suspected RED). A template
+engine produces stereotyped output that the receiving physician can
+detect at a glance.</p></li>
+<li><p><strong>Calibrated confidence values.</strong> The model emits a
+confidence score per differential candidate that, in our preliminary
+data, correlates with downstream gold-label accuracy. The downstream UI
+uses this to decide whether to ask a clarifying question
+(<code>/api/v1/clarify</code>) before finalizing. A keyword-rule engine
+cannot produce a calibrated confidence; it either fires or it does
+not.</p></li>
+<li><p><strong>Cultural and contextual nuance in
+recommendations.</strong> The model adapts dosing units (mg vs grain),
+transport phrasing (“rush to nearest 108 ambulance” vs “call EMS”), and
+follow-up language to the deployment context. This is imperfect (see
+§7.6 on dosing-unit errors in Hindi), but it is qualitatively different
+from the deterministic output of a templating engine.</p></li>
+</ol>
+<p>The architectural claim is therefore not that the SLM is
+<em>unnecessary</em>; it is that the SLM is the right component for the
+four roles above, and the DSN is the right component for the
+triage-decision role. Conflating these into “the LLM does triage” is the
+failure mode that this paper’s architectural taxonomy is intended to
+prevent — at both the design level (where the model gets too much
+responsibility) and the evaluation level (where the model is asked to do
+all the work).</p>
+<p>A stricter version of the critique remains live: <em>the SLM’s
+narrative contributions in §9.5.1–4 above are not formally evaluated for
+clinical value in this paper.</em> The clinician-rated Likert assessment
+in H6 will address the narrative-quality dimension; the
+calibration-error metric in §6.4 will address the confidence dimension;
+and a future extension of the study should compare the full SLM pipeline
+against a templated-output baseline directly. We treat this as a
+future-work direction (§11) rather than dismissing the critique.</p>
+<h3 id="failure-mode-taxonomy">9.6 Failure-mode taxonomy</h3>
 <p>We propose, on the basis of the Sentinel observations, that
 clinical-AI failure modes for SLMs cluster into three groups: (a)
 <em>compositional reasoning failures</em>, exemplified by the snake-bite
@@ -1946,6 +2023,41 @@ degrades under long structured prompts. The architectural compensations
 in §8 address (a) and (c) directly; (b) is harder to address
 architecturally and motivates the case for fine-tuning on culturally
 appropriate data.</p>
+<h3 id="the-offline-claim-tension-voice-intake-versus-diagnose">9.7 The
+offline-claim tension: voice intake versus diagnose</h3>
+<p>The Sentinel product claim is “offline triage on a clinic laptop.”
+External review of this draft, and the Whisper-revert experience
+documented in §7.7, raise a fair tension: voice transcription in the
+deployed system uses cloud STT (Chrome’s Web Speech API on Chrome;
+Apple’s on-device STT on Safari). The claim that <em>the diagnostic
+pipeline</em> runs offline is accurate; the claim that <em>the entire
+user workflow</em> runs offline is not, in the deployed configuration,
+with voice input.</p>
+<p>We treat this as a real but bounded compromise. Three points:</p>
+<p>First, <strong>the diagnostic pipeline — symptom parsing, safety
+check, model inference, KB grounding, safety override,
+escalation-message generation, audit log — runs offline.</strong> No PHI
+leaves the device during diagnosis. The cloud STT call transmits only
+the audio of the CHW’s spoken symptoms, briefly, before the rest of the
+pipeline runs locally. This is a different surface area than “all
+clinical reasoning happens on a cloud API.”</p>
+<p>Second, <strong>voice intake is a convenience, not a
+requirement.</strong> The deployed UI accepts typed input as the primary
+mode and voice as an optional accelerator. A CHW operating with no
+connectivity can still use the system fully; they type rather than
+speak. The “voice needs internet on Chrome” hint surfaced in the demo UI
+documents this constraint explicitly to the user.</p>
+<p>Third, <strong>the offline-STT direction is a real research
+investment, not a closed problem.</strong> Whisper-small failed on Indic
+medical terms; AI4Bharat’s IndicConformer family and Sarvam-1’s ASR
+component are stronger candidates that we have not yet evaluated. A
+future iteration of Sentinel will revisit on-device STT with these
+models, and the formal study will collect operator-reported voice-input
+failure-mode telemetry as a secondary observation (§6.4).</p>
+<p>The product-positioning lesson, however, is straightforward: builders
+should not claim “fully offline” without qualifying which steps are
+offline and which are not. We have updated the §4 product description to
+reflect this distinction explicitly.</p>
 <hr />
 <h2 id="limitations">10. Limitations</h2>
 <p>This paper is, by design, a research-plan paper rather than a
@@ -1965,7 +2077,35 @@ claims.</p></li>
 <li><p><strong>The architectural taxonomy is proposed, not empirically
 validated.</strong> Patterns 1 and 2 are deployed in Sentinel; Patterns
 3 and 4 are not, and their hypothesized effects (H4 in particular) await
-the planned evaluation.</p></li>
+the planned evaluation. <strong>The two-pass vision-as-sensor pipeline
+(Pattern 3) is the critical-path validation question for the whole
+architectural argument.</strong> If the formal SentinelEval-250
+evaluation finds that the two-pass pipeline does not substantively close
+the image-only-case gap, the SLM-plus-scaffolding posture for
+image-bearing clinical reasoning collapses, and the right answer for
+image-heavy deployments becomes either (a) a frontier-API path with the
+connectivity and consent compromises that entails, or (b) a much larger
+SLM than current laptop-class hardware can host. We flag this as the
+single most important risk to the paper’s central architectural claim,
+and the planned study is designed primarily to resolve it.</p></li>
+<li><p><strong>The SLM’s narrative contributions are not formally
+evaluated against a non-LLM baseline in this work.</strong> §9.5 argues
+that the model contributes free-text parsing, narrative generation,
+calibrated confidence, and cultural register beyond what a non-LLM
+template engine can do. The clinician-rated Likert assessment (H6) and
+the calibration-error metric (§6.4 secondary outcome 4) test these
+dimensions against quality standards, but they do not test them against
+a templated-output baseline. A future extension should compare the full
+SLM-plus-DSN pipeline against a DSN-plus-template-engine baseline on the
+same case set, to quantify the marginal contribution of the SLM. We
+treat this as an open question rather than a foregone
+conclusion.</p></li>
+<li><p><strong>The offline-claim is qualified, not absolute.</strong>
+Voice intake in the deployed system uses cloud STT (§9.7). The
+diagnostic pipeline itself runs offline. Builders citing this work
+should propagate the qualification — the architectural argument applies
+to the <em>clinical-reasoning</em> steps, not to the entire user
+workflow under all deployment configurations.</p></li>
 <li><p><strong>The cost analysis depends on assumed query
 volumes.</strong> Population-scale deployment numbers (~5
 queries/CHW/week × ~1M CHWs) are estimates; actual operational query
