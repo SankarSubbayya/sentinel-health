@@ -25,6 +25,13 @@ tests/results/
 # Persisted reports (PHI — never commit)
 data/reports/
 
+# Unredacted ECG with handwritten patient name (PHI — never commit)
+# The redacted version data/ecg_redacted.jpeg + provenance is safe to commit.
+data/ecg.jpeg
+
+# Local raw recordings (large; not part of the benchmark)
+data/dump/
+
 # Editor / OS
 .DS_Store
 .idea/
