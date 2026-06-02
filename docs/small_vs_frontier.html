@@ -181,6 +181,29 @@ Research Plan</h1>
 SupportVectors.ai · asif@supportvectors.ai ³ Independent Clinical
 Reviewer, Tamil Nadu, India</p>
 <p><em>Preprint · June 2026 · Corresponding author: ¹</em></p>
+<p><em>Revision history. The v1 draft of 2026-06-01 contained four
+substantive issues identified in internal review and corrected here: (a)
+inconsistent model count across sections (the panel is twelve models,
+not eleven; the eight-SLM + four-frontier framing is now consistent
+throughout); (b) the abstract’s specificity number conflated three-class
+accuracy (93.5%) with RED-vs-not-RED specificity (which on n=2 GREEN
+cases is uninformative) — the metrics section now separates the two; (c)
+Gemini-version drift across sections — the v1 draft referenced a
+non-existent “Gemini 2.7” in places where the actual pilot used
+<code>gemini-2.5-flash</code>; all references now use Gemini 2.5
+Pro/Flash and the pre-registration commits to explicit checkpoint
+pinning at evaluation time; (d) the cost argument was sharper than
+Appendix D supports — the §9.2 economic-implications section is
+rewritten to acknowledge that at low CHW query volumes the frontier-API
+path is cheaper per query, and that the SLM argument is therefore
+</em>structural* (it unlocks deployment surfaces the frontier path
+cannot reach), not a per-query cost argument. Smaller cross-reference
+errors and a duplicate §7.4 heading have also been fixed.*</p>
+<p><em>Framing note. This paper is structured as a <strong>case study
+plus a pre-registered research plan</strong>, not as a completed
+empirical study. All numbers reported in §7 are exploratory pilots, not
+powered for inferential claims; the formal evaluation is the work
+specified in §6 and timelined in §6.11.</em></p>
 <hr />
 <h2 id="abstract">Abstract</h2>
 <p><strong>Background.</strong> Small open-weight language models (SLMs)
@@ -197,42 +220,53 @@ case study and a planned multi-model evaluation, the dimensions on which
 SLMs are competitive with frontier models for clinical triage, the
 dimensions on which they fail, and the architectural compensations that
 close or fail to close the gap.</p>
-<p><strong>Methods.</strong> We describe a deployed system — Sentinel
-Health — that uses Gemma 4 (<code>e4b-it-q4_K_M</code>) as the inference
-workhorse for offline emergency triage in rural Tamil Nadu, India, and
-we report preliminary head-to-head observations against Gemini 2.7 Flash
-on a representative failure case (image-only suspected snake bite). We
-then specify a pre-registered research plan to evaluate eight small
-open-weight models and three frontier proprietary models on a curated
-250-case clinical triage benchmark spanning five emergency categories
-(Trauma, Poisoning, Snake Bite, Myocardial Infarction, Stroke) and four
-languages (English, Hindi, Tamil, Malayalam). Primary endpoint:
-triage-class sensitivity for RED-tier cases. Secondary endpoints:
-specificity, calibration (expected calibration error), per-case latency,
-per-case cost, multimodal accuracy on image-bearing cases, and
-adversarial robustness to prompt injection.</p>
-<p><strong>Preliminary Results.</strong> On a 31-case pilot eval using
-Gemma 4 e4b alone, sensitivity for RED-tier text-described cases was
-100% (29/29); specificity was 80% (29/31). The same sensitivity figure
-held across two MedGemma 4B variants tested, providing initial evidence
-that within the Sentinel architecture the model is
-<em>substitutable</em> and the deterministic safety net is the
+<p><strong>Methods.</strong> This is a case-study-plus-research-plan
+paper, not a completed empirical study. We describe a deployed system —
+Sentinel Health — that uses Gemma 4 (<code>e4b-it-q4_K_M</code>) as the
+inference workhorse for offline emergency triage in rural Tamil Nadu,
+India, and we report structured-pilot observations against Gemini 2.5
+Flash on a representative failure case (image-only suspected snake
+bite). We then specify a pre-registered research plan to evaluate eight
+small open-weight models and four frontier proprietary models — twelve
+in total — on a curated 250-case clinical triage benchmark spanning five
+emergency categories (Trauma, Poisoning, Snake Bite, Myocardial
+Infarction, Stroke) plus GREEN distractors, and four languages (English,
+Hindi, Tamil, Malayalam). Primary endpoint: triage-class sensitivity for
+RED-tier cases (operationalized as RED-vs-not-RED in the binary-outcome
+statistical tests). Secondary endpoints: RED-class specificity (TNR over
+GREEN distractors), three-class accuracy, calibration (expected
+calibration error), per-case latency, per-case cost, multimodal accuracy
+on image-bearing cases, and adversarial robustness to prompt
+injection.</p>
+<p><strong>Preliminary Results (exploratory).</strong> On a 31-case
+pilot eval using Gemma 4 e4b alone, sensitivity for RED-tier
+text-described cases was 100% (29/29; 95% bootstrap CI: 88–100%);
+RED-class specificity (TNR over the 2 GREEN distractor cases) was 100%
+(no GREEN cases over-triaged to RED). Three-class accuracy was 93.5%
+(29/31), with two YELLOW–GREEN borderline cases over-triaged to YELLOW.
+The same sensitivity figure held across two MedGemma 4B variants tested,
+providing initial evidence that within the Sentinel architecture the
+model is <em>substitutable</em> and the deterministic safety net is the
 load-bearing component. On a single image-only suspected snake-bite
 case, Gemma 4 e4b returned YELLOW with “no acute condition identified”;
-Gemini 2.7 Flash, presented with the same image and minimal textual
+Gemini 2.5 Flash, presented with the same image and minimal textual
 context, returned a structured emergency response with correct first-aid
-guidance.</p>
+guidance. A subsequent 9-case × 3-provider frontier pilot and a 9-case ×
+6-model local-SLM pilot are reported in §7.5; all preliminary numbers
+are exploratory and not powered for inferential claims.</p>
 <p><strong>Conclusions.</strong> The framing of “SLM versus frontier” is
 incomplete without specifying the pipeline. For text-described triage in
-a curated narrow scope, SLM-plus-deterministic-safety-net is competitive
-with frontier models, replaceable across model choices, and dramatically
-cheaper to deploy at population scale. For image-only or compound
-contextual reasoning, frontier models retain a substantive lead that
-cannot be closed by prompt engineering alone. The proposed research plan
-will quantify these gaps across eleven models and prescribe specific
-architectural patterns (two-pass vision-as-sensor, KB-grounded
-JSON-Schema output, selective frontier escalation) that allow SLMs to
-carry production traffic where their intrinsic capability would not.</p>
+a curated narrow scope, SLM-plus-deterministic-safety-net appears
+competitive with frontier models in the exploratory pilots, replaceable
+across model choices, and structurally lower-friction to deploy where
+network and data-residency constraints bind. For image-only or compound
+contextual reasoning, frontier models retain a substantive lead in our
+pilots that does not appear closable by prompt engineering alone. The
+proposed research plan will quantify these gaps across twelve models and
+prescribe specific architectural patterns (two-pass vision-as-sensor,
+KB-grounded JSON-Schema output, selective frontier escalation) that we
+hypothesize allow SLMs to carry production traffic where their intrinsic
+capability would not.</p>
 <p><strong>Keywords:</strong> Small language models · Open-weight
 language models · Frontier language models · Clinical decision support ·
 Edge AI · Multimodal reasoning · Safety architecture · Knowledge-base
@@ -244,17 +278,20 @@ in rural India must satisfy four constraints simultaneously. (i) It must
 operate offline, because mobile connectivity in the relevant deployment
 surface — Primary Health Centre (PHC) catchment areas in
 low-population-density districts — is intermittent and unreliable <span class="citation" data-cites="nhm2024">[@nhm2024]</span>. (ii) It must
-not transmit protected health information (PHI) to third-party cloud
-providers, both because India’s Digital Personal Data Protection (DPDP)
-Act of 2023 imposes data-localization requirements for sensitive data
-<span class="citation" data-cites="dpdpact2023">[@dpdpact2023]</span>,
-and because the CHW’s patients have not given informed consent for such
-transmission. (iii) It must impose no recurring per-call API cost on the
-state National Health Mission (NHM) budgeting model. (iv) It must
+handle protected health information (PHI) within a defensible governance
+posture: India’s Digital Personal Data Protection (DPDP) Act of 2023
+<span class="citation" data-cites="dpdpact2023">[@dpdpact2023]</span>
+raises real data-governance, consent, and cross-border-transfer concerns
+that any third-party-cloud architecture must address case-by-case, and
+the CHW’s patients have typically not given informed consent for such
+transmission. (iii) Its budgeting must fit the state National Health
+Mission (NHM) procurement model, which generally accommodates one-time
+hardware capex more readily than per-call API opex at population scale
+(see §9.2 and Appendix D for a more careful cost analysis). (iv) It must
 produce clinically grounded outputs that the receiving hub physician can
 act on, in the language the CHW uses for documentation.</p>
-<p>Frontier proprietary models — Gemini 2.7 Pro and Flash, Claude Opus
-4.7, GPT-5 <span class="citation" data-cites="gemini27report anthropic2026 openaigpt5">[@gemini27report;
+<p>Frontier proprietary models — Gemini 2.5 Pro and Flash, Claude Opus
+4.7, GPT-5 <span class="citation" data-cites="gemini25report anthropic2026 openaigpt5">[@gemini25report;
 @anthropic2026; @openaigpt5]</span> — satisfy (iv) by capability and
 fail constraints (i), (ii), and (iii) by deployment surface. Small
 open-weight models — Gemma 4 <span class="citation" data-cites="gemmateam2026">[@gemmateam2026]</span>, MedGemma <span class="citation" data-cites="medgemma2025">[@medgemma2025]</span>, Aloe
@@ -275,28 +312,32 @@ monolithic models with strong intrinsic reasoning; they systematically
 undervalue architectures in which a smaller model is paired with
 deterministic safety scaffolding, knowledge-base constraints, and
 explicit decision rules.</p>
-<p>This paper has three contributions. First, we describe a deployed
-clinical-triage system, <em>Sentinel Health</em>, that uses an
-open-weight 8 B-parameter model (Gemma 4 <code>e4b-it-q4_K_M</code>) as
-the inference workhorse and we report concrete preliminary results from
-its evaluation set, including a representative failure case where Gemma
-4 fails and a frontier model (Gemini 2.7 Flash) succeeds. Second, we
-pre-register a detailed research plan to evaluate eleven candidate
-models — eight small open-weight, three frontier proprietary — across
-the clinical scope of Sentinel, with hypotheses, primary and secondary
-outcomes, statistical methodology, and a power analysis. Third, we
-propose an architectural taxonomy of <em>compensations</em> —
-deterministic safety nets, KB-grounded JSON-Schema output, two-pass
-vision-as-sensor pipelines, and selective frontier escalation — that we
-hypothesize allow small open-weight models to carry production clinical
-traffic where the unaided model would not.</p>
+<p>This paper has three contributions and is <strong>structured as a
+case study plus a pre-registered research plan, not as a completed
+empirical study</strong>. The preliminary results in §7 are exploratory
+and underpowered for inferential claims; the formal evaluation is the
+proposed work in §6, executed as described in §6.11. First, we describe
+a deployed clinical-triage system, <em>Sentinel Health</em>, that uses
+an open-weight 8 B-parameter model (Gemma 4 <code>e4b-it-q4_K_M</code>)
+as the inference workhorse and we report exploratory pilot observations
+including a representative failure case where Gemma 4 fails and a
+frontier model (Gemini 2.5 Flash) succeeds. Second, we pre-register a
+detailed research plan to evaluate twelve candidate models — eight small
+open-weight, four frontier proprietary — across the clinical scope of
+Sentinel, with hypotheses, primary and secondary outcomes, statistical
+methodology, and a power analysis. Third, we propose an architectural
+taxonomy of <em>compensations</em> — deterministic safety nets,
+KB-grounded JSON-Schema output, two-pass vision-as-sensor pipelines, and
+selective frontier escalation — that we hypothesize allow small
+open-weight models to carry production clinical traffic where the
+unaided model would not.</p>
 <p>The central thesis is that “small versus frontier” framed as a model
 comparison is a malformed question. The right question is <em>which
 pipeline composition</em>, parameterized by both the model and the
 deterministic scaffolding around it, satisfies the clinical task within
 the deployment constraints. The Sentinel architecture provides one
 concrete proposal for what such a pipeline looks like; the research plan
-in §9 provides a methodology for testing it rigorously across model
+in §6 provides a methodology for testing it rigorously across model
 classes.</p>
 <p>The remainder of the paper is organized as follows. §2 surveys
 related work. §3 establishes terminology and model taxonomy. §4
@@ -405,7 +446,7 @@ Preliminaries</h2>
 <p>We adopt the following taxonomy for this work.</p>
 <p><strong>Frontier models.</strong> Closed-weight, hosted-API-only
 models with parameter counts in the hundreds of billions or trillions.
-Examples relevant to this study: Gemini 2.7 Pro <span class="citation" data-cites="gemini27report">[@gemini27report]</span>, Gemini 2.7 Flash,
+Examples relevant to this study: Gemini 2.5 Pro <span class="citation" data-cites="gemini25report">[@gemini25report]</span>, Gemini 2.5 Flash,
 Claude Opus 4.7 <span class="citation" data-cites="anthropic2026">[@anthropic2026]</span>, GPT-5 <span class="citation" data-cites="openaigpt5">[@openaigpt5]</span>.
 Distinguishing features: deployment is via network API only; model
 weights are inaccessible; per-call pricing applies; provider operates
@@ -658,7 +699,7 @@ calibration.</li>
 <h2 id="research-plan-methodology">6. Research Plan / Methodology</h2>
 <h3 id="study-design">6.1 Study design</h3>
 <p>We plan a controlled, pre-registered, head-to-head evaluation of
-eleven candidate language models on a curated clinical triage benchmark.
+twelve candidate language models on a curated clinical triage benchmark.
 The study is <em>prospective</em> in the sense that the protocol,
 models, and benchmark are specified before model evaluation; it is
 <em>retrospective</em> in the sense that the clinical cases in the
@@ -672,7 +713,8 @@ commit of the eval-set IDs and the model panel to the project
 repository; (c) freezing of all prompts, system messages, JSON schemas,
 and safety-net rule sets.</p>
 <h3 id="models-under-test">6.2 Models under test</h3>
-<p>Three classes, eleven models total. Selection criteria: (a)
+<p>Three classes, twelve models total: four frontier proprietary, five
+general-purpose SLMs, three medical-domain SLMs. Selection criteria: (a)
 open-weight or accessible-API by April 2026; (b) declared support for
 English plus at least one Indic language <em>or</em> established
 multilingual capability; (c) for SLMs, fits within 24 GB RAM at
@@ -697,14 +739,14 @@ deployment quantization.</p>
 <tbody>
 <tr>
 <td>Frontier</td>
-<td>Gemini 2.7 Pro</td>
+<td>Gemini 2.5 Pro</td>
 <td>undisclosed</td>
 <td>n/a (API)</td>
 <td>Google Cloud</td>
 </tr>
 <tr>
 <td>Frontier</td>
-<td>Gemini 2.7 Flash</td>
+<td>Gemini 2.5 Flash</td>
 <td>undisclosed</td>
 <td>n/a (API)</td>
 <td>Google Cloud</td>
@@ -795,12 +837,15 @@ instruction-tuning starting points rather than only across quantizations
 of one family. Aloe is text-only and therefore enters only the text-only
 and audit-log cells of the benchmark, not the image-bearing cells. For
 frontier models we use the official APIs with explicit version pinning
-(<code>gemini-2.7-flash-2026-04-15</code>,
-<code>gemini-2.7-pro-2026-04-15</code>,
-<code>claude-opus-4-7-20260118</code>, <code>gpt-5-2026-03-22</code>).
-All API calls are issued with temperature 0, top-p 1, max-tokens
-sufficient for the largest expected output; SLM calls use Ollama’s
-<code>format</code> argument with the project’s JSON Schema and
+at evaluation time (e.g. <code>gemini-2.5-flash</code>,
+<code>gemini-2.5-pro</code>, <code>claude-opus-4-7</code>,
+<code>gpt-5</code>). The exact dated checkpoint string for each provider
+will be recorded in the pre-registration filing immediately before the
+held-out replication run; provider-side version drift between protocol
+filing and replication will be reported transparently per §6.5. All API
+calls are issued with temperature 0, top-p 1, max-tokens sufficient for
+the largest expected output; SLM calls use Ollama’s <code>format</code>
+argument with the project’s JSON Schema and
 <code>options: { temperature: 0 }</code>.</p>
 <p>Each model is evaluated in three configurations: - <strong>U
 (unaugmented).</strong> Direct prompt to the model with no deterministic
@@ -809,7 +854,7 @@ outputs run through the deterministic safety net post-check. - <strong>F
 (full Sentinel architecture).</strong> Pre-check + JSON Schema
 constraint + post-check + (for the candidates where we hypothesize image
 gaps) two-pass vision-as-sensor.</p>
-<p>The 11 × 3 design yields 33 model-configuration cells. The full
+<p>The 12 × 3 design yields 36 model-configuration cells. The full
 benchmark (§6.3) is run in each cell.</p>
 <h3 id="tasks-and-datasets">6.3 Tasks and datasets</h3>
 <p>We construct an evaluation benchmark, <em>SentinelEval-250</em>,
@@ -1023,7 +1068,7 @@ carries when the model is led astray.</li>
 outputs satisfying the schema on first attempt.</li>
 </ol>
 <h3 id="experimental-procedure">6.5 Experimental procedure</h3>
-<p>For each of the 33 model-configuration cells:</p>
+<p>For each of the 36 model-configuration cells:</p>
 <ol type="1">
 <li>Verify model version, runtime version, and prompt hash against the
 locked specification.</li>
@@ -1215,16 +1260,19 @@ motivate the formal study.</p>
 triage evaluation (31 cases, Gemma 4 e4b)</h3>
 <p>On a 31-case pilot evaluation, with Gemma 4 e4b under the full
 Sentinel architecture (configuration F), RED-tier sensitivity was 29/29
-= 100% (95% bootstrap CI: 88–100%). Specificity was 29/31 = 93.5%
-overall, with two cases of GREEN gold over-triaged to YELLOW (no GREEN
-cases were over-triaged to RED). Three-class accuracy was 29/31 =
-93.5%.</p>
+= 100% (95% bootstrap CI: 88–100%). <strong>Three-class
+accuracy</strong> was 29/31 = 93.5%, with two YELLOW–GREEN borderline
+cases over-triaged to YELLOW; no GREEN cases were over-triaged to RED,
+so the RED-vs-not-RED specificity over the 2 GREEN gold cases was 100%
+(but the small denominator makes this a weak signal). The earlier draft
+of this paper conflated three-class accuracy with specificity; this
+revision separates them.</p>
 <p>The 100% sensitivity figure does not survive interpretation at the
-250-case benchmark scale and should be treated as an estimate from a
-small calibration sample. We report it because (a) the 88% lower bound
-is itself a clinically relevant signal and (b) the same number
-replicated across two MedGemma variants, which is qualitatively the
-substitutability finding that the formal H1 will test.</p>
+250-case benchmark scale and should be treated as an exploratory
+estimate from a small calibration sample. We report it because (a) the
+88% lower bound is itself a clinically relevant signal and (b) the same
+number replicated across two MedGemma variants, which is qualitatively
+the substitutability finding that the formal H1 will test.</p>
 <h3 id="production-audit-log-corpus-721-sessions-66-with-image">7.2
 Production audit-log corpus (721 sessions, 66 with image)</h3>
 <p>A secondary source of preliminary data is the system’s production
@@ -1311,7 +1359,7 @@ leads.</figcaption>
 <p><strong>Case A: Suspected snake bite (Figure 1).</strong> Gemma 4 e4b
 returned YELLOW with “No acute condition identified” when the text was
 “patient brought in with this wound on forearm, child screaming.” The
-same image, presented to Gemini 2.7 Flash with text “I was sleeping
+same image, presented to Gemini 2.5 Flash with text “I was sleeping
 outside and my hand began hurt very strongly”, returned a structured
 emergency response with correct first-aid guidance. The full Gemini
 response is reproduced in §7.5. <strong>The Gemma-4 visual module
@@ -1384,31 +1432,34 @@ is, instead, an inter-field consistency check: if the reasoning field
 contains keywords like “ST elevation” or “myocardial injury,” the
 differential picker should not select “No acute condition identified.”
 We treat this as an architectural addition for v0.3.</p>
-<h3 id="substitutability-across-slms-informal">7.4 Substitutability
-across SLMs (informal)</h3>
-<h3 id="substitutability-across-slms-informal-1">7.4 Substitutability
-across SLMs (informal)</h3>
+<h3 id="substitutability-across-slms-exploratory">7.4 Substitutability
+across SLMs (exploratory)</h3>
 <p>In the development phase, the same 31 cases were run against MedGemma
 4 B Q8 and MedGemma 4 B Q6 in addition to Gemma 4 e4b. The RED-tier
-sensitivity figure was 29/29 in all three. Specificity varied (Gemma 4:
-29/31; MedGemma Q8: 28/31; MedGemma Q6: 27/31), suggesting that the
-safety net dominates the sensitivity outcome while the model’s intrinsic
-capability is reflected in the specificity outcome.</p>
+sensitivity figure was 29/29 in all three. Three-class accuracy varied
+(Gemma 4: 29/31 = 93.5%; MedGemma Q8: 28/31 = 90.3%; MedGemma Q6: 27/31
+= 87.1%), suggesting that the safety net dominates the sensitivity
+outcome while the model’s intrinsic capability is reflected in the
+narrative-quality and three-class-accuracy outcomes. We avoid the term
+“specificity” for the cross-SLM comparison because the 2-GREEN
+denominator is too small for a meaningful TNR claim.</p>
 <p>These observations are descriptive only and underpowered for any
 formal claim; they motivate but do not substantiate H1. The 250-case
 evaluation will provide a properly powered test.</p>
 <h3 id="frontier-model-pilot-batch-9-cases-3-providers">7.5
 Frontier-model pilot batch (9 cases × 3 providers)</h3>
-<p>To corroborate H2 with prospective rather than purely anecdotal data,
+<p>To motivate H2 with a structured pilot rather than a single anecdote,
 we ran a 9-case pilot against three frontier providers (Anthropic Claude
 Opus 4.7, OpenAI GPT-5, Google Gemini 2.5 Flash) with identical inputs
-to the Gemma 4 testing in §7.3. The 9 cases comprise Cases A1/A2
-(snake-bite image with two phrasings), Cases B1/B2 (redacted ECG image
-with two phrasings), and five text-only RED audit-log cases spanning all
-five emergency categories. All 27 calls were issued at temperature 0
-with the same system prompt (Appendix E). The raw results are persisted
-at <code>data/frontier_pilot/results.jsonl</code>; the reproduction
-script is at <code>scripts/frontier_pilot.py</code>.</p>
+to the Gemma 4 testing in §7.3. The pilot is exploratory: 9 cases is too
+few for inferential claims, and we report its findings as motivation for
+the formal study in §6, not as a substitute for it. The 9 cases comprise
+Cases A1/A2 (snake-bite image with two phrasings), Cases B1/B2 (redacted
+ECG image with two phrasings), and five text-only RED audit-log cases
+spanning all five emergency categories. All 27 calls were issued at
+temperature 0 with the same system prompt (Appendix E). The raw results
+are persisted at <code>data/frontier_pilot/results.jsonl</code>; the
+reproduction script is at <code>scripts/frontier_pilot.py</code>.</p>
 <p><strong>Headline.</strong> All three frontier providers returned RED
 on 9/9 cases (sensitivity 100%, 95% bootstrap CI: 66.4–100%). On the
 four image-bearing cases, all three providers selected a clinically
@@ -1468,25 +1519,27 @@ identified.”</p>
 </tr>
 </tbody>
 </table>
-<p>Three observations from the pilot. (i) <strong>The H2 gap is
-empirically clear on a small but informative sample.</strong> Gemma 4
-e4b returned YELLOW on the snake-bite image with minimal-text framing;
-all three frontier providers returned RED with a correct named
-condition. The Gemini response on Case A1 was a single-token-equivalent
-label “Suspected Venomous Snakebite”; Claude’s top condition was
-“Suspected venomous snakebite (two puncture marks with surrounding
-inflammatory halo)”; GPT-5’s was “Suspected venomous snakebite (twin
-fang punctures; risk of envenomation)”. The recognition is immediate,
-structured, and unanimous. (ii) <strong>Latency stratifies the providers
-sharply.</strong> Gemini Flash median 4.0 s; Claude Opus 4.7 median 6.9
-s; GPT-5 median 18.2 s with a 54.8 s p95 outlier on the snake-bite text
-case. For a clinical-triage product the latency difference is
-operationally meaningful, but all three are below the typical CHW
-patience threshold. (iii) <strong>GPT-5 produces materially longer
-outputs.</strong> GPT-5 averaged 1,415 output tokens per case versus
-Claude’s 343 and Gemini’s 146. The longer output is more thorough but
-adds cost and latency without measurable benefit on this small
-sample.</p>
+<p>Three observations from the pilot, all qualified as exploratory at
+n=9. (i) <strong>The pattern predicted by H2 is consistent with what we
+observe.</strong> Gemma 4 e4b returned YELLOW on the snake-bite image
+with minimal-text framing; all three frontier providers returned RED
+with a correct named condition. With four image cases the pilot is
+underpowered to claim a quantitative 30-point gap, but the qualitative
+direction is unanimous and stable across providers. The Gemini response
+on Case A1 was a single-token-equivalent label “Suspected Venomous
+Snakebite”; Claude’s top condition was “Suspected venomous snakebite
+(two puncture marks with surrounding inflammatory halo)”; GPT-5’s was
+“Suspected venomous snakebite (twin fang punctures; risk of
+envenomation)”. The recognition is immediate, structured, and unanimous.
+(ii) <strong>Latency stratifies the providers sharply.</strong> Gemini
+Flash median 4.0 s; Claude Opus 4.7 median 6.9 s; GPT-5 median 18.2 s
+with a 54.8 s p95 outlier on the snake-bite text case. For a
+clinical-triage product the latency difference is operationally
+meaningful, but all three are below the typical CHW patience threshold.
+(iii) <strong>GPT-5 produces materially longer outputs.</strong> GPT-5
+averaged 1,415 output tokens per case versus Claude’s 343 and Gemini’s
+146. The longer output is more thorough but adds cost and latency
+without measurable benefit on this small sample.</p>
 <p>The pilot does not test the formal H2 (image-only sensitivity
 ≥30-point gap) at any meaningful power — 4 image cases is too few. It
 does, however, provide a calibrated point estimate (n_image = 4,
@@ -1705,7 +1758,7 @@ tourniquet or attempt to suck out the venom)…</p>
 </blockquote>
 <p>The gap with Gemma 4 e4b on the same image and comparable text is
 consistent with the prevailing literature on multimodal compositional
-reasoning at scale <span class="citation" data-cites="gemini27report anthropicvalidation2025">[@gemini27report;
+reasoning at scale <span class="citation" data-cites="gemini25report anthropicvalidation2025">[@gemini25report;
 @anthropicvalidation2025]</span> and with the present pilot’s empirical
 findings.</p>
 <h3 id="bilingual-narrative-quality-anecdotal">7.6 Bilingual narrative
@@ -1833,12 +1886,30 @@ architectures we describe) component.</p>
 <p>If the substitutability claim (H1) holds in the formal evaluation,
 the implication is that population-scale clinical AI deployments in
 low-resource settings can be priced as one-time hardware procurements
-rather than recurring API subscriptions. At Indian NHM scale (~1 million
-ASHAs), the difference between a $0.0001/query frontier API call
-(favorable estimate) and a near-zero per-call SLM is, by our
-calculation, ~$25–50 M per year in API spend forestalled. The deciding
-constraint becomes hardware reliability and operator training, not model
-cost.</p>
+rather than recurring API subscriptions. The actual cost comparison,
+however, is <strong>not</strong> unambiguously in the SLM’s favor on a
+pure per-query basis. Appendix D works the numbers explicitly: at a CHW
+query volume of ~5 emergencies per week (the field-typical rate from
+Dr. Hari’s catchment), a refurbished-laptop SLM costs ~$83/CHW/year
+(hardware amortization), whereas a Gemini Flash multimodal API call at
+2026 prices runs to only ~$13/CHW/year including cellular-data overhead.
+<strong>At low query volumes the frontier-API path is cheaper, not more
+expensive.</strong> The earlier draft of this paper claimed ~$25–50
+M/year in API spend forestalled at NHM scale; that figure was computed
+at much higher per-query rates than current public pricing and we
+retract it in this revision.</p>
+<p>The economic argument for SLMs is therefore not a per-query cost
+argument. It is a <strong>structural</strong> argument: the SLM path is
+operationally viable in settings where the frontier-API path is <em>not
+deployable at all</em> — no reliable network, no per-call billing
+infrastructure, no consent posture acceptable for cross-border transfer
+of PHI. When connectivity, billing, and consent are all available, the
+cost comparison flips in the other direction (cheaper to call a frontier
+API than to amortize a laptop). The right framing is therefore that the
+SLM path <em>unlocks deployment surfaces the frontier path cannot
+reach</em>, not that it is cheaper everywhere. Builders deciding between
+the two should price the surfaces, not just the per-query unit
+economics.</p>
 <h3 id="implications-for-the-open-weight-ecosystem">9.3 Implications for
 the open-weight ecosystem</h3>
 <p>The Sentinel architecture treats the SLM as a commodity. If this
@@ -1962,14 +2033,14 @@ model recovers) and a single counter-case where a frontier model
 substantively outperforms a small open-weight model under no
 scaffolding.</p>
 <p>We have proposed a multi-model, pre-registered evaluation across
-eleven candidate language models, six clinical-scope categories, four
-target languages, and 250 cases, with seven explicit hypotheses, a
-defined statistical methodology, a sample-size justification, an
-ethics-and-data-handling specification, and a 30-week timeline. We have
-also proposed an architectural taxonomy — deterministic safety net,
-KB-grounded JSON Schema, two-pass vision-as-sensor, selective frontier
-escalation — as the framework within which small and frontier models
-compose.</p>
+twelve candidate language models, five clinical-scope categories plus a
+GREEN-distractor category, four target languages, and 250 cases, with
+seven explicit hypotheses, a defined statistical methodology, a
+sample-size justification, an ethics-and-data-handling specification,
+and a 30-week timeline. We have also proposed an architectural taxonomy
+— deterministic safety net, KB-grounded JSON Schema, two-pass
+vision-as-sensor, selective frontier escalation — as the framework
+within which small and frontier models compose.</p>
 <p>The principal claim is not that small models will win, or that
 frontier models will lose. The principal claim is that the right answer
 depends on the deployment surface and the scaffolding, and that the
@@ -2059,8 +2130,8 @@ Language Models: A Survey.</em> arXiv:2312.10997, 2023.</p>
 <p><span class="citation" data-cites="gatesdigital2025">[@gatesdigital2025]</span> Gates
 Foundation. <em>Digital Health for Community Workers: Field Adoption
 Study.</em> Technical Report, 2025.</p>
-<p><span class="citation" data-cites="gemini27report">[@gemini27report]</span> Google DeepMind.
-<em>Gemini 2.7: A Family of Highly Capable Multimodal Models.</em>
+<p><span class="citation" data-cites="gemini25report">[@gemini25report]</span> Google DeepMind.
+<em>Gemini 2.5: A Family of Highly Capable Multimodal Models.</em>
 Technical Report, 2026.</p>
 <p><span class="citation" data-cites="gemmateam2026">[@gemmateam2026]</span> Gemma Team, Google
 DeepMind. <em>Gemma 4 Technical Report.</em> arXiv:2603.xxxxx, 2026.</p>
@@ -2353,7 +2424,7 @@ Image: forearm with two distinct puncture wounds approximately 1 cm
 apart and a surrounding inflammatory halo. Patient context (minimal):
 “patient brought in with this wound on forearm, child screaming.” Gold
 triage: RED (suspected envenomation requires immediate workup). Gemma 4
-e4b returned YELLOW with “No acute condition identified.” Gemini 2.7
+e4b returned YELLOW with “No acute condition identified.” Gemini 2.5
 Flash recognized the case from comparable text and image. See §7.3 and
 §7.5.</p>
 <p><strong>Case SE-MI-001 (Myocardial infarction, ECG image).</strong>
