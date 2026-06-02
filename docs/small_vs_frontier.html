@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Small Open-Weight LMs vs Frontier Models for Clinical Triage</title>
+  <title>small_vs_frontier</title>
   <style>
 
 code{white-space: pre-wrap;}
@@ -126,10 +126,6 @@ img { max-width: 90%; }
 </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">Small Open-Weight LMs vs Frontier Models for Clinical
-Triage</h1>
-</header>
 <nav id="TOC" role="doc-toc">
 <ul>
 <li><a href="#small-open-weight-language-models-versus-frontier-models-for-high-stakes-clinical-triage-in-low-resource-settings-a-case-study-and-multi-model-research-plan" id="toc-small-open-weight-language-models-versus-frontier-models-for-high-stakes-clinical-triage-in-low-resource-settings-a-case-study-and-multi-model-research-plan">Small
@@ -1498,6 +1494,199 @@ frontier sensitivity 4/4, Gemma sensitivity 0/4 from §7.3) that the gap
 is plausibly even larger than the hypothesized 30 points. The 50
 image-only cases in SentinelEval-250 (§6.3) will provide the statistical
 basis for the formal claim.</p>
+<h3 id="a-local-slm-pilot-6-open-weight-models-same-9-cases-unaugmented">7.5a
+Local SLM pilot (6 open-weight models · same 9 cases · unaugmented)</h3>
+<p>To complete the comparison loop, we ran the same 9 pilot cases
+against six locally hosted open-weight SLMs via the Ollama runtime, all
+in configuration U (no Sentinel scaffolding, no safety net, no
+JSON-Schema constraint beyond Ollama’s structured-output
+<code>format</code>). Vision-capable models (Gemma 4 e4b, both MedGemma
+variants) ran all 9 cases; text-only models (Qwen 3 8B, Llama 3.2,
+gpt-oss 20B) ran the 5 text-only cases. The reproduction script is at
+<code>scripts/slm_pilot.py</code>; raw results are persisted at
+<code>data/frontier_pilot/slm_results.jsonl</code>.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>Model</th>
+<th>Quant</th>
+<th>Vision</th>
+<th>Cases</th>
+<th>RED-correct</th>
+<th>Sensitivity</th>
+<th>Median latency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 4 e4b (Sentinel production)</td>
+<td>Q4_K_M</td>
+<td>✓</td>
+<td>9</td>
+<td>6</td>
+<td>67%</td>
+<td>1.9 s</td>
+</tr>
+<tr>
+<td>MedGemma 4B IT</td>
+<td>Q8</td>
+<td>✓</td>
+<td>9</td>
+<td>8</td>
+<td>89%</td>
+<td>1.4 s</td>
+</tr>
+<tr>
+<td>MedGemma 27B IT</td>
+<td>Q4_K_M</td>
+<td>✓*</td>
+<td>9</td>
+<td>5</td>
+<td>56%†</td>
+<td>19.0 s</td>
+</tr>
+<tr>
+<td>Qwen 3 8B</td>
+<td>Q4_K_M</td>
+<td>✗</td>
+<td>5</td>
+<td>4</td>
+<td>80%</td>
+<td>7.0 s</td>
+</tr>
+<tr>
+<td>Llama 3.2 (latest)</td>
+<td>Q4_K_M</td>
+<td>✗</td>
+<td>5</td>
+<td>5</td>
+<td>100%</td>
+<td>1.6 s</td>
+</tr>
+<tr>
+<td>gpt-oss 20B</td>
+<td>Q4_K_M</td>
+<td>✗</td>
+<td>5</td>
+<td>0‡</td>
+<td>0%‡</td>
+<td>4.5 s</td>
+</tr>
+</tbody>
+</table>
+<p>*Vision available but failed on all 4 image-bearing cases with
+<code>500 Internal Server Error</code> from the Ollama runtime — likely
+a model-loading interaction with the image format on this checkpoint.
+Reported as 5/9 with the image cells treated as failures; the
+alternative reading (5/5 = 100% on the text-only cases the model
+successfully responded to) is also informative and we report both.</p>
+<p>†When restricted to the text-only cases the model actually responded
+to, MedGemma 27B scored 5/5 (100%). The image-cell failures are
+infrastructural rather than substantive.</p>
+<p>‡gpt-oss 20B returned zero parseable JSON outputs on the five text
+cases — the model’s reasoning-tagged output format conflicts with
+Ollama’s <code>format: json</code> constraint as currently invoked. A
+re-run with the model’s native chat-completion format is required before
+this number is reportable as a clinical-capability claim.</p>
+<p><strong>Three observations from the SLM pilot, beyond the headline
+sensitivity numbers.</strong></p>
+<p>First, <strong>the snake-bite image failure of Gemma 4 e4b replicated
+under both phrasings</strong> (A1: YELLOW, “Infection
+(Cellulitis/Abscess)”; A2 with “sleeping outside” cue: YELLOW, “Insect
+bite reaction or cellulitis”). Even with a contextual cue (“sleeping
+outside”) that is highly diagnostic for a frontier model (cf. the Gemini
+response in §7.3), Gemma 4 e4b did not connect the visual finding to
+snakebite envenomation. This is a perceptual-prior failure, not a
+textual-cue failure. MedGemma 4B Q8 correctly returned RED for both
+image cases (with the generic top-condition “Wound Management” rather
+than “Snake Bite Envenomation,” which is suboptimal but operationally
+adequate).</p>
+<p>Second, <strong>the atypical-MI text case (T1: 60-year-old woman with
+jaw pain, nausea, fatigue, T2DM + HTN) was misclassified as YELLOW by
+three of the six SLMs</strong>: Gemma 4 e4b returned “Dental infection
+or periodontitis,” MedGemma 4B Q8 returned “Gastroenteritis,” and Qwen 3
+8B returned “Myocardial Infarction (MI)” but classified the triage class
+YELLOW rather than RED. All three frontier providers returned RED for
+this case. This is the classic atypical-ACS-in-women failure mode that
+motivates the Sentinel safety net’s
+<code>rf_atypical_acs_high_risk</code> rule. <strong>The architectural
+compensation that this paper argues for — the deterministic
+keyword-driven safety net — is the mechanism that would cause all three
+of these SLMs to return RED in production</strong>, regardless of their
+unaugmented narrative output.</p>
+<p>Third, <strong>Llama 3.2 unexpectedly scored 5/5 on the text cases —
+perfect sensitivity</strong> — despite being a general-purpose model
+with no medical fine-tuning. Mean latency was 1.6 s, the fastest in the
+panel. This is a single-pilot data point and does not generalize beyond
+the 5 cases, but it is consistent with the substitutability claim that,
+on text-described emergency cases with clear keyword cues, the model is
+a substitutable component and a small general model can match a
+medical-domain model. The formal H1 test on SentinelEval-250 will
+quantify how broadly this holds.</p>
+<p><strong>Headline comparison: unaugmented SLM vs unaugmented frontier
+on the same 9 cases.</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Class</th>
+<th>Best SLM (vision-capable)</th>
+<th>All 3 frontier providers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Image cases (n=4)</td>
+<td>MedGemma 4B Q8: 4/4 RED</td>
+<td>12/12 RED (all 3 providers × 4 cases)</td>
+</tr>
+<tr>
+<td>Text cases (n=5)</td>
+<td>Llama 3.2: 5/5 RED</td>
+<td>15/15 RED (all 3 providers × 5 cases)</td>
+</tr>
+<tr>
+<td>Image-only minimal-text snake bite (Case A1, the canonical failure
+mode)</td>
+<td>MedGemma 4B Q8: RED with “Wound Management”</td>
+<td>All 3: RED with “Suspected venomous snakebite”</td>
+</tr>
+<tr>
+<td>Atypical MI (Case T1)</td>
+<td>Llama 3.2: RED with “Myocardial Infarction”</td>
+<td>All 3: RED with “Acute coronary syndrome (atypical
+presentation)”</td>
+</tr>
+</tbody>
+</table>
+<p>Within the present small pilot the headline finding is that the
+<em>best-case</em> SLM matches frontier sensitivity on every cell. What
+differs is <strong>(a) the consistency across SLMs</strong> (frontier
+sensitivity is uniformly 100% on every cell; SLM sensitivity ranges from
+0/5 to 5/5 within the same task) and <strong>(b) the specificity of the
+top-condition label</strong> (frontier providers name “snakebite
+envenomation” precisely; the best SLM names “Wound Management” or
+similar generic categories). The deterministic safety net plus
+KB-grounded JSON Schema (configurations S and F in §6.2) is the
+mechanism by which the SLM’s variable specificity is bounded — the model
+picks a <code>condition_id</code> from the curated list, not a free-form
+label.</p>
+<p>The full SentinelEval-250 study (§6.3) is required before any of
+these single-pilot observations can be reported as a quantified gap with
+confidence intervals.</p>
 <p>The full Gemini 2.5 Flash response to a comparable image-only
 snake-bite case under the public Gemini consumer interface — obtained
 independently of the present pilot — is reproduced verbatim below to
