@@ -32,7 +32,7 @@
 
 A clinically defensible AI system for community health workers (CHWs) in rural India must satisfy four constraints simultaneously. (i) It must operate offline, because mobile connectivity in the relevant deployment surface — Primary Health Centre (PHC) catchment areas in low-population-density districts — is intermittent and unreliable [@nhm2024]. (ii) It must not transmit protected health information (PHI) to third-party cloud providers, both because India's Digital Personal Data Protection (DPDP) Act of 2023 imposes data-localization requirements for sensitive data [@dpdpact2023], and because the CHW's patients have not given informed consent for such transmission. (iii) It must impose no recurring per-call API cost on the state National Health Mission (NHM) budgeting model. (iv) It must produce clinically grounded outputs that the receiving hub physician can act on, in the language the CHW uses for documentation.
 
-Frontier proprietary models — Gemini 2.7 Pro and Flash, Claude Opus 4.7, GPT-5 [@gemini27report; @anthropic2026; @openaigpt5] — satisfy (iv) by capability and fail constraints (i), (ii), and (iii) by deployment surface. Small open-weight models — Gemma 4 [@gemmateam2026], MedGemma [@medgemma2025], Llama 4 [@llama4tech2026], Mistral Small [@mistral2026], Qwen 3 [@qwen2026], Phi-4 [@phi4tech2025], gpt-oss [@openaioss2025] — satisfy (i), (ii), and (iii) by deployment surface and pose an open empirical question about (iv).
+Frontier proprietary models — Gemini 2.7 Pro and Flash, Claude Opus 4.7, GPT-5 [@gemini27report; @anthropic2026; @openaigpt5] — satisfy (iv) by capability and fail constraints (i), (ii), and (iii) by deployment surface. Small open-weight models — Gemma 4 [@gemmateam2026], MedGemma [@medgemma2025], Aloe [@aloe2024], Llama 4 [@llama4tech2026], Mistral Small [@mistral2026], Qwen 3 [@qwen2026], Phi-4 [@phi4tech2025], gpt-oss [@openaioss2025] — satisfy (i), (ii), and (iii) by deployment surface and pose an open empirical question about (iv).
 
 The empirical question is rarely studied at the level at which it is operationally decided. Public benchmarks evaluate language models in isolation, on multiple-choice question banks [@medqa2020; @medqsa2019], on synthetic clinical reasoning vignettes [@medbench2025], or on artificial multimodal tasks [@mmqa2024], not on the integrated clinical pipelines in which they actually carry traffic. Such benchmarks favor monolithic models with strong intrinsic reasoning; they systematically undervalue architectures in which a smaller model is paired with deterministic safety scaffolding, knowledge-base constraints, and explicit decision rules.
 
@@ -84,7 +84,7 @@ We adopt the following taxonomy for this work.
 
 **Frontier models.** Closed-weight, hosted-API-only models with parameter counts in the hundreds of billions or trillions. Examples relevant to this study: Gemini 2.7 Pro [@gemini27report], Gemini 2.7 Flash, Claude Opus 4.7 [@anthropic2026], GPT-5 [@openaigpt5]. Distinguishing features: deployment is via network API only; model weights are inaccessible; per-call pricing applies; provider operates compliance regime (HIPAA, GDPR, etc.) under contract.
 
-**Small open-weight language models (SLMs).** Open-weight transformer language models with parameter counts in the low billions, distributable as files, runnable on commodity hardware (CPU laptop, single consumer GPU, edge accelerator). Examples relevant: Gemma 4 4B/8B/27B [@gemmateam2026]; MedGemma 4B/27B [@medgemma2025]; Llama 4 3B/8B [@llama4tech2026]; Mistral Small 3 [@mistral2026]; Qwen 3 7B/14B [@qwen2026]; Phi-4 14B [@phi4tech2025]; gpt-oss 20B [@openaioss2025]. Distinguishing features: deployment surface includes offline; weights inspectable and fine-tunable; quantization (Q4/Q5/Q6/Q8) supported.
+**Small open-weight language models (SLMs).** Open-weight transformer language models with parameter counts in the low billions, distributable as files, runnable on commodity hardware (CPU laptop, single consumer GPU, edge accelerator). Examples relevant: Gemma 4 4B/8B/27B [@gemmateam2026]; MedGemma 4B/27B [@medgemma2025]; Aloe-Beta-8B [@aloe2024]; Llama 4 3B/8B [@llama4tech2026]; Mistral Small 3 [@mistral2026]; Qwen 3 7B/14B [@qwen2026]; Phi-4 14B [@phi4tech2025]; gpt-oss 20B [@openaioss2025]. Distinguishing features: deployment surface includes offline; weights inspectable and fine-tunable; quantization (Q4/Q5/Q6/Q8) supported.
 
 We use "frontier" rather than "large" because the deciding factor is the deployment-surface coupling (cloud-only, closed) rather than the parameter count *per se*. A hypothetical future 1T-parameter open-weight model would, on our taxonomy, be small-deployment-coupled but large-capability — a category that does not yet exist commercially.
 
@@ -200,8 +200,11 @@ Three classes, eleven models total. Selection criteria: (a) open-weight or acces
 | SLM (general) | Qwen 3 14B | 14 B | Q4_K_M | Ollama |
 | SLM (medical) | MedGemma 4B IT | 4 B | Q8 | Ollama |
 | SLM (medical) | MedGemma 27B IT | 27 B | Q4_K_M | Ollama |
+| SLM (medical) | Aloe-Beta-8B | 8 B | Q4_K_M | Ollama / HF |
 
-For SLMs we use the Ollama runtime at version 0.24+ on identical hardware (M2 Max MacBook Pro 32 GB) to control for runtime variation. For frontier models we use the official APIs with explicit version pinning (`gemini-2.7-flash-2026-04-15`, `gemini-2.7-pro-2026-04-15`, `claude-opus-4-7-20260118`, `gpt-5-2026-03-22`). All API calls are issued with temperature 0, top-p 1, max-tokens sufficient for the largest expected output; SLM calls use Ollama's `format` argument with the project's JSON Schema and `options: { temperature: 0 }`.
+For SLMs we use the Ollama runtime at version 0.24+ on identical hardware (M2 Max MacBook Pro 32 GB) to control for runtime variation. Where a checkpoint is not available in the Ollama registry directly (e.g., Aloe-Beta-8B), we use the Hugging Face checkpoint at `HPAI-BSC/Llama3.1-Aloe-Beta-8B` and convert to GGUF via the standard llama.cpp conversion path.
+
+Aloe-Beta-8B is included as a third medical-domain SLM alongside MedGemma 4B and MedGemma 27B. The choice broadens the medical-SLM panel across model lineages — Gemma-based (MedGemma) and Llama-based (Aloe) — so that the substitutability claim (H1) is tested across instruction-tuning starting points rather than only across quantizations of one family. Aloe is text-only and therefore enters only the text-only and audit-log cells of the benchmark, not the image-bearing cells. For frontier models we use the official APIs with explicit version pinning (`gemini-2.7-flash-2026-04-15`, `gemini-2.7-pro-2026-04-15`, `claude-opus-4-7-20260118`, `gpt-5-2026-03-22`). All API calls are issued with temperature 0, top-p 1, max-tokens sufficient for the largest expected output; SLM calls use Ollama's `format` argument with the project's JSON Schema and `options: { temperature: 0 }`.
 
 Each model is evaluated in three configurations:
 - **U (unaugmented).** Direct prompt to the model with no deterministic scaffolding.
@@ -553,7 +556,7 @@ The deployment of any clinical-AI tool in a low-resource setting raises broader 
 
 The Sentinel Health source code is publicly available at `github.com/SankarSubbayya/sentinel-health` under Apache License 2.0. The current knowledge base, red-flag rule set, JSON Schema, and pilot evaluation case set are committed to that repository. The SentinelEval-250 benchmark proposed in §6.3 will be released under CC-BY 4.0 upon completion of the planned study, subject to the consent and de-identification constraints specified in §6.10.
 
-Model checkpoints used in the planned evaluation are: Gemma 4 (Google DeepMind; weights at huggingface.co/google), MedGemma (Google; huggingface.co/google), Llama 4 (Meta; llama.com), Mistral Small 3 (Mistral AI; huggingface.co/mistralai), Qwen 3 (Alibaba; huggingface.co/Qwen), Phi-4 (Microsoft; huggingface.co/microsoft), gpt-oss 20B (OpenAI; huggingface.co/openai). Frontier-model checkpoints are accessed via official APIs only; reproducibility of frontier-model results is bounded by the providers' API-versioning policies.
+Model checkpoints used in the planned evaluation are: Gemma 4 (Google DeepMind; weights at huggingface.co/google), MedGemma (Google; huggingface.co/google), Aloe-Beta-8B (HPAI-BSC, Barcelona Supercomputing Center; huggingface.co/HPAI-BSC), Llama 4 (Meta; llama.com), Mistral Small 3 (Mistral AI; huggingface.co/mistralai), Qwen 3 (Alibaba; huggingface.co/Qwen), Phi-4 (Microsoft; huggingface.co/microsoft), gpt-oss 20B (OpenAI; huggingface.co/openai). Frontier-model checkpoints are accessed via official APIs only; reproducibility of frontier-model results is bounded by the providers' API-versioning policies.
 
 ## Acknowledgements
 
@@ -562,6 +565,8 @@ Dr. P. Hari Subacini (MBBS, MD, DM) provided clinical review across the design, 
 ---
 
 ## References
+
+[@aloe2024] Gururajan, A. K., Lopez-Cuena, E., Bayarri-Planas, J., et al. *Aloe: A Family of Fine-tuned Open Healthcare LLMs.* Barcelona Supercomputing Center technical report, 2024. arXiv:2405.01886.
 
 [@anthropic2026] Anthropic. *Claude Opus 4.7 System Card.* Technical Report, 2026.
 
