@@ -1,16 +1,16 @@
 # Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinical Triage in Low-Resource Settings: Two Case Studies and a Multi-Model Research Plan
 
 **Sankar Subbayya¹**
-**Asif Qamar²**
-**Clinical Advisor: P. Hari Subacini, MBBS MD DM³**
+**P. Hari Subacini, MBBS MD DM²**
+**Asif Qamar³**
 
 ¹ Sentinel Health Project · sankarsubbayya@accurateai.org
-² SupportVectors.ai · asif@supportvectors.ai
-³ Independent Clinical Reviewer, Tamil Nadu, India
+² Independent Clinical Reviewer, Tamil Nadu, India
+³ SupportVectors.ai · asif@supportvectors.ai
 
-*Preprint · v1.5 · 2026-06-08 · Corresponding author: ¹*
+*Preprint · v1.6 · 2026-06-24 · Corresponding author: ¹*
 
-*Revision note. This v1.5 draft folds in four prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
+*Revision note. This v1.6 draft folds in five prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision (this version) reorders the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
 
 *Framing note. This paper is structured as a **case study plus a pre-registered research plan**, not as a completed empirical study. All numbers reported in §7 are exploratory pilots, not powered for inferential claims; the formal evaluation is the work specified in §6 and timelined in §6.11.*
 
@@ -751,7 +751,7 @@ Model checkpoints used in the planned evaluation are: Gemma 4 (Google DeepMind; 
 
 ## Acknowledgements
 
-Dr. P. Hari Subacini (MBBS, MD, DM) provided clinical review across the design, the red-flag rule set, the knowledge base, the example cases, and the cultural and linguistic appropriateness of the multilingual UI. Asif Qamar (SupportVectors.ai) contributed to the architectural framing of the multi-pattern compensations taxonomy and the model-evaluation methodology, and reviewed the research-plan design. The Sentinel Health system was built for the Gemma 4 Good Hackathon (Kaggle, 2026) under the project's standalone Apache-2.0 license.
+Dr. P. Hari Subacini (MBBS, MD, DM), second author, provided clinical review across the design, the red-flag rule set, the knowledge base, the example cases, and the cultural and linguistic appropriateness of the multilingual UI; she is the clinical authority behind the gold-label assignments in the §7 pilots and the §6.3 case construction. Asif Qamar (SupportVectors.ai), third author, contributed to the architectural framing of the multi-pattern compensations taxonomy and the model-evaluation methodology, and reviewed the research-plan design. The Sentinel Health system was built for the Gemma 4 Good Hackathon (Kaggle, 2026) under the project's standalone Apache-2.0 license.
 
 ---
 

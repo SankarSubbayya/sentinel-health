@@ -33,16 +33,16 @@ Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinica
 
 ```
 Sankar Subbayya
-Asif Qamar
 P. Hari Subacini
+Asif Qamar
 ```
 
 Affiliations field (separate field on arXiv):
 
 ```
 1. Sentinel Health Project
-2. SupportVectors.ai
-3. Independent Clinical Reviewer, Tamil Nadu, India (clinical advisor; non-author co-credit by arrangement — confirm Asif's preference before final submit, since the v1.2 draft lists Asif as co-author and Dr. Subacini as clinical advisor)
+2. Independent Clinical Reviewer, Tamil Nadu, India
+3. SupportVectors.ai
 ```
 
 ### Abstract (4000-char cap on arXiv; current draft is well within)

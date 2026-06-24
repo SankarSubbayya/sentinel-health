@@ -113,8 +113,8 @@ SLMs vs frontier models for offline clinical triage
 | Order | Name | Affiliation | ORCID | Corresponding |
 |---|---|---|---|---|
 | 1 | Sankar Subbayya | Sentinel Health Project, San Francisco Bay Area | (add if you have one) | ✓ |
-| 2 | Asif Qamar | SupportVectors.ai | (add if available) |  |
-| 3 | P. Hari Subacini | Independent Clinical Reviewer, Tamil Nadu, India | (add if available) | clinical advisor |
+| 2 | P. Hari Subacini, MBBS MD DM | Independent Clinical Reviewer, Tamil Nadu, India | (add if available) | clinical authority |
+| 3 | Asif Qamar | SupportVectors.ai | (add if available) |  |
 
 (Adjust author list based on Asif's response. medRxiv allows author-order
 edits before posting; once posted, additions/removals require a withdrawal
@@ -152,11 +152,11 @@ The authors declare no competing interests.
 ### Author contributions (CRediT taxonomy)
 
 ```
-Sankar Subbayya: conceptualization, methodology, software, formal analysis, writing — original draft, writing — review and editing, project administration.
+Sankar Subbayya: conceptualization, methodology, software, formal analysis, writing - original draft, writing - review and editing, project administration.
 
-Asif Qamar: methodology, validation, writing — review and editing.
+P. Hari Subacini: clinical curation and review of safety-net rules, knowledge base, evaluation cases, multilingual narrative quality; writing - review of clinical sections; clinical authority for the gold-label assignments in the §7 pilots and the planned §6.3 case construction.
 
-P. Hari Subacini: clinical curation and review of safety-net rules, knowledge base, evaluation cases, multilingual narrative quality; writing — review of clinical sections.
+Asif Qamar: methodology, validation, writing - review and editing.
 ```
 
 ### Ethical review statement

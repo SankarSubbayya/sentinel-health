@@ -126,70 +126,29 @@ img { max-width: 90%; }
 </style>
 </head>
 <body>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#small-open-weight-language-models-versus-frontier-models-for-high-stakes-clinical-triage-in-low-resource-settings-two-case-studies-and-a-multi-model-research-plan" id="toc-small-open-weight-language-models-versus-frontier-models-for-high-stakes-clinical-triage-in-low-resource-settings-two-case-studies-and-a-multi-model-research-plan">Small
-Open-Weight Language Models versus Frontier Models for High-Stakes
-Clinical Triage in Low-Resource Settings: Two Case Studies and a
-Multi-Model Research Plan</a>
-<ul>
-<li><a href="#abstract" id="toc-abstract">Abstract</a></li>
-<li><a href="#introduction" id="toc-introduction">1.
-Introduction</a></li>
-<li><a href="#related-work" id="toc-related-work">2. Related
-Work</a></li>
-<li><a href="#background-and-preliminaries" id="toc-background-and-preliminaries">3. Background and
-Preliminaries</a></li>
-<li><a href="#case-studies-sentinel-health-and-path-to-care" id="toc-case-studies-sentinel-health-and-path-to-care">4. Case Studies:
-Sentinel Health and Path to Care</a></li>
-<li><a href="#research-questions-and-hypotheses" id="toc-research-questions-and-hypotheses">5. Research Questions and
-Hypotheses</a></li>
-<li><a href="#research-plan-methodology" id="toc-research-plan-methodology">6. Research Plan /
-Methodology</a></li>
-<li><a href="#preliminary-results-from-sentinel" id="toc-preliminary-results-from-sentinel">7. Preliminary Results from
-Sentinel</a></li>
-<li><a href="#architectural-compensations-a-proposed-taxonomy" id="toc-architectural-compensations-a-proposed-taxonomy">8.
-Architectural Compensations: A Proposed Taxonomy</a></li>
-<li><a href="#discussion" id="toc-discussion">9. Discussion</a></li>
-<li><a href="#limitations" id="toc-limitations">10. Limitations</a></li>
-<li><a href="#future-work" id="toc-future-work">11. Future Work</a></li>
-<li><a href="#conclusion" id="toc-conclusion">12. Conclusion</a></li>
-<li><a href="#ethics-statement" id="toc-ethics-statement">Ethics
-Statement</a></li>
-<li><a href="#data-and-code-availability" id="toc-data-and-code-availability">Data and Code Availability</a></li>
-<li><a href="#acknowledgements" id="toc-acknowledgements">Acknowledgements</a></li>
-<li><a href="#references" id="toc-references">References</a></li>
-<li><a href="#appendix-a.-deterministic-safety-net-rule-list-excerpt" id="toc-appendix-a.-deterministic-safety-net-rule-list-excerpt">Appendix
-A. Deterministic Safety Net: Rule List (excerpt)</a></li>
-<li><a href="#appendix-b.-json-schema-for-diagnose-response-canonical" id="toc-appendix-b.-json-schema-for-diagnose-response-canonical">Appendix
-B. JSON Schema for Diagnose Response (canonical)</a></li>
-<li><a href="#appendix-c.-sentineleval-250-case-set-composition" id="toc-appendix-c.-sentineleval-250-case-set-composition">Appendix C.
-SentinelEval-250: Case Set Composition</a></li>
-<li><a href="#appendix-d.-cost-model" id="toc-appendix-d.-cost-model">Appendix D. Cost Model</a></li>
-<li><a href="#appendix-e.-system-prompt-canonical" id="toc-appendix-e.-system-prompt-canonical">Appendix E. System Prompt
-(canonical)</a></li>
-</ul></li>
-</ul>
-</nav>
 <h1 id="small-open-weight-language-models-versus-frontier-models-for-high-stakes-clinical-triage-in-low-resource-settings-two-case-studies-and-a-multi-model-research-plan">Small
 Open-Weight Language Models versus Frontier Models for High-Stakes
 Clinical Triage in Low-Resource Settings: Two Case Studies and a
 Multi-Model Research Plan</h1>
-<p><strong>Sankar Subbayya¹</strong> <strong>Asif Qamar²</strong>
-<strong>Clinical Advisor: P. Hari Subacini, MBBS MD DM³</strong></p>
+<p><strong>Sankar Subbayya¹</strong> <strong>P. Hari Subacini, MBBS MD
+DM²</strong> <strong>Asif Qamar³</strong></p>
 <p>¹ Sentinel Health Project · sankarsubbayya@accurateai.org ²
-SupportVectors.ai · asif@supportvectors.ai ³ Independent Clinical
-Reviewer, Tamil Nadu, India</p>
-<p><em>Preprint · v1.5 · 2026-06-08 · Corresponding author: ¹</em></p>
-<p><em>Revision note. This v1.5 draft folds in four prior review passes.
+Independent Clinical Reviewer, Tamil Nadu, India ³ SupportVectors.ai ·
+asif@supportvectors.ai</p>
+<p><em>Preprint · v1.6 · 2026-06-24 · Corresponding author: ¹</em></p>
+<p><em>Revision note. This v1.6 draft folds in five prior review passes.
 Earlier revisions corrected the model count, specificity reporting,
 Gemini version references, and cost argument; added a direct response to
 the deterministic-safety-net critique; qualified the offline claim
 around speech-to-text; incorporated Path to Care as a second case study
 rather than as external evidence; and tightened the prose throughout in
-response to a stylistic review. A full change log can be restored for
-submission if needed, but this draft keeps the front matter short for
-readability.</em></p>
+response to a stylistic review. The v1.6 revision (this version)
+reorders the author byline so the clinical advisor (Dr. P. Hari
+Subacini) appears as second author, reflecting her contribution scope
+across both case studies (clinical-advisor review of red-flag rules,
+knowledge base, evaluation cases, and multilingual narrative quality). A
+full change log can be restored for submission if needed, but this draft
+keeps the front matter short for readability.</em></p>
 <p><em>Framing note. This paper is structured as a <strong>case study
 plus a pre-registered research plan</strong>, not as a completed
 empirical study. All numbers reported in §7 are exploratory pilots, not
@@ -2607,14 +2566,16 @@ gpt-oss 20B (OpenAI; huggingface.co/openai). Frontier-model checkpoints
 are accessed via official APIs only; reproducibility of frontier-model
 results is bounded by the providers’ API-versioning policies.</p>
 <h2 id="acknowledgements">Acknowledgements</h2>
-<p>Dr. P. Hari Subacini (MBBS, MD, DM) provided clinical review across
-the design, the red-flag rule set, the knowledge base, the example
-cases, and the cultural and linguistic appropriateness of the
-multilingual UI. Asif Qamar (SupportVectors.ai) contributed to the
-architectural framing of the multi-pattern compensations taxonomy and
-the model-evaluation methodology, and reviewed the research-plan design.
-The Sentinel Health system was built for the Gemma 4 Good Hackathon
-(Kaggle, 2026) under the project’s standalone Apache-2.0 license.</p>
+<p>Dr. P. Hari Subacini (MBBS, MD, DM), second author, provided clinical
+review across the design, the red-flag rule set, the knowledge base, the
+example cases, and the cultural and linguistic appropriateness of the
+multilingual UI; she is the clinical authority behind the gold-label
+assignments in the §7 pilots and the §6.3 case construction. Asif Qamar
+(SupportVectors.ai), third author, contributed to the architectural
+framing of the multi-pattern compensations taxonomy and the
+model-evaluation methodology, and reviewed the research-plan design. The
+Sentinel Health system was built for the Gemma 4 Good Hackathon (Kaggle,
+2026) under the project’s standalone Apache-2.0 license.</p>
 <hr />
 <h2 id="references">References</h2>
 <p><span class="citation" data-cites="aloe2024">[@aloe2024]</span>
