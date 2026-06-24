@@ -1,6 +1,6 @@
 # Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinical Triage in Low-Resource Settings: Two Case Studies and a Multi-Model Research Plan
 
-**Sankar Subbayya¹**
+**Subbayya Sankaranarayanan¹**
 **P. Hari Subacini, MBBS MD DM²**
 **Asif Qamar³**
 
@@ -8,9 +8,9 @@
 ² Independent Clinical Reviewer, Tamil Nadu, India
 ³ SupportVectors.ai · asif@supportvectors.ai
 
-*Preprint · v1.6 · 2026-06-24 · Corresponding author: ¹*
+*Preprint · v1.7 · 2026-06-24 · Corresponding author: ¹*
 
-*Revision note. This v1.6 draft folds in five prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision (this version) reorders the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
+*Revision note. This v1.6 draft folds in five prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision reordered the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). The v1.7 revision (this version) updates the first author's byline name from the colloquial "Sankar Subbayya" to the formal "Subbayya Sankaranarayanan" (Given Family); citation references are updated accordingly to "Sankaranarayanan, S." A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
 
 *Framing note. This paper is structured as a **case study plus a pre-registered research plan**, not as a completed empirical study. All numbers reported in §7 are exploratory pilots, not powered for inferential claims; the formal evaluation is the work specified in §6 and timelined in §6.11.*
 
@@ -839,7 +839,7 @@ Dr. P. Hari Subacini (MBBS, MD, DM), second author, provided clinical review acr
 
 [@hu2021lora] Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W. *LoRA: Low-Rank Adaptation of Large Language Models.* ICLR, 2022. arXiv:2106.09685.
 
-[@pathtocare2026] Subbayya, S., et al. *Path to Care: Multimodal Agentic Decision-Support for Rural Healthcare.* AMD Developer Hackathon submission, 2026. github.com/SankarSubbayya/amd_hackathon · `docs/SUBMISSION_REPORT.md`.
+[@pathtocare2026] Sankaranarayanan, S., et al. *Path to Care: Multimodal Agentic Decision-Support for Rural Healthcare.* AMD Developer Hackathon submission, 2026. github.com/SankarSubbayya/amd_hackathon · `docs/SUBMISSION_REPORT.md`.
 
 [@peft] Mangrulkar, S., Gugger, S., Debut, L., et al. *PEFT: State-of-the-Art Parameter-Efficient Fine-Tuning Methods.* github.com/huggingface/peft, accessed 2026.
 

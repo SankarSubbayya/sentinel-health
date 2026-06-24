@@ -60,13 +60,13 @@ Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinica
 
 | Order | Name | Affiliation | ORCID |
 |---|---|---|---|
-| 1 | Sankar Subbayya | Sentinel Health Project | (add if you have one) |
+| 1 | Subbayya Sankaranarayanan | Sentinel Health Project | (add if you have one) |
 | 2 | P. Hari Subacini, MBBS MD DM | Independent Clinical Reviewer, Tamil Nadu, India | (add if available) |
 | 3 | Asif Qamar | SupportVectors.ai | (add if available) |
 
 Each Creator on Zenodo requires `Family name, Given name(s)` format:
 ```
-Subbayya, Sankar
+Sankaranarayanan, Subbayya
 Subacini, P. Hari
 Qamar, Asif
 ```

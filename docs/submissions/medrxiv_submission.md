@@ -87,7 +87,7 @@ Gemma 4 Good Hackathon submission (Kaggle, 2026).
 Thank you for your consideration.
 
 Sincerely,
-Sankar Subbayya (corresponding author)
+Subbayya Sankaranarayanan (corresponding author)
 sankarsubbayya@accurateai.org
 On behalf of the listed authors and the clinical advisor.
 ```
@@ -112,7 +112,7 @@ SLMs vs frontier models for offline clinical triage
 
 | Order | Name | Affiliation | ORCID | Corresponding |
 |---|---|---|---|---|
-| 1 | Sankar Subbayya | Sentinel Health Project, San Francisco Bay Area | (add if you have one) | ✓ |
+| 1 | Subbayya Sankaranarayanan | Sentinel Health Project, San Francisco Bay Area | (add if you have one) | ✓ |
 | 2 | P. Hari Subacini, MBBS MD DM | Independent Clinical Reviewer, Tamil Nadu, India | (add if available) | clinical authority |
 | 3 | Asif Qamar | SupportVectors.ai | (add if available) |  |
 
@@ -152,7 +152,7 @@ The authors declare no competing interests.
 ### Author contributions (CRediT taxonomy)
 
 ```
-Sankar Subbayya: conceptualization, methodology, software, formal analysis, writing - original draft, writing - review and editing, project administration.
+Subbayya Sankaranarayanan: conceptualization, methodology, software, formal analysis, writing - original draft, writing - review and editing, project administration.
 
 P. Hari Subacini: clinical curation and review of safety-net rules, knowledge base, evaluation cases, multilingual narrative quality; writing - review of clinical sections; clinical authority for the gold-label assignments in the §7 pilots and the planned §6.3 case construction.
 

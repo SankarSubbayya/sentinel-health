@@ -32,7 +32,7 @@ Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinica
 ### Authors (one per line, "First Last" format)
 
 ```
-Sankar Subbayya
+Subbayya Sankaranarayanan
 P. Hari Subacini
 Asif Qamar
 ```
