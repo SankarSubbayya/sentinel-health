@@ -8,9 +8,10 @@
 ² Independent Clinical Reviewer, Tamil Nadu, India
 ³ SupportVectors.ai · asif@supportvectors.ai
 
-*Preprint · v1.7 · 2026-06-24 · Corresponding author: ¹*
+*Preprint · v1.8 · 2026-06-24 · Corresponding author: ¹*
+*DOI: [10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535) (Zenodo)*
 
-*Revision note. This v1.6 draft folds in five prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision reordered the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). The v1.7 revision (this version) updates the first author's byline name from the colloquial "Sankar Subbayya" to the formal "Subbayya Sankaranarayanan" (Given Family); citation references are updated accordingly to "Sankaranarayanan, S." A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
+*Revision note. This v1.6 draft folds in five prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision reordered the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). The v1.7 revision updated the first author's byline name from the colloquial "Sankar Subbayya" to the formal "Subbayya Sankaranarayanan" (Given Family); citation references were updated accordingly to "Sankaranarayanan, S." The v1.8 revision (this version) adds the Zenodo DOI ([10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535)) to the front matter, Data and Code Availability section, and the References. The Zenodo preprint is the citable timestamp for the manuscript; medRxiv declined the submission as out-of-scope (its screening requires completed primary results rather than a protocol-plus-pilots paper) and will be revisited with v2 once the SentinelEval-250 evaluation completes. A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
 
 *Framing note. This paper is structured as a **case study plus a pre-registered research plan**, not as a completed empirical study. All numbers reported in §7 are exploratory pilots, not powered for inferential claims; the formal evaluation is the work specified in §6 and timelined in §6.11.*
 
@@ -745,7 +746,7 @@ The deployment of any clinical-AI tool in a low-resource setting raises broader 
 
 ## Data and Code Availability
 
-The Sentinel Health source code is publicly available at `github.com/SankarSubbayya/sentinel-health` under Apache License 2.0. The current knowledge base, red-flag rule set, JSON Schema, and pilot evaluation case set are committed to that repository. The SentinelEval-250 benchmark proposed in §6.3 will be released under CC-BY 4.0 upon completion of the planned study, subject to the consent and de-identification constraints specified in §6.10.
+This preprint is archived at Zenodo with DOI [10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535) under CC-BY 4.0. The Sentinel Health source code is publicly available at `github.com/SankarSubbayya/sentinel-health` under Apache License 2.0. The current knowledge base, red-flag rule set, JSON Schema, and pilot evaluation case set are committed to that repository. The Path to Care companion case study source code is at `github.com/SankarSubbayya/amd_hackathon` under Apache License 2.0, and the SCIN top-16 LoRA adapter is at `huggingface.co/sankara68/path-to-care-triage-gemma4-lora`. The SentinelEval-250 benchmark proposed in §6.3 will be released under CC-BY 4.0 upon completion of the planned study, subject to the consent and de-identification constraints specified in §6.10.
 
 Model checkpoints used in the planned evaluation are: Gemma 4 (Google DeepMind; weights at huggingface.co/google), MedGemma (Google; huggingface.co/google), Aloe-Beta-8B (HPAI-BSC, Barcelona Supercomputing Center; huggingface.co/HPAI-BSC), Llama 4 (Meta; llama.com), Mistral Small 3 (Mistral AI; huggingface.co/mistralai), Qwen 3 (Alibaba; huggingface.co/Qwen), Phi-4 (Microsoft; huggingface.co/microsoft), gpt-oss 20B (OpenAI; huggingface.co/openai). Frontier-model checkpoints are accessed via official APIs only; reproducibility of frontier-model results is bounded by the providers' API-versioning policies.
 
@@ -858,6 +859,8 @@ Dr. P. Hari Subacini (MBBS, MD, DM), second author, provided clinical review acr
 [@qwen2026] Qwen Team, Alibaba. *Qwen 3 Technical Report.* Technical Report, 2026.
 
 [@saab2024beyondmcq] Saab, K., et al. *Beyond Multiple-Choice: Clinical Reasoning Evaluation of Medical LLMs.* npj Digital Medicine, 2024.
+
+[@sankaranarayanan2026preprint] Sankaranarayanan, S., Subacini, P. H., Qamar, A. *Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinical Triage in Low-Resource Settings: Two Case Studies and a Multi-Model Research Plan.* Preprint v1.8, Zenodo, 2026. DOI: 10.5281/zenodo.21047535.
 
 [@sarvam2024] Sarvam AI. *Sarvam-1: A Family of Indian-Language Foundation Models.* Technical Report, 2024.
 
