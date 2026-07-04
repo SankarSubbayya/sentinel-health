@@ -8,12 +8,12 @@
 ² Independent Clinical Reviewer, Tamil Nadu, India
 ³ SupportVectors.ai · asif@supportvectors.ai
 
-*Preprint · v1.8 · 2026-06-24 · Corresponding author: ¹*
+*Preprint · v1.9 · 2026-07-02 · Corresponding author: ¹*
 *DOI: [10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535) (Zenodo)*
 
-*Revision note. This v1.6 draft folds in five prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision reordered the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). The v1.7 revision updated the first author's byline name from the colloquial "Sankar Subbayya" to the formal "Subbayya Sankaranarayanan" (Given Family); citation references were updated accordingly to "Sankaranarayanan, S." The v1.8 revision (this version) adds the Zenodo DOI ([10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535)) to the front matter, Data and Code Availability section, and the References. The Zenodo preprint is the citable timestamp for the manuscript; medRxiv declined the submission as out-of-scope (its screening requires completed primary results rather than a protocol-plus-pilots paper) and will be revisited with v2 once the SentinelEval-250 evaluation completes. A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
+*Revision note. This v1.9 draft folds in six prior review passes. Earlier revisions corrected the model count, specificity reporting, Gemini version references, and cost argument; added a direct response to the deterministic-safety-net critique; qualified the offline claim around speech-to-text; incorporated Path to Care as a second case study rather than as external evidence; and tightened the prose throughout in response to a stylistic review. The v1.6 revision reordered the author byline so the clinical advisor (Dr. P. Hari Subacini) appears as second author, reflecting her contribution scope across both case studies (clinical-advisor review of red-flag rules, knowledge base, evaluation cases, and multilingual narrative quality). The v1.7 revision updated the first author's byline name from the colloquial "Sankar Subbayya" to the formal "Subbayya Sankaranarayanan" (Given Family); citation references were updated accordingly to "Sankaranarayanan, S." The v1.8 revision added the Zenodo DOI ([10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535)) to the front matter, Data and Code Availability section, and the References. The Zenodo preprint is the citable timestamp for the manuscript; medRxiv declined the submission as out-of-scope (its screening requires completed primary results rather than a protocol-plus-pilots paper) and will be revisited with v2 once the SentinelEval-250 evaluation completes. The v1.9 revision (this version) is a consistency-cleanup pass: it corrects the version label on this note, aligns the framing note with the two-case-study structure, fixes a stale "33 cells" reference in the §6.11 timeline (the design is 36 cells), reconciles the gold-class counts in §6.4 with Table 2 (35 GREEN, ~47 YELLOW, 168 RED), and corrects two section cross-references. A full change log can be restored for submission if needed, but this draft keeps the front matter short for readability.*
 
-*Framing note. This paper is structured as a **case study plus a pre-registered research plan**, not as a completed empirical study. All numbers reported in §7 are exploratory pilots, not powered for inferential claims; the formal evaluation is the work specified in §6 and timelined in §6.11.*
+*Framing note. This paper is structured as **two case studies plus a pre-registered research plan**, not as a completed empirical study. All numbers reported in §7 are exploratory pilots, not powered for inferential claims; the formal evaluation is the work specified in §6 and timelined in §6.11.*
 
 ---
 
@@ -45,7 +45,7 @@ This paper has three contributions and should be read as **two case studies plus
 
 The central claim is simple: model choice alone is not the unit of clinical risk. The useful question is which combination of model, rules, knowledge base, user workflow, and deployment constraints is safe enough for the task. Sentinel gives one concrete answer; the study plan in §6 describes how we intend to test that answer across model classes.
 
-The remainder of the paper is organized as follows. §2 surveys related work. §3 establishes terminology and model taxonomy. §4 describes the two case studies — Sentinel Health (§4.1–4.4) and Path to Care (§4.5–4.8) — and their preliminary internal evaluations. §5 states research questions and hypotheses. §6 specifies the research plan, including study design, models under test, datasets, metrics, statistical analysis, sample size, ethics, and timeline. §7 reports preliminary results from both case studies that motivate the planned study. §8 proposes the architectural-compensations taxonomy. §9 discusses implications, including a cross-cutting synthesis of what the two deployments tell us together (§9.8). §10 enumerates limitations. §11 specifies future work. §12 concludes. Appendices contain the safety-net rule list, JSON Schema, eval-set sample cases, cost model details, and full prompts.
+The remainder of the paper is organized as follows. §2 surveys related work. §3 establishes terminology and model taxonomy. §4 describes the two case studies — Sentinel Health (§4.1–4.4) and Path to Care (§4.5–4.9) — and their preliminary internal evaluations. §5 states research questions and hypotheses. §6 specifies the research plan, including study design, models under test, datasets, metrics, statistical analysis, sample size, ethics, and timeline. §7 reports preliminary results from both case studies that motivate the planned study. §8 proposes the architectural-compensations taxonomy. §9 discusses implications, including a cross-cutting synthesis of what the two deployments tell us together (§9.8). §10 enumerates limitations. §11 specifies future work. §12 concludes. Appendices contain the safety-net rule list, JSON Schema, eval-set sample cases, cost model details, and full prompts.
 
 ---
 
@@ -127,7 +127,7 @@ Frontier models are widely believed to be stronger on 1, 2, 3, and 4, with mixed
 
 ## 4. Case Studies: Sentinel Health and Path to Care
 
-We describe two deployed systems built by the first author in rural Tamil Nadu within four months of each other. They use different model sizes, hardware, and workflows. They were not designed as a coordinated comparison, which makes their overlap more interesting: both ended up using deterministic checks around the language model. §4.1–4.4 describe Sentinel Health; §4.5–4.8 describe Path to Care; §4.9 lists the shared design elements.
+We describe two deployed systems built by the first author in rural Tamil Nadu within four months of each other. They use different model sizes, hardware, and workflows. They were not designed as a coordinated comparison, which makes their overlap more interesting: both ended up using deterministic checks around the language model. §4.1–4.4 describe Sentinel Health; §4.5–4.9 describe Path to Care and the shared design elements the two projects arrived at independently.
 
 ### 4.1 Sentinel Health: clinical scope and target user
 
@@ -304,7 +304,7 @@ The eval set will be released under CC-BY 4.0 with the publication, subject to t
 
 **Primary endpoint.**
 
-- **Sensitivity for RED-tier cases.** True-positive rate, defined as the fraction of cases with gold triage = RED for which the system output triage = RED. Computed per-model-per-configuration over the 168 cases with gold = RED (Table 2 includes ~30 GREEN distractors and ~52 YELLOW intermediate cases).
+- **Sensitivity for RED-tier cases.** True-positive rate, defined as the fraction of cases with gold triage = RED for which the system output triage = RED. Computed per-model-per-configuration over the ~168 cases with gold = RED (of the 250 total, 35 are GREEN distractors and the remaining ~47 are YELLOW intermediate cases; the exact RED/YELLOW split within the 215 non-distractor cases is fixed at benchmark-construction time and reported with the final results).
 
 **Secondary endpoints.**
 
@@ -389,7 +389,7 @@ Frontier-model APIs are queried with explicit no-training opt-out (`zero data re
 |---|---|---|
 | Protocol finalization | 4 weeks | Pre-registration filed on OSF |
 | Benchmark construction | 8 weeks | SentinelEval-250 frozen, IRR sub-study complete |
-| Model harness implementation | 4 weeks | 33 cells runnable end-to-end |
+| Model harness implementation | 4 weeks | 36 cells runnable end-to-end |
 | Development-set evaluation | 6 weeks | All cells run on 200-case dev split |
 | Held-out replication run | 2 weeks | All cells run on 50-case replication split |
 | Analysis and write-up | 6 weeks | Preprint deposited; submission to venue |
@@ -782,7 +782,7 @@ Dr. P. Hari Subacini (MBBS, MD, DM), second author, provided clinical review acr
 
 [@gemini25report] Google DeepMind. *Gemini 2.5: A Family of Highly Capable Multimodal Models.* Technical Report, 2026.
 
-[@gemmateam2026] Gemma Team, Google DeepMind. *Gemma 4 Technical Report.* arXiv:2603.xxxxx, 2026.
+[@gemmateam2026] Gemma Team, Google DeepMind. *Gemma 4 Technical Report.* Technical Report, 2026. (arXiv identifier to be added when available.)
 
 [@gptq2022] Frantar, E., Ashkboos, S., Hoefler, T., Alistarh, D. *GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers.* ICLR, 2023.
 
@@ -808,7 +808,7 @@ Dr. P. Hari Subacini (MBBS, MD, DM), second author, provided clinical review acr
 
 [@medbench2025] Liu, J., et al. *MedBench-2025: A Multimodal Clinical Reasoning Benchmark.* NeurIPS Datasets and Benchmarks Track, 2025.
 
-[@medgemma2025] Google Research. *MedGemma: Medical Domain-Adapted Open-Weight Language Models.* arXiv:2509.xxxxx, 2025.
+[@medgemma2025] Google Research. *MedGemma: Medical Domain-Adapted Open-Weight Language Models.* Technical Report, 2025. (arXiv identifier to be added when available.)
 
 [@medmcqa2022] Pal, A., Umapathi, L. K., Sankarasubbu, M. *MedMCQA: A Large-Scale Multi-Subject Multi-Choice Dataset for Medical Domain Question Answering.* CHIL, 2022.
 

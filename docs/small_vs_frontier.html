@@ -135,10 +135,10 @@ MBBS MD DM²</strong> <strong>Asif Qamar³</strong></p>
 <p>¹ Sentinel Health Project · sankarsubbayya@accurateai.org ²
 Independent Clinical Reviewer, Tamil Nadu, India ³ SupportVectors.ai ·
 asif@supportvectors.ai</p>
-<p><em>Preprint · v1.8 · 2026-06-24 · Corresponding author: ¹</em>
+<p><em>Preprint · v1.9 · 2026-07-02 · Corresponding author: ¹</em>
 <em>DOI: <a href="https://doi.org/10.5281/zenodo.21047535">10.5281/zenodo.21047535</a>
 (Zenodo)</em></p>
-<p><em>Revision note. This v1.6 draft folds in five prior review passes.
+<p><em>Revision note. This v1.9 draft folds in six prior review passes.
 Earlier revisions corrected the model count, specificity reporting,
 Gemini version references, and cost argument; added a direct response to
 the deterministic-safety-net critique; qualified the offline claim
@@ -152,17 +152,22 @@ cases, and multilingual narrative quality). The v1.7 revision updated
 the first author’s byline name from the colloquial “Sankar Subbayya” to
 the formal “Subbayya Sankaranarayanan” (Given Family); citation
 references were updated accordingly to “Sankaranarayanan, S.” The v1.8
-revision (this version) adds the Zenodo DOI (<a href="https://doi.org/10.5281/zenodo.21047535">10.5281/zenodo.21047535</a>)
+revision added the Zenodo DOI (<a href="https://doi.org/10.5281/zenodo.21047535">10.5281/zenodo.21047535</a>)
 to the front matter, Data and Code Availability section, and the
 References. The Zenodo preprint is the citable timestamp for the
 manuscript; medRxiv declined the submission as out-of-scope (its
 screening requires completed primary results rather than a
 protocol-plus-pilots paper) and will be revisited with v2 once the
-SentinelEval-250 evaluation completes. A full change log can be restored
-for submission if needed, but this draft keeps the front matter short
-for readability.</em></p>
-<p><em>Framing note. This paper is structured as a <strong>case study
-plus a pre-registered research plan</strong>, not as a completed
+SentinelEval-250 evaluation completes. The v1.9 revision (this version)
+is a consistency-cleanup pass: it corrects the version label on this
+note, aligns the framing note with the two-case-study structure, fixes a
+stale “33 cells” reference in the §6.11 timeline (the design is 36
+cells), reconciles the gold-class counts in §6.4 with Table 2 (35 GREEN,
+~47 YELLOW, 168 RED), and corrects two section cross-references. A full
+change log can be restored for submission if needed, but this draft
+keeps the front matter short for readability.</em></p>
+<p><em>Framing note. This paper is structured as <strong>two case
+studies plus a pre-registered research plan</strong>, not as a completed
 empirical study. All numbers reported in §7 are exploratory pilots, not
 powered for inferential claims; the formal evaluation is the work
 specified in §6 and timelined in §6.11.</em></p>
@@ -305,7 +310,7 @@ describes how we intend to test that answer across model classes.</p>
 <p>The remainder of the paper is organized as follows. §2 surveys
 related work. §3 establishes terminology and model taxonomy. §4
 describes the two case studies — Sentinel Health (§4.1–4.4) and Path to
-Care (§4.5–4.8) — and their preliminary internal evaluations. §5 states
+Care (§4.5–4.9) — and their preliminary internal evaluations. §5 states
 research questions and hypotheses. §6 specifies the research plan,
 including study design, models under test, datasets, metrics,
 statistical analysis, sample size, ethics, and timeline. §7 reports
@@ -541,8 +546,8 @@ Tamil Nadu within four months of each other. They use different model
 sizes, hardware, and workflows. They were not designed as a coordinated
 comparison, which makes their overlap more interesting: both ended up
 using deterministic checks around the language model. §4.1–4.4 describe
-Sentinel Health; §4.5–4.8 describe Path to Care; §4.9 lists the shared
-design elements.</p>
+Sentinel Health; §4.5–4.9 describe Path to Care and the shared design
+elements the two projects arrived at independently.</p>
 <h3 id="sentinel-health-clinical-scope-and-target-user">4.1 Sentinel
 Health: clinical scope and target user</h3>
 <p>Sentinel Health is an open-source clinical decision-support
@@ -1168,8 +1173,10 @@ cross-walks.</p>
 <li><strong>Sensitivity for RED-tier cases.</strong> True-positive rate,
 defined as the fraction of cases with gold triage = RED for which the
 system output triage = RED. Computed per-model-per-configuration over
-the 168 cases with gold = RED (Table 2 includes ~30 GREEN distractors
-and ~52 YELLOW intermediate cases).</li>
+the ~168 cases with gold = RED (of the 250 total, 35 are GREEN
+distractors and the remaining ~47 are YELLOW intermediate cases; the
+exact RED/YELLOW split within the 215 non-distractor cases is fixed at
+benchmark-construction time and reported with the final results).</li>
 </ul>
 <p><strong>Secondary endpoints.</strong></p>
 <ol type="1">
@@ -1356,7 +1363,7 @@ Cases are pseudo-anonymized before transmission to any external API.</p>
 <tr>
 <td>Model harness implementation</td>
 <td>4 weeks</td>
-<td>33 cells runnable end-to-end</td>
+<td>36 cells runnable end-to-end</td>
 </tr>
 <tr>
 <td>Development-set evaluation</td>
@@ -2633,7 +2640,8 @@ Study.</em> Technical Report, 2025.</p>
 <em>Gemini 2.5: A Family of Highly Capable Multimodal Models.</em>
 Technical Report, 2026.</p>
 <p><span class="citation" data-cites="gemmateam2026">[@gemmateam2026]</span> Gemma Team, Google
-DeepMind. <em>Gemma 4 Technical Report.</em> arXiv:2603.xxxxx, 2026.</p>
+DeepMind. <em>Gemma 4 Technical Report.</em> Technical Report, 2026.
+(arXiv identifier to be added when available.)</p>
 <p><span class="citation" data-cites="gptq2022">[@gptq2022]</span>
 Frantar, E., Ashkboos, S., Hoefler, T., Alistarh, D. <em>GPTQ: Accurate
 Post-Training Quantization for Generative Pre-trained Transformers.</em>
@@ -2673,7 +2681,8 @@ al. <em>MedBench-2025: A Multimodal Clinical Reasoning Benchmark.</em>
 NeurIPS Datasets and Benchmarks Track, 2025.</p>
 <p><span class="citation" data-cites="medgemma2025">[@medgemma2025]</span> Google Research.
 <em>MedGemma: Medical Domain-Adapted Open-Weight Language Models.</em>
-arXiv:2509.xxxxx, 2025.</p>
+Technical Report, 2025. (arXiv identifier to be added when
+available.)</p>
 <p><span class="citation" data-cites="medmcqa2022">[@medmcqa2022]</span>
 Pal, A., Umapathi, L. K., Sankarasubbu, M. <em>MedMCQA: A Large-Scale
 Multi-Subject Multi-Choice Dataset for Medical Domain Question
