@@ -37,3 +37,6 @@ data/dump/
 .idea/
 .vscode/
 tests/bakeoff/
+
+# Raw ECG / echo photographs — PHI (patient names, IDs, logbook). Never commit.
+data/ecg/

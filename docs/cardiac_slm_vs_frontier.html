@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>cardiac_slm_vs_frontier</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">body { font-family: Georgia, "Times New Roman", serif; max-width: 820px; margin: 40px auto; line-height: 1.55; color: #1a1a1a; padding: 0 24px; }
+h1, h2, h3, h4 { font-family: "Helvetica Neue", Arial, sans-serif; color: #111; }
+h1 { font-size: 22pt; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 8px; }
+h2 { font-size: 15pt; margin-top: 28pt; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+h3 { font-size: 12.5pt; margin-top: 18pt; color: #222; }
+h4 { font-size: 11pt; margin-top: 14pt; color: #444; }
+p { margin: 8pt 0; }
+em { color: #333; }
+strong { color: #000; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9.5pt; }
+th, td { border: 1px solid #bbb; padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #eee; }
+code { font-family: "SF Mono", Menlo, Consolas, monospace; background: #f3f3f3; padding: 1px 4px; font-size: 9.5pt; border-radius: 2px; }
+pre { background: #f3f3f3; padding: 12px; overflow-x: auto; font-size: 9pt; line-height: 1.45; border-left: 3px solid #888; }
+pre code { background: transparent; padding: 0; }
+blockquote { border-left: 3px solid #888; padding: 4px 14px; color: #444; font-style: italic; margin: 10px 0; background: #fafafa; }
+ul, ol { padding-left: 24px; }
+li { margin: 4px 0; }
+hr { border: none; border-top: 1px solid #ccc; margin: 24pt 0; }
+img { max-width: 100%; display: block; margin: 12pt auto; border: 1px solid #ccc; }
+figcaption, .caption { font-size: 9pt; color: #555; text-align: center; margin-top: 4px; font-style: italic; }
+a { color: #1a4d8a; text-decoration: none; }
+a:hover { text-decoration: underline; }
+#TOC, nav.toc { background: #fafafa; padding: 14px 22px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0; }
+#TOC ul { padding-left: 18px; }
+#TOC > ul { padding-left: 0; }
+@media print {
+body { font-size: 10pt; max-width: 100%; margin: 0; padding: 0 18mm; }
+h1 { font-size: 18pt; }
+h2 { font-size: 13pt; page-break-after: avoid; }
+h3, h4 { page-break-after: avoid; }
+table, pre, blockquote, img { page-break-inside: avoid; }
+table { font-size: 8.5pt; }
+pre { font-size: 8pt; }
+img { max-width: 90%; }
+}
+</style>
+</head>
+<body>
+<h1 id="small-open-weight-versus-frontier-models-for-ecg-and-echocardiography-triage-in-low-resource-cardiology-a-case-corpus-and-a-focused-research-plan">Small
+Open-Weight versus Frontier Models for ECG and Echocardiography Triage
+in Low-Resource Cardiology: A Case Corpus and a Focused Research
+Plan</h1>
+<p><strong>Subbayya Sankaranarayanan¹</strong> <strong>P. Hari Subacini,
+MBBS MD DM²</strong> <strong>Asif Qamar³</strong></p>
+<p>¹ Sentinel Health Project · sankarsubbayya@accurateai.org ²
+Consultant Cardiologist, Tamil Nadu, India ³ SupportVectors.ai ·
+asif@supportvectors.ai</p>
+<p><em>Preprint · v0.1 · 2026-08-07 · Corresponding author: ¹</em></p>
+<p><em>Framing note. This is a focused companion to our general
+clinical-triage study, “Small Open-Weight Language Models versus
+Frontier Models for High-Stakes Clinical Triage in Low-Resource
+Settings: Two Case Studies and a Multi-Model Research Plan”
+(Sankaranarayanan, Subacini, Qamar, 2026; Zenodo DOI <a href="https://doi.org/10.5281/zenodo.21047535">10.5281/zenodo.21047535</a>).
+The general paper argues that clinical AI should be evaluated at the
+pipeline level, not the model level, and proposes a taxonomy of
+architectural compensations (deterministic safety net, KB-grounded
+structured output, two-pass vision-as-sensor, selective frontier
+escalation, domain LoRA adaptation). This paper applies that framework
+narrowly and deeply to one organ system — the heart — where the
+diagnostic artifacts (12-lead ECG, echocardiography report) are
+concrete, structured, and clinician-labelable. As with the general
+paper, this is a case corpus plus a pre-registered research plan, not a
+completed empirical study. All numbers reported are exploratory; the
+formal evaluation is the proposed work.</em></p>
+<hr />
+<h2 id="abstract">Abstract</h2>
+<p><strong>Background.</strong> Cardiac emergencies — acute coronary
+syndromes, decompensated cardiomyopathy, life-threatening conduction
+disease — are among the highest-mortality conditions a community health
+worker (CHW) or primary health centre (PHC) will encounter, and they are
+exactly the conditions where the diagnostic artifact (the 12-lead ECG)
+is captured at the point of care but interpreted, if at all, hours later
+by a cardiologist who is tens of kilometres away. Small open-weight
+language models with vision (SLMs) can in principle read an ECG
+photograph offline on a clinic laptop. Whether they should be trusted
+to, and under what surrounding system, is unstudied at the pipeline
+level.</p>
+<p><strong>Objective.</strong> To characterize where SLMs are good
+enough for cardiac triage from ECG and echocardiography artifacts, where
+they are not, and which system-level safeguards narrow the gap with
+frontier models — using a real, clinician-labelled paired ECG + echo
+corpus and a focused research plan.</p>
+<p><strong>Methods.</strong> We assemble a small corpus of real cardiac
+records from a rural Tamil Nadu cardiology practice: 12-lead ECGs and
+echocardiography reports, including two patients with paired ECG + echo
+(one normal, one with reduced ejection fraction), read and signed by a
+consultant cardiologist (the second author). We apply the architectural
+framework of the companion general paper to the cardiac domain, and we
+pre-register an evaluation of small open-weight and frontier models on a
+cardiac-triage benchmark spanning normal tracings, ischemia, conduction
+block, reduced-EF cardiomyopathy, and structural findings.</p>
+<p><strong>Preliminary observations (exploratory).</strong> On the
+general-paper pilots, Gemma 4 e4b read ST-segment elevation on a 12-lead
+ECG photograph and articulated it in free text, but under minimal
+textual prompting its schema-bound differential picker conservatively
+returned “no acute condition identified” — a structured-output failure
+distinct from a perception failure. Frontier models did not exhibit this
+failure on the same image. The present corpus extends that observation
+to a wider cardiac spread (normal, ischemia, complete right bundle
+branch block, EF 39% cardiomyopathy, atrial septal defect) and to a
+second modality (echo reports), and motivates the formal evaluation.</p>
+<p><strong>Conclusions.</strong> ECG and echo triage is a domain where
+the small-model-plus-scaffolding thesis is unusually testable, because
+the ground truth is a structured cardiologist reading rather than a
+subjective narrative. The proposed study measures the
+SLM-versus-frontier gap across cardiac artifact types and tests whether
+the same architectural compensations — safety net, structured output,
+vision-as-sensor, and an inter-field consistency check specific to ECG
+reasoning — make an offline SLM pipeline safe enough for first-contact
+cardiac triage.</p>
+<p><strong>Keywords:</strong> ECG interpretation · Echocardiography ·
+Cardiac triage · Small open-weight language models · Frontier language
+models · Edge AI · Clinical decision support · Low-resource cardiology ·
+Multimodal reasoning · Reduced ejection fraction</p>
+<hr />
+<h2 id="introduction">1. Introduction</h2>
+<p>The 12-lead ECG is the most information-dense artifact a
+first-contact health worker in a low-resource setting can capture. It is
+cheap to acquire (a portable machine and a roll of thermal paper), it is
+diagnostic for the conditions that kill fastest (ST-elevation myocardial
+infarction, high-grade block, dangerous arrhythmia), and — critically
+for an AI argument — its correct interpretation is a <em>structured</em>
+task with a cardiologist-agreed ground truth, unlike the open-ended
+narrative reasoning that dominates general triage.</p>
+<p>The problem is not acquisition; it is interpretation latency. In the
+rural Tamil Nadu catchment that motivates this work, an ECG is often
+photographed on a phone at the PHC and forwarded — over an intermittent
+connection — to a consultant cardiologist for a reading that may arrive
+hours later. During those hours a STEMI patient is losing myocardium. An
+offline system that could give the CHW an immediate, safe triage class
+from the ECG photograph — “this needs the cath lab now” versus “this can
+wait for the routine reading” — would change outcomes even if it never
+replaced the cardiologist’s definitive read.</p>
+<p>The companion general paper <span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general]</span>
+makes the case that clinical AI should be evaluated as a pipeline, not
+as a bare model, and that a small open-weight model wrapped in
+deterministic scaffolding can carry production clinical traffic where a
+frontier API cannot be deployed at all (no connectivity, no per-call
+billing, no consent posture for cloud PHI transfer). That paper spans
+five emergency categories and two organ systems (general triage plus
+dermatology). Its single most instructive result, however, is cardiac:
+on a 12-lead ECG photograph, Gemma 4 e4b’s vision module
+<em>recognized</em> ST-segment elevation and wrote it into its reasoning
+field, yet its schema-bound differential picker, under minimal text,
+still returned “no acute condition identified.” That is not a perception
+failure — the model saw the finding — it is a structured-output failure,
+and it is exactly the kind of failure a narrow, deep, domain-specific
+evaluation can isolate and fix.</p>
+<p>This paper narrows to the heart. Section 2 reviews ECG and echo AI.
+Section 3 describes the clinical problem at the CHW/PHC level. Section 4
+presents the real ECG + echo case corpus. Section 5 applies the
+architectural framework to cardiac artifacts, including an ECG-specific
+inter-field consistency check. Section 6 pre-registers a cardiac-triage
+evaluation. Section 7 reports preliminary observations. Sections 8–10
+discuss, bound, and conclude.</p>
+<hr />
+<h2 id="related-work">2. Related Work</h2>
+<h3 id="deep-learning-on-ecgs">2.1 Deep learning on ECGs</h3>
+<p>ECG classification is one of the most mature medical-AI subfields.
+Public corpora — PTB-XL <span class="citation" data-cites="ptbxl2020">[@ptbxl2020]</span> (21,837 12-lead records with
+cardiologist labels), CODE-15% <span class="citation" data-cites="code152021">[@code152021]</span> (a large Brazilian
+pre-hospital screening set), and the older MIT-BIH arrhythmia database —
+have driven CNN and transformer models that match cardiologist accuracy
+on rhythm and STEMI detection from the <em>digital signal</em>. The gap
+this paper addresses is different: the CHW does not have the digital
+signal, only a <em>photograph</em> of the printed tracing, and the task
+is not fine-grained classification but safe triage.</p>
+<h3 id="llm-and-vlm-interpretation-of-ecg-images">2.2 LLM and VLM
+interpretation of ECG images</h3>
+<p>Vision-language models reading ECG <em>images</em> (rather than
+signals) is a newer and less-settled area. Frontier multimodal models
+can describe an ECG photograph in clinical terms; the reliability of
+that description, and its translation into a safe triage decision, is
+not well characterized for small open-weight models. This paper
+contributes exploratory evidence and a plan to measure it.</p>
+<h3 id="echocardiography-ai">2.3 Echocardiography AI</h3>
+<p>Automated echo interpretation has focused on video (view
+classification, EF estimation from cine loops) rather than on the
+<em>report</em>. In a low-resource setting the CHW is more likely to
+hold a printed echo report — a structured document with measurements
+(EF, chamber dimensions) and an impression — than a cine loop. Reading
+and triaging from the report is a document-understanding task well
+suited to an SLM with vision, and is part of the corpus and plan
+here.</p>
+<h3 id="architectural-framework">2.4 Architectural framework</h3>
+<p>We inherit the five-pattern architectural taxonomy of the companion
+paper <span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general]</span>
+— deterministic safety net, KB-grounded JSON-Schema output, two-pass
+vision-as-sensor, selective frontier escalation, and domain LoRA
+adaptation — and specialize it to cardiac artifacts in §5. We do not
+restate the taxonomy’s general motivation here; the reader is referred
+to that paper.</p>
+<hr />
+<h2 id="the-clinical-problem">3. The Clinical Problem</h2>
+<p>The target user is the same as in the general paper: a community
+health worker (ASHA cadre) or a PHC nurse who is the first medical
+contact for a rural population, with a consultant cardiologist reachable
+only intermittently. The cardiac-specific workflow is:</p>
+<ol type="1">
+<li>A patient presents with chest pain, breathlessness, palpitations, or
+collapse.</li>
+<li>The PHC captures a 12-lead ECG (and, where a machine is present, may
+have a prior echo report on file).</li>
+<li>Today: the ECG is photographed and forwarded for a cardiologist
+reading that arrives after a delay; in the interval the CHW has no
+decision support.</li>
+<li>Proposed: an offline SLM pipeline gives an immediate triage class
+from the ECG photograph — RED (activate transfer / thrombolysis pathway
+now), YELLOW (urgent but not immediate), GREEN (routine) — with the
+definitive cardiologist read still to follow.</li>
+</ol>
+<p>The triage decision, not the diagnosis, is the product. The
+cardiologist diagnoses; the system buys time by getting the sickest
+patients moving before the read arrives. This is the same “decision
+support, not diagnosis” posture as the general system, applied to the
+one artifact where the stakes of interpretation latency are highest.</p>
+<hr />
+<h2 id="case-corpus">4. Case Corpus</h2>
+<p>We assembled a corpus of real cardiac records from the second
+author’s cardiology practice in Tamil Nadu. All records are photographs
+of printed artifacts (ECG tracings and echo reports) as they would be
+captured at the point of care. Every echo report in the corpus was read
+and signed by the second author (Consultant Cardiologist, MD DNB DM
+Cardiology). The corpus is small and is used here to illustrate the
+cardiac artifact spread and to seed the formal benchmark of §6; it is
+not itself the evaluation.</p>
+<p><strong>Privacy.</strong> Every record contains protected health
+information (patient name, ID, age, date, referring organisation). The
+raw images are not part of any public artifact of this paper. Redacted,
+rotation-corrected versions — patient-identifying regions removed, EXIF
+stripped — will be published only with the second author’s explicit
+sign-off on each redaction and confirmation of informed consent, per the
+ethics provisions of the companion paper. Figures in the published
+version of this paper will use those redacted versions; the present
+draft describes the records textually.</p>
+<h3 id="corpus-composition">4.1 Corpus composition</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Case</th>
+<th>Artifact(s)</th>
+<th>Age/Sex</th>
+<th>Cardiologist finding</th>
+<th>Triage relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>12-lead ECG</td>
+<td>F</td>
+<td>Sinus rhythm; incomplete right bundle branch block; moderate T-wave
+abnormality; consider anterior ischemia; abnormal ECG</td>
+<td>Abnormal — YELLOW/RED</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>12-lead ECG (GE MAC2000)</td>
+<td>—</td>
+<td>Clean tracing; machine report “unconfirmed”; no marked
+abnormality</td>
+<td>Likely normal (pending gold-label)</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>12-lead ECG <strong>+</strong> echo report</td>
+<td>35 M</td>
+<td>ECG within normal limits (sinus rhythm, sinus arrhythmia, rsr’ in
+V1/V2); echo normal, EF 71%, no regional wall-motion abnormality, normal
+valves</td>
+<td>Normal — GREEN (paired ECG + echo)</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>12-lead ECG <strong>+</strong> echo report (2 pp)</td>
+<td>60 M</td>
+<td>ECG: sinus rhythm, complete right bundle branch block, concordant T
+waves in anterior leads, rule out IHD (QRS 128 ms); echo: global LV
+hypokinesia (inferior &gt; anterior), LA/LV mildly dilated, moderate MR,
+EF 39%, moderate LV systolic dysfunction, grade II diastolic
+dysfunction</td>
+<td>Abnormal — RED (paired ECG + echo; reduced-EF cardiomyopathy /
+?ischemic)</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>Echo report</td>
+<td>24 F</td>
+<td>OS-ASD (left-to-right shunt 2.1–2.3 cm), RA/RV/MPA mildly dilated,
+mild TR, normal LV systolic function EF 72%</td>
+<td>Structural finding; not an acute emergency</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-makes-this-corpus-useful">4.2 What makes this corpus
+useful</h3>
+<p>Three properties make even this small corpus valuable for the
+SLM-versus-frontier question:</p>
+<p>First, <strong>it spans the clinically meaningful cardiac
+axis</strong> — normal (C), ischemia (A), conduction block (D-ECG),
+reduced-EF cardiomyopathy (D-echo), and structural disease (E) — rather
+than clustering on one finding.</p>
+<p>Second, <strong>it contains two paired ECG + echo studies of the same
+patient</strong> (Case C normal, Case D abnormal). A paired
+normal-vs-reduced-EF contrast on the same modality pair is a clean
+RED/GREEN cardiac axis and is exactly the kind of grounded case that a
+benchmark’s MI/cardiac category needs.</p>
+<p>Third, <strong>the ground truth is a signed cardiologist
+reading</strong>, not a crowd label or a synthetic vignette. The gold
+labels carry clinical authority by construction, because the labelling
+cardiologist is a co-author.</p>
+<h3 id="artifact-quality-notes">4.3 Artifact-quality notes</h3>
+<p>The ECGs are photographed in landscape and require rotation for
+upright reading — a preprocessing step, not a model capability. The echo
+reports are clean document photographs. Image quality is representative
+of real point-of-care capture (phone camera, ambient lighting,
+occasional finger or clipboard in frame), which is the correct
+distribution to evaluate against and a harder one than clean scanned
+corpora.</p>
+<hr />
+<h2 id="architecture-for-cardiac-artifacts">5. Architecture for Cardiac
+Artifacts</h2>
+<p>We specialize the general framework <span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general,
+§8]</span> to ECG and echo artifacts. The five patterns carry over; two
+deserve cardiac-specific treatment.</p>
+<h3 id="two-pass-vision-as-sensor-for-ecgs">5.1 Two-pass
+vision-as-sensor for ECGs</h3>
+<p>Applied to an ECG photograph, Pass 1 is a narrow structured-output
+query — “Report which of the following ECG findings are present: ST
+elevation, ST depression, pathological Q waves, T-wave inversion, wide
+QRS (&gt;120 ms), tachycardia, bradycardia, irregular rhythm, …” — and
+Pass 2 is the triage-reasoning call with those findings appended and
+matched against the deterministic rule layer. The intuition from the
+companion paper holds: asking a small VLM “is there ST elevation in the
+anterior leads, yes or no” is a question it can answer; asking it “is
+this a STEMI requiring cath-lab activation given this photograph and
+this vague history” is the compound question it fails.</p>
+<h3 id="ecg-inter-field-consistency-check">5.2 ECG inter-field
+consistency check</h3>
+<p>The companion paper documented a structured-output failure specific
+to ECGs (§7.3, Case B there): Gemma 4 e4b wrote “ST elevation in
+multiple leads, highly concerning for acute myocardial injury” into its
+reasoning field, then selected “no acute condition identified” as its
+differential. The cardiac-specific compensation is an inter-field
+consistency check: if the reasoning field contains an ischemia/injury
+phrase (ST elevation, ST depression, myocardial injury, ischemia), the
+differential picker is not permitted to return a benign class. This is a
+deterministic post-processor rule, cheap to implement, and it targets a
+failure mode we have already observed rather than a hypothetical one. It
+is, in effect, a deterministic safety net operating on the model’s own
+narrative rather than on the input text.</p>
+<h3 id="echo-report-understanding">5.3 Echo-report understanding</h3>
+<p>Echo reports are structured documents; the relevant SLM task is
+document understanding (extract EF, chamber dimensions, impression) plus
+a triage mapping (EF &lt; 40% and symptomatic → urgent cardiology
+follow-up; ASD with shunt → structural referral, not emergency).
+KB-grounded structured output applies directly: the model extracts
+fields, the deterministic layer maps them to a triage tier from a
+cardiologist-curated rule set.</p>
+<hr />
+<h2 id="research-plan">6. Research Plan</h2>
+<p>We pre-register a cardiac-triage evaluation, <em>SentinelCardio</em>,
+following the design discipline of the general paper’s SentinelEval-250
+<span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general,
+§6]</span>.</p>
+<h3 id="artifact-classes-and-target-benchmark">6.1 Artifact classes and
+target benchmark</h3>
+<p>The benchmark will contain 12-lead ECG photographs and echo-report
+photographs stratified across cardiac triage-relevant categories:
+normal, ischemia/STEMI, conduction block, arrhythmia, reduced-EF
+cardiomyopathy, and structural disease, plus a GREEN distractor set
+(normal ECGs and normal echos). Target size and per-category counts will
+be fixed at pre-registration; the real corpus of §4 seeds the curated
+component, augmented by public-corpus ECGs (PTB-XL <span class="citation" data-cites="ptbxl2020">[@ptbxl2020]</span>, CODE-15%
+<span class="citation" data-cites="code152021">[@code152021]</span>) for
+the signal-derived categories where large labelled sets exist.</p>
+<h3 id="models-under-test">6.2 Models under test</h3>
+<p>The same twelve-model panel as the general paper — four frontier
+(Gemini 2.5 Pro/Flash, Claude Opus 4.7, GPT-5) and eight small
+open-weight (Gemma 4 e4b/27B, Llama 4 8B, Mistral Small 3, Qwen 3 14B,
+MedGemma 4B/27B, Aloe-Beta-8B) — restricted to vision-capable models for
+the image-bearing ECG and echo cases.</p>
+<h3 id="primary-endpoint">6.3 Primary endpoint</h3>
+<p>RED-tier sensitivity for time-critical cardiac findings (STEMI,
+high-grade block with instability, symptomatic reduced-EF
+decompensation), analyzed as RED-vs-not-RED. The cardinal safety metric,
+as in the general paper, is the false-negative RED→GREEN rate: a missed
+STEMI triaged as routine is the failure the system exists to
+prevent.</p>
+<h3 id="secondary-endpoints">6.4 Secondary endpoints</h3>
+<p>ECG-finding extraction accuracy (Pass-1 vision-as-sensor F1 against
+cardiologist-marked findings), echo-field extraction accuracy (EF,
+chamber dimensions), three-tier triage accuracy, calibration, latency,
+and the rate at which the inter-field consistency check (§5.2) fires and
+corrects an otherwise-benign differential.</p>
+<h3 id="configurations-statistics-ethics-timeline">6.5 Configurations,
+statistics, ethics, timeline</h3>
+<p>Configurations (unaugmented / safety-net / full pipeline),
+multiple-comparison correction, bootstrap confidence intervals,
+inter-rater reliability against a second cardiologist, and the
+ethics/consent provisions follow the general paper’s methodology <span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general,
+§6.4–6.11]</span> specialized to cardiac artifacts. Patient-derived
+cardiac records enter the benchmark only after institutional ethics
+review and per-record consent confirmation.</p>
+<hr />
+<h2 id="preliminary-observations">7. Preliminary Observations</h2>
+<p>No formal evaluation has been run for this cardiac-focused study. Two
+exploratory observations, both inherited or extended from the companion
+paper, motivate it.</p>
+<p><strong>(1) The ECG structured-output failure is real and
+cardiac-specific.</strong> On a real 12-lead ECG photograph, Gemma 4 e4b
+under minimal text returned RED triage but a “no acute condition
+identified” differential while its reasoning field explicitly described
+ST elevation “highly concerning for acute myocardial injury” <span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general,
+§7.3]</span>. This is the motivating failure for the inter-field
+consistency check of §5.2. It is exactly the kind of defect that a
+narrow cardiac evaluation can quantify (how often does the reasoning
+field contradict the differential?) and fix (does the consistency check
+recover it?).</p>
+<p><strong>(2) The corpus spans the axis the benchmark needs.</strong>
+The five cardiac cases of §4 already provide a normal ECG+echo pair (C),
+a reduced-EF ECG+echo pair (D), an ischemia ECG (A), a clean ECG (B),
+and a structural echo (E). Even before augmentation, this is enough to
+exercise the RED/GREEN axis (Case D vs Case C) on paired same-patient
+artifacts — the cleanest possible contrast, because model performance
+can be compared on two patients who differ in cardiac status but were
+captured on the same machines under the same conditions.</p>
+<p>Both observations are exploratory; the formal SentinelCardio
+evaluation of §6 is the work that would substantiate them.</p>
+<hr />
+<h2 id="discussion">8. Discussion</h2>
+<p>Cardiac triage is an unusually favourable domain for testing the
+small-model-plus-scaffolding thesis, for one reason: the ground truth is
+objective and structured. A snake-bite triage depends on context a model
+may or may not weight correctly; a STEMI is on the tracing or it is not,
+and a cardiologist will agree with a cardiologist. That objectivity
+makes the SLM-versus-frontier gap measurable with less label noise than
+general triage, and it makes the inter-field consistency check (§5.2) a
+precise, testable intervention rather than a soft heuristic.</p>
+<p>The echo-report modality also extends the general paper’s reach. The
+general system reads ECGs, wounds, and scenes; it does not read
+structured clinical documents. Echo-report understanding is a
+document-plus-triage task that the same KB-grounded structured-output
+pattern handles, and it is common in exactly the reduced-EF
+cardiomyopathy population (Case D) where an offline triage aid has clear
+value.</p>
+<p>The economic and deployment arguments carry over unchanged from the
+companion paper: an offline ECG-triage aid on a clinic laptop is
+deployable where a frontier-API cardiology service is not, and its value
+is highest precisely in the interpretation-latency window that a
+low-resource cardiac workflow cannot otherwise close.</p>
+<hr />
+<h2 id="limitations">9. Limitations</h2>
+<ol type="1">
+<li><strong>The corpus is small and single-practice.</strong> Five cases
+from one Tamil Nadu cardiology practice illustrate the artifact spread;
+they do not power any inferential claim. The formal benchmark of §6 is
+the intended evidence.</li>
+<li><strong>No formal evaluation has been run</strong> for this
+cardiac-focused study; the preliminary observations are inherited from
+the companion paper or descriptive of the corpus.</li>
+<li><strong>Photograph-of-tracing is a lossy modality.</strong> The
+corpus and plan deliberately use point-of-care photographs, not the
+digital ECG signal; results will not transfer to signal-based ECG models
+and vice versa.</li>
+<li><strong>Echo triage from the report, not the study.</strong> The
+system reads the cardiologist’s printed report, which already contains
+an EF and impression; it is a document-understanding-plus-triage task,
+not primary echo interpretation.</li>
+<li><strong>Redaction and consent are prerequisites.</strong> No
+patient-derived cardiac record appears in any public artifact of this
+paper until redacted and signed off by the second author, per the
+companion paper’s ethics provisions.</li>
+</ol>
+<hr />
+<h2 id="conclusion">10. Conclusion</h2>
+<p>The heart is where interpretation latency costs the most and where
+the diagnostic artifact is most structured — which makes it the sharpest
+possible test of whether a small offline model, wrapped in the right
+deterministic scaffolding, can safely triage. We have described a real,
+cardiologist-labelled ECG + echo corpus that spans the clinically
+meaningful cardiac axis, specialized the companion paper’s architectural
+framework to cardiac artifacts (including an ECG inter-field consistency
+check that targets a failure we have already observed), and
+pre-registered a focused evaluation. The claim is not that a small model
+can read an ECG as well as a cardiologist; it is that a small-model
+pipeline may be able to get the sickest cardiac patients moving before
+the cardiologist’s read arrives — and that this is measurable, in this
+domain, with unusually clean ground truth.</p>
+<hr />
+<h2 id="ethics-statement">Ethics Statement</h2>
+<p>The cardiac records described in this paper are real clinical
+artifacts from the second author’s cardiology practice and contain
+protected health information. No raw record is included in any public
+artifact. Redacted, rotation-corrected versions will be published only
+with the second author’s per-record sign-off and confirmation of
+informed consent for research and educational use, and after
+institutional ethics-committee review, consistent with the ethics
+provisions of the companion paper. The second author is the cardiologist
+of record for the echo reports and the clinical authority for all
+gold-label assignments.</p>
+<h2 id="data-and-code-availability">Data and Code Availability</h2>
+<p>This paper is a companion to <span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general]</span>
+(Zenodo DOI <a href="https://doi.org/10.5281/zenodo.21047535">10.5281/zenodo.21047535</a>).
+The Sentinel Health architecture is at
+<code>github.com/SankarSubbayya/sentinel-health</code> under Apache-2.0.
+The SentinelCardio benchmark of §6 is under construction; redacted
+corpus figures and the benchmark will be released, subject to the
+consent and de-identification constraints above, upon completion of the
+planned study. Public ECG corpora referenced (PTB-XL, CODE-15%) are
+available from their respective providers under their published
+licenses.</p>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>Dr. P. Hari Subacini (MBBS, MD, DM Cardiology), second author and
+Consultant Cardiologist, provided the cardiac case corpus, read and
+signed the echocardiography reports, and is the clinical authority for
+all triage gold-labels. Asif Qamar (SupportVectors.ai), third author,
+contributed to the architectural framework this paper specializes.</p>
+<hr />
+<h2 id="references">References</h2>
+<p><span class="citation" data-cites="sankaranarayanan2026general">[@sankaranarayanan2026general]</span>
+Sankaranarayanan, S., Subacini, P. H., Qamar, A. <em>Small Open-Weight
+Language Models versus Frontier Models for High-Stakes Clinical Triage
+in Low-Resource Settings: Two Case Studies and a Multi-Model Research
+Plan.</em> Preprint, Zenodo, 2026. DOI: 10.5281/zenodo.21047535.</p>
+<p><span class="citation" data-cites="ptbxl2020">[@ptbxl2020]</span>
+Wagner, P., Strodthoff, N., Bousseljot, R.-D., et al. <em>PTB-XL: A
+Large Publicly Available Electrocardiography Dataset.</em> Scientific
+Data 7, 154 (2020).</p>
+<p><span class="citation" data-cites="code152021">[@code152021]</span>
+Ribeiro, A. H., et al. <em>Automatic Diagnosis of the 12-Lead ECG Using
+a Deep Neural Network.</em> Nature Communications 11, 1760 (2020).
+CODE-15% release: 2021.</p>
+</body>
+</html>
