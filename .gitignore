@@ -40,3 +40,6 @@ tests/bakeoff/
 
 # Raw ECG / echo photographs — PHI (patient names, IDs, logbook). Never commit.
 data/ecg/
+
+# Annotated redaction preview — patient name VISIBLE (outline boxes, not blacked). Never commit.
+data/ecg_redaction_preview.jpeg
