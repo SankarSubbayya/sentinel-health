@@ -8,7 +8,7 @@
 ² Consultant Cardiologist, Tamil Nadu, India
 ³ SupportVectors.ai · asif@supportvectors.ai
 
-*Preprint · v0.1 · 2026-08-07 · Corresponding author: ¹*
+*Preprint · v0.2 · 2026-08-07 · Corresponding author: ¹*
 
 *Framing note. This is a focused companion to our general clinical-triage study, "Small Open-Weight Language Models versus Frontier Models for High-Stakes Clinical Triage in Low-Resource Settings: Two Case Studies and a Multi-Model Research Plan" (Sankaranarayanan, Subacini, Qamar, 2026; Zenodo DOI [10.5281/zenodo.21047535](https://doi.org/10.5281/zenodo.21047535)). The general paper argues that clinical AI should be evaluated at the pipeline level, not the model level, and proposes a taxonomy of architectural compensations (deterministic safety net, KB-grounded structured output, two-pass vision-as-sensor, selective frontier escalation, domain LoRA adaptation). This paper applies that framework narrowly and deeply to one organ system — the heart — where the diagnostic artifacts (12-lead ECG, echocardiography report) are concrete, structured, and clinician-labelable. As with the general paper, this is a case corpus plus a pre-registered research plan, not a completed empirical study. All numbers reported are exploratory; the formal evaluation is the proposed work.*
 
@@ -85,7 +85,7 @@ We assembled a corpus of real cardiac records from the second author's cardiolog
 
 | Case | Artifact(s) | Age/Sex | Cardiologist finding | Triage relevance |
 |---|---|---|---|---|
-| **A** | 12-lead ECG | F | Sinus rhythm; incomplete right bundle branch block; moderate T-wave abnormality; consider anterior ischemia; abnormal ECG | Abnormal — YELLOW/RED |
+| **A** | 12-lead ECG | F (pregnant) | **Machine read:** sinus rhythm; incomplete right bundle branch block; moderate T-wave abnormality; "consider anterior ischemia; abnormal ECG." **Treating cardiologist's context:** asymptomatic pregnant patient whose echocardiogram showed an ostium secundum ASD — the iRBBB and right-precordial T-wave changes reflect ASD right-heart volume physiology, and the machine's ischemia flag is a contextual false positive | **Not acute** — structural follow-up. A context-flips-triage case (see §4.2) |
 | **B** | 12-lead ECG (GE MAC2000) | — | Clean tracing; machine report "unconfirmed"; no marked abnormality | Likely normal (pending gold-label) |
 | **C** | 12-lead ECG **+** echo report | 35 M | ECG within normal limits (sinus rhythm, sinus arrhythmia, rsr' in V1/V2); echo normal, EF 71%, no regional wall-motion abnormality, normal valves | Normal — GREEN (paired ECG + echo) |
 | **D** | 12-lead ECG **+** echo report (2 pp) | 60 M | ECG: sinus rhythm, complete right bundle branch block, concordant T waves in anterior leads, rule out IHD (QRS 128 ms); echo: global LV hypokinesia (inferior > anterior), LA/LV mildly dilated, moderate MR, EF 39%, moderate LV systolic dysfunction, grade II diastolic dysfunction | Abnormal — RED (paired ECG + echo; reduced-EF cardiomyopathy / ?ischemic) |
@@ -100,6 +100,8 @@ First, **it spans the clinically meaningful cardiac axis** — normal (C), ische
 Second, **it contains two paired ECG + echo studies of the same patient** (Case C normal, Case D abnormal). A paired normal-vs-reduced-EF contrast on the same modality pair is a clean RED/GREEN cardiac axis and is exactly the kind of grounded case that a benchmark's MI/cardiac category needs.
 
 Third, **the ground truth is a signed cardiologist reading**, not a crowd label or a synthetic vignette. The gold labels carry clinical authority by construction, because the labelling cardiologist is a co-author.
+
+Fourth — and this emerged only when the treating cardiologist supplied the clinical context — **the corpus contains a context-flips-triage case.** Case A's printed machine interpretation says "consider anterior ischemia; abnormal ECG," which would push a naive triage system toward RED. The cardiologist's context (asymptomatic, pregnant, ostium secundum ASD on echo) reverses the disposition entirely: the ECG changes are expected ASD physiology, and the correct triage is structural follow-up, not emergency transport. This case matters for two reasons. It exercises the *false-alarm* direction of triage safety — over-triaging a pregnant patient has real costs — complementing the missed-emergency direction that Case D exercises. And it demonstrates that the interpretation text printed on an ECG is not a reliable shortcut: a model that answers by reading the machine's printed interpretation off the photograph, rather than reasoning about the tracing and the clinical context, would be *wrong by the cardiologist's standard* on this case. Benchmark evaluations on photographed tracings must therefore include interpretation-masked variants (we adopt this in §6), or they will reward optical character recognition and penalize clinical reasoning.
 
 ### 4.3 Artifact-quality notes
 
@@ -132,6 +134,8 @@ We pre-register a cardiac-triage evaluation, *SentinelCardio*, following the des
 ### 6.1 Artifact classes and target benchmark
 
 The benchmark will contain 12-lead ECG photographs and echo-report photographs stratified across cardiac triage-relevant categories: normal, ischemia/STEMI, conduction block, arrhythmia, reduced-EF cardiomyopathy, and structural disease, plus a GREEN distractor set (normal ECGs and normal echos). Target size and per-category counts will be fixed at pre-registration; the real corpus of §4 seeds the curated component, augmented by public-corpus ECGs (PTB-XL [@ptbxl2020], CODE-15% [@code152021]) for the signal-derived categories where large labelled sets exist.
+
+Every ECG case runs in two image conditions. **Condition R (realistic):** the photograph as captured, with PHI redacted but the machine's printed interpretation and measurements left visible — this mirrors what a CHW actually photographs and permits the model to use the printed read. **Condition M (interpretation-masked):** the same photograph with the printed interpretation text and machine measurements additionally masked, so the model must reason from the waveforms. The R−M performance gap measures how much of a model's apparent ECG competence is optical character recognition of the machine's answer rather than tracing interpretation; Case A of §4 shows the printed read can also be clinically wrong, so Condition R accuracy is scored against the cardiologist's contextual gold label, not against the printed text.
 
 ### 6.2 Models under test
 
